@@ -149,7 +149,7 @@ Estas funcionalidades podrían considerarse como futuras ampliaciones, pero no f
 
 ## 6. Stack Tecnológico
 
-La  propuesta: MERN: MongoDB - Express - React - NodeJS
+La propuesta tecnológica estará conformada por React, TypeScript, Node.js, Express y MySQL, complementada con herramientas para el control de versiones y el despliegue de la aplicación.
 
 **Frontend**
 * React
@@ -158,27 +158,27 @@ La  propuesta: MERN: MongoDB - Express - React - NodeJS
 React permitirá desarrollar la interfaz web de manera modular, mientras que TypeScrip permitirá trabajar con tipado estático. SCSS será utilizado para organizar y mantener los estilo de la aplicación. Y se utilizarán elementos aleatorios de Material-UI. 
 
 **Backend** 
-Este punto lo debatimos bastante, nos gustaría revisarlo con la tutora. 
-* Node.js + Express
-* Java + Spring Boot
+* Node.js
+* Express
+Node.js será utilizado como entorno de ejecución para el desarrollo del backend, mientras que Express permitirá implementar la API y gestionar las solicitudes realizadas por el frontend. El backend será responsable de la lógica de negocio, la validación de datos, la gestión de las operaciones sobre la base de datos y la comunicación con el frontend mediante una API REST.
 
 **Base de datos**
-* MongoDB
-* MongoDB Atlas
-Se utilizará MongoDB como base de datos NoSQL y MongoDB Atlas como servicio de alojamiento en la nube. La elección de una base documental resulta adecuada para trabajar con información que puede presentar estructuras variables y naturalmente jerárquicas, como los datos asociados a cada mascota, que pueden incluir distintas cantidades de consultas, vacunas y tratamientos. El material de la asignatura señala que las bases NoSQL pueden resultar apropiadas cuando los datos no tienen una estructura completamente fija o cuando el modelo se adapta naturalmente a documentos
+* MySQL
+* MySQL Workbench
+
+Se utilizará MySQL como sistema de gestión de base de datos relacional. La elección de una base de datos relacional resulta adecuada para el dominio del proyecto, debido a la existencia de múltiples entidades y relaciones entre ellas, como usuarios, mascotas, veterinarios, turnos y productos.
+
+El modelo relacional permitirá establecer relaciones entre las distintas entidades mediante claves primarias y foráneas, favoreciendo la integridad, consistencia y organización de los datos. MySQL Workbench será utilizado como herramienta para el diseño, administración y gestión de la base de datos durante el desarrollo.
 
 **Control de versiones**
 * Git
 * GitHub
-El proyecto será desarrollado por los tres integrantes mediante un único repositorio de GitHub.
+El proyecto será desarrollado por las tres integrantes mediante un único repositorio de GitHub.
 
 **Despliegue**
 * Vercel para el despliegue del frontend.
-* El servicio de despliegue del backend será definido una vez seleccionada la tecnología correspondiente y debemos consultar con la tutora. 
-* MongoDB Atlas para el alojamiento de la base de datos.
-La elección de las plataformas de despliegue también será evaluada teniendo en cuenta las restricciones técnicas y económicas del proyecto.
-
-La aplicación seguirá una arquitectura cliente-servidor. El frontend desarrollado en React será responsable de la interfaz de usuario, mientras que el backend gestionará la lógica de negocio, las operaciones sobre la base de datos y la comunicación mediante una API.
+* El backend será desplegado en un servicio compatible con Node.js, a definir durante la etapa de implementación.
+* MySQL será alojado en un servicio de base de datos compatible con el proyecto, cuya elección será definida teniendo en cuenta las restricciones técnicas y económicas del mismo.
 
 ## 7. Repositorio
 
