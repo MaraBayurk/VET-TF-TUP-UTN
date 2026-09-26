@@ -75,9 +75,9 @@ El objetivo principal de este MVP es validar que la solución centraliza eficien
 
 ### Proyección y Escalabilidad (Roadmap a Multi-tenant) 
 
-Aunque la implementación de una arquitectura multi-tenant (soporte nativo para múltiples clínicas independientes en una misma base de datos) queda excluida del MVP fue contemplada su evolución hacia un modelo B2B (Business-to-Business) donde múltiples veterinarias utilicen la plataforma simultáneamente, se planifican las siguientes adaptaciones arquitectónicas:
-* Evolución del Modelo de Datos: Se debe agregar un identificador de inquilino (veterinaria_id) a nivel de esquema en todas las colecciones principales de MongoDB (Usuarios, Mascotas, Turnos, Atenciones).
-* Aislamiento Lógico en el Backend: Se debe implementar un middleware en Node.js/Express que intercepte todas las peticiones a la API, inyectando automáticamente el veterinaria_id del usuario autenticado en las consultas a la base de datos. Esto garantizará que cada clínica sólo pueda consultar y modificar sus propios documentos.
+Aunque la implementación de una arquitectura multi-tenant (soporte nativo para múltiples clínicas independientes en una misma base de datos) queda excluida del MVP, fue contemplada su evolución hacia un modelo B2B (Business-to-Business) donde múltiples veterinarias utilicen la plataforma simultáneamente. Se planifican las siguientes adaptaciones arquitectónicas:
+* Evolución del Modelo de Datos: Se debe agregar un identificador de inquilino (veterinaria_id) como clave foránea en todas las tablas principales de la base de datos relacional (Usuario, Mascota, Turno, Atencion_Clinica).
+* Aislamiento Lógico en el Backend: Se debe implementar un middleware en Node.js/Express que intercepte todas las peticiones a la API, inyectando automáticamente el veterinaria_id del usuario autenticado en las consultas SQL a la base de datos. Esto garantizará que cada clínica solo pueda consultar y modificar sus propios registros.
 * Roles Globales: Se debe incorporar el rol de "Super Administrador" del sistema, encargado de gestionar el alta, suspensión y configuración de las distintas veterinarias suscriptas a la plataforma.
 
 ## 5. Funcionalidades incluidas
