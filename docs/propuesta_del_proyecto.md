@@ -126,7 +126,8 @@ La propuesta tecnológica estará conformada por React, TypeScript, Node.js, Exp
 * React
 * TypeScript
 * SCSS
-React permitirá desarrollar la interfaz web de manera modular, mientras que TypeScript permitirá trabajar con tipado estático. SCSS será utilizado para organizar y mantener los estilo de la aplicación. Y se utilizarán elementos aleatorios de Material-UI. 
+* Material-UI
+React permitirá desarrollar la interfaz web de manera modular, mientras que TypeScript permitirá trabajar con tipado estático. SCSS será utilizado para organizar y mantener los estilo de la aplicación. Adicionalmente, se integrará la librería Material-UI (MUI) para la implementación ágil de un componente de interfaz estandarizado (selector de fecha). 
 
 **Backend** 
 * Node.js
