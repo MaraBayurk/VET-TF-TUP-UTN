@@ -3,7 +3,6 @@
 
 ![Diagrama UML](./UML.png)
 
-
 # 2. Requerimientos y Reglas de Negocio
 
 ## 2.1 Requerimientos Funcionales
@@ -16,7 +15,8 @@ Son las acciones específicas que el sistema debe permitir realizar a los usuari
 
 - **Gestión de Catálogos:** El sistema debe permitir al Administrador administrar (CRUD completo) las especialidades médicas para asignarlas a los veterinarios.
 
-- **Gestión de Pacientes:** El sistema debe permitir al Veterinario dar de alta nuevas mascotas, vinculándolas obligatoriamente al perfil de un Cliente existente, así como aplicar bajas lógicas.
+- **Gestión de Pacientes:** El sistema debe permitir la autogestión total, habilitando al Cliente (desde su portal web), al Administrador y al Veterinario para dar de alta nuevas mascotas, vinculándolas obligatoriamente al perfil de un Cliente existente, así como aplicar bajas lógicas para mantener la trazabilidad. 
+
 
 - **Gestión de Turnos:** El sistema debe permitir solicitar turnos (Cliente/Administrador) y gestionar su estado a lo largo del ciclo de vida: PENDIENTE, APROBADO, CANCELADO o COMPLETADO (Administrador).
 
@@ -28,11 +28,19 @@ Definen la arquitectura, tecnologías y atributos de calidad del sistema.
 
 - **Pila Tecnológica:** El sistema debe estar desarrollado utilizando Node.js/Express para la API backend y React (con TypeScript) para el frontend.
 
+- **Persistencia de Datos y Mapeo Estructural:** La información debe almacenarse en una base de datos relacional MySQL, garantizando la integridad referencial (Foreign Keys) y la normalización. Respecto al mapeo estructural del diagrama UML, las enumeraciones (<<enumeration>> Rol, EstadoTurno, TipoAtencion) fueron implementadas físicamente como Tablas Catálogo (Tablas Paramétricas) con claves primarias de tipo TINYINT. Se descartó el uso del tipo nativo ENUM de MySQL para garantizar la escalabilidad: si en el futuro se requieren nuevos estados o roles, se agregarán como registros (DML) sin necesidad de alterar la estructura física de las tablas (DDL). 
+
 - **Persistencia de Datos:** La información debe almacenarse en una base de datos relacional MySQL, garantizando la integridad referencial (Foreign Keys) y normalización.
 
 - **Paradigma y Diseño:** El backend debe construirse respetando la Programación Orientada a Objetos (POO), aplicando herencia para los perfiles de usuario y respetando los principios SOLID.
 
 - **Seguridad y Auditoría:** Las contraseñas deben estar encriptadas (ej. bcrypt) y la comunicación protegida. El sistema debe dejar registro del usuario creador y fecha de modificación en las transacciones clave (Turnos).
+
+- **Normalización (Tercera Forma Normal - 3FN):** El modelo relacional físico fue diseñado respetando estrictamente las reglas de normalización hasta la 3FN para garantizar la integridad referencial y eliminar redundancias estructurales:
+    - Primera Forma Normal (1FN - Atomicidad): Todos los campos contienen valores atómicos. Se eliminaron los grupos repetitivos; por ejemplo, en lugar de almacenar una lista de animales en el perfil del usuario, se creó la tabla independiente Mascota vinculada mediante la clave foránea id_cliente.
+    - Segunda Forma Normal (2FN - Dependencia Completa): Todas las entidades poseen una clave primaria simple (identificadores autoincrementales, como id_usuario o id_turno). Por lo tanto, todo atributo no clave depende funcionalmente por completo de la clave primaria, eliminando el riesgo de dependencias parciales.
+    - Tercera Forma Normal (3FN - Sin Dependencias Transitivas): Ningún atributo no clave depende de otro atributo no clave. Esto se evidencia en la extracción de catálogos y descripciones: en la tabla Turno no se almacena la cadena de texto del estado (ej. "Pendiente"), sino su clave foránea id_estado_turno. Del mismo modo, la tabla Veterinario no guarda el nombre de su área médica, sino que depende exclusivamente de Especialidad_id_especialidad, evitando anomalías de inserción y actualización.
+
 
 ## 2.3 Reglas de Negocio
 
@@ -44,11 +52,16 @@ Son las restricciones lógicas y operativas propias del dominio de la clínica v
 
 - **RN-03: Inmutabilidad del Registro Clínico:** Una vez que un Veterinario guarda un registro de AtencionClinica, este no puede ser eliminado del sistema. Solo se permite su creación, lectura y actualización (corrección de errores ortográficos o ampliación de observaciones).
 
-- **RN-04: Exclusividad de Especialidades:** El atributo id_especialidad solo puede contener datos válidos si el perfil del usuario hereda de la clase Veterinario. Para Administradores y Clientes, esta relación es nula o inexistente.
+- **RN-04: Exclusividad de Especialidades:** El vínculo con una especialidad médica se persiste de forma exclusiva en la tabla Veterinario aplicando la estrategia Class Table Inheritance. Para Administradores y Clientes, esta relación es estructuralmente inexistente, evitando la proliferación de valores nulos en la base de datos. 
 
 - **RN-05: Control Centralizado de Agenda:** Los Clientes tienen permisos limitados sobre los turnos: solo pueden solicitarlos (ingresan como PENDIENTE) o cancelarlos. La potestad de reprogramar o dar por completado un turno recae exclusivamente en el Administrador de la clínica.
 
 - **RN-06: Auditoría de Reservas:** Todo Turno generado debe registrar inmutablemente el ID del usuario que originó la transacción (id_usuario_creador), permitiendo a la clínica auditar si el turno fue auto-gestionado por el dueño o cargado manualmente por el recepcionista.
+
+- **RN-07: Resolución de Identidad (Usuarios a Perfiles Específicos):** Dado que el modelo implementa la separación de tablas mediante Class Table Inheritance, las operaciones exclusivas de un rol (como la creación de mascotas por parte de un Cliente o el registro de una atención por un Veterinario) requieren una resolución de identidad. La sesión del sistema opera sobre la base del id_usuario. Antes de ejecutar inserciones o consultas en entidades dependientes (como Mascota o Turno), el backend debe obligatoriamente cruzar el id_usuario con la tabla de la extensión del perfil (Cliente o Veterinario) para obtener y operar con la clave primaria específica (id_cliente o id_veterinario). 
+
+- **RN-08: Gestión de Dominios Cerrados (Estados y Tipos):** Los valores correspondientes a los roles de sistema, los estados de los turnos y los tipos de atención clínica operan como dominios cerrados mediante tablas catálogo. El código de la aplicación (backend) debe consumir estos catálogos dinámicamente mediante sus respectivos identificadores (id_rol, id_estado_turno, id_tipo_atencion) en lugar de validar cadenas de texto plano (strings) en el código, asegurando la consistencia entre la base de datos y la lógica de negocio. 
+
 
 ---
 
@@ -66,20 +79,23 @@ Son las restricciones lógicas y operativas propias del dominio de la clínica v
 
 ## 3.3 Módulo de Gestión de Mascotas (Pacientes)
 
-- **Alta y Vinculación:** Funcionalidad exclusiva para el Veterinario que permite registrar una nueva mascota y vincularla obligatoriamente al ID de un Cliente existente.
-- **Búsqueda y Actualización:** Listados filtrables para buscar mascotas por dueño o nombre. Capacidad de actualizar datos básicos (raza, edad) y aplicar bajas lógicas en caso de fallecimiento, conservando la trazabilidad.
-- **Mis Mascotas (Cliente):** Interfaz del portal del cliente donde el dueño puede visualizar la tarjeta de información de sus mascotas activas.
+- **Alta y Vinculación (Autogestión):** Funcionalidad transversal que permite registrar una nueva mascota. Cuando la acción es ejecutada por el Cliente en el portal, el sistema vincula automáticamente el animal a su sesión activa; cuando es ejecutada por un Administrador o Veterinario en la clínica, el sistema exige ingresar manualmente el ID de un Cliente existente. 
+- **Búsqueda y Actualización (Admin/Vet):** Listados filtrables para que tanto el Administrador como el Veterinario puedan buscar mascotas por dueño, número de documento o nombre. Incluye la capacidad de actualizar datos básicos (raza, edad) y aplicar bajas lógicas en caso de fallecimiento, conservando la trazabilidad. 
+- **Mis Mascotas (Cliente):** Interfaz central del portal del cliente donde el dueño puede visualizar las tarjetas de información de sus mascotas activas y gestionar sus perfiles (actualizar datos básicos como raza, observaciones o sexo), consolidando la autonomía del usuario sobre la información de sus animales. 
+
 
 ## 3.4 Módulo de Agenda y Turnos
 
 - **Solicitud de Turnos:** Interfaz web para que el Cliente o el Administrador soliciten un turno para una mascota específica, vinculando fecha, hora, veterinario y motivo.
 - **Gestión y Trazabilidad (Admin):** Panel de control para que el administrador visualice, apruebe o modifique los turnos. Incluye el registro interno de auditoría (id_usuario_creador y fecha_actualizacion).
 - **Cancelación de Turnos:** Funcionalidad para que tanto clientes como administradores puedan cambiar el estado de un turno a "CANCELADO" sin eliminar el registro físico.
+- **Consulta de Agenda (Veterinario):** Vista de solo lectura para que el profesional médico pueda visualizar los turnos que tiene asignados en el día, incluyendo el motivo de la consulta, el horario y el paciente a atender. 
 
 ## 3.5 Módulo de Atención Clínica y Libreta Sanitaria
 
 - **Registro Médico (Veterinario):** Formularios para que el profesional registre el resultado de una visita, categorizándola mediante el tipo de atención (Consulta, Vacuna o Control), ingresando diagnóstico, tratamiento y fecha del proximo_control.
-- **Historial Clínico (Lectura):** Vista de línea de tiempo o tabla donde tanto el Veterinario (modo clínico) como el Cliente (modo libreta sanitaria digital) pueden leer el historial inmutable de las atenciones recibidas por la mascota.
+- **Libreta Sanitaria Digital (Propuesta de Valor):**  Vista de solo lectura diseñada como el núcleo del portal web del Cliente, donde el dueño puede consultar la línea de tiempo inmutable con el historial de vacunas y atenciones de sus propias mascotas. El Veterinario también cuenta con un acceso equivalente (modo clínico) para revisar el historial completo de cualquier paciente antes de atenderlo.
+
 
 ## 3.6 Módulo de Catálogos (Configuración)
 
@@ -89,24 +105,34 @@ Son las restricciones lógicas y operativas propias del dominio de la clínica v
 
 # 4. Matriz de Permisos del MVP
 
-| Módulo | Cliente | Veterinario | Administrador |
-|---|---|---|---|
-| Autenticación | ✅ | ✅ | ✅ |
-| Gestión de usuarios | ❌ | ❌ | ✅ |
-| Autogestión de perfil | ✅ | ✅ | ✅ |
-| Creación de mascotas | — | ✅ | ❌ |
-| Actualización y lectura de mascotas | ✅ | ✅ | — |
-| Agenda y turnos | ✅ | ✅ | — |
-| Atención clínica | — | ✅ | — |
-| Libreta sanitaria | — | ✅ | — |
-| Especialidades | ❌ | 👁️ | ✅ |
+| **Entidad**         | **Acción**               | **Administrador**    | **Veterinario**      | **Cliente**          |
+| ------------------- | ------------------------ | -------------------- | -------------------- | -------------------- |
+| Usuarios            | Crear                    | ✔ (Cualquier rol)    | X                    | X                    |
+| (Perfiles)          | Consultar                | ✔ (Todos)            | ✔ (Solo propio)      | ✔ (Solo propio)      |
+|                     | Modificar                | ✔ (Todos)            | ✔ (Solo propio)      | ✔ (Solo propio)      |
+|                     | Dar de baja              | ✔ (Todos)            | X                    | X                    |
+| Mascotas            | Crear                    | ✔                    | ✔                    | ✔ (Para sí mismo)    |
+| (Pacientes)         | Consultar                | ✔ (Todas)            | ✔ (Todas)            | ✔ (Solo propias)     |
+|                     | Modificar                | ✔ (Todas)            | ✔ (Todas)            | ✔ (Solo propias)     |
+|                     | Dar de baja              | ✔ (Todas)            | ✔ (Todas)            | ✔ (Solo propias)     |
+| Turnos              | Crear (Solicitar)        | ✔                    | X                    | ✔ (Solo propios)     |
+| (Agenda)            | Consultar                | ✔ (Todos)            | ✔ (Solo asignados)   | ✔ (Solo propios)     |
+|                     | Modificar (Reprogramar)  | ✔ (Control total)    | X                    | X                    |
+|                     | Cancelar / Completar     | ✔ (Ambas acciones)   | X                    | ✔ (Solo cancelar)    |
+| Atención Clínica    | Crear (Registrar)        | X                    | ✔                    | X                    |
+| (Libreta Sanitaria) | Consultar                | X                    | ✔ (Todas)            | ✔ (Solo propias)     |
+|                     | Modificar (Correcciones) | X                    | ✔ (Sus registros)    | X                    |
+|                     | Dar de baja              | X (RN-03: Inmutable)  | X (RN-03: Inmutable)  | X (RN-03: Inmutable) |
+| Especialidades      | Crear                    | ✔                    | X                    | X                    |
+| (Catálogo)          | Consultar                | ✔                    | ✔                    | X                    |
+|                     | Modificar                | ✔                    | X                    | X                    |
+|                     | Dar de baja              | ✔                    | X                    | X                    |
 
-### Referencia de los símbolos
+**Referencias:**
 
-- ✅ = puede gestionar/realizar operaciones.
-- 👁️ = acceso de consulta.
-- ❌ = no tiene acceso.
-- — = no corresponde al rol.
+- ✔: Permiso concedido (con el alcance aclarado entre paréntesis).
+- X: Permiso denegado por arquitectura o regla de negocio.
+- RN-03: El historial clínico tiene estrictamente prohibida su eliminación para garantizar trazabilidad legal.
 
 ---
 
@@ -128,15 +154,17 @@ Como usuario registrado (Administrador, Veterinario o Cliente), quiero iniciar s
 
 ## 5.2 Módulo 2: Gestión de Usuarios y Perfiles
 
-### HU-VET-02: Gestionar usuarios del sistema (ABML)
+### HU-VET-02: Gestión Integral de Usuarios y Perfiles (ABML)
+Como Administrador, quiero registrar, consultar, actualizar y dar de baja lógicamente a los usuarios, para controlar los accesos y administrar los perfiles específicos de la clínica veterinaria.
+Criterios de Aceptación:
+- Mapeo de Herencia (Alta de usuario): La creación de un perfil debe impactar en las tablas correspondientes aplicando la estrategia de herencia Class Table Inheritance:
+    - Si el rol es ADMIN, los datos se insertan únicamente en la tabla base Usuario.
+    - Si el rol es CLIENTE, el sistema debe generar el registro base en Usuario y su extensión vinculada en la tabla Cliente.
+    - Si el rol es VETERINARIO, el sistema debe generar el registro base en Usuario y su extensión vinculada en la tabla Veterinario.
+- Asignación de Especialidad: Al crear o actualizar un perfil con rol VETERINARIO, es obligatorio proporcionar una especialidad médica válida, la cual se persiste exclusivamente a través del campo Especialidad_id_especialidad en la tabla Veterinario. Los usuarios con roles CLIENTE o ADMIN carecen por completo de esta relación.
+- Baja Lógica (Soft Delete): La acción de dar de baja a cualquier perfil debe modificar únicamente el atributo activo = false en la tabla base Usuario. Queda estrictamente prohibida la ejecución de eliminaciones físicas (SQL DELETE) para garantizar la trazabilidad histórica de los turnos y atenciones.
+- Visibilidad de Inactivos: Los usuarios dados de baja lógica no deben aparecer en los listados ni selectores habituales de la interfaz. Solo serán visibles si el Administrador activa un filtro explícito para consultar registros inactivos.
 
-Como Administrador, quiero registrar, buscar, actualizar y dar de baja a usuarios, para controlar los accesos y el personal de la clínica veterinaria.
-
-#### Criterios de aceptación
-
-- Al crear un usuario con el rol = VETERINARIO, el sistema debe permitir y persistir la asignación de un id_especialidad. Si el rol es CLIENTE o ADMIN, ese campo debe quedar nulo.
-- La acción de "dar de baja" debe ejecutar un soft delete (cambiar el atributo activo a false), prohibiendo la ejecución de la sentencia SQL DELETE para preservar el historial.
-- Un usuario dado de baja lógica no debe aparecer en los listados predeterminados de búsqueda, a menos que el Administrador aplique un filtro explícito de "inactivos".
 
 ### HU-VET-03: Autogestión de Perfil Personal
 
@@ -171,14 +199,32 @@ Como Veterinario, quiero aplicar una baja lógica a una mascota (por fallecimien
 - El sistema debe restringir la creación de nuevos turnos o atenciones clínicas para mascotas con activo = false.
 - Los turnos históricos y atenciones previas de esa mascota deben permanecer inmutables y consultables.
 
-### HU-VET-06: Visualización de mis mascotas
+### HU-VET-06-a: Visualización de mis mascotas
 
 Como Cliente, quiero visualizar un listado con los perfiles de mis mascotas, para consultar su información básica registrada.
 
 #### Criterios de aceptación
 
-- El método buscarMascotas() invocado por el Cliente debe filtrar automáticamente los resultados usando su propio id_usuario (mapeado a id_cliente).
-- Solo se deben listar las mascotas que tengan activo = true.
+- El método buscarMascotas() invocado por el Cliente debe filtrar automáticamente los resultados asociados a su perfil. Para ello, el sistema utilizará el id_usuario de la sesión activa para consultar la tabla Cliente, obtener el id_cliente correspondiente, y utilizar este último para buscar en la tabla Mascota.
+- Solo se deben listar las mascotas que tengan activo = true (baja lógica).
+
+### HU-VET-06-b: Actualización de datos de mascotas (Autogestión) 
+
+Como Cliente, quiero poder editar la información básica de los perfiles de mis mascotas, para mantener sus datos actualizados sin tener que depender del recepcionista de la clínica. 
+
+#### Criterios de aceptación:
+
+- El sistema debe permitir al usuario modificar campos descriptivos de la mascota (raza, sexo, observaciones, etc.).
+- Validación de pertenencia: El método actualizarMascota() ejecutado por el Cliente debe validar obligatoriamente que el id_mascota que se intenta modificar pertenezca al id_cliente de su sesión activa, impidiendo que altere datos de mascotas de otros usuarios.
+- El sistema debe actualizar automáticamente el campo fecha_actualizacion de la tabla Mascota al momento de guardar los cambios.
+
+
+### HU-VET-06-c: Búsqueda de pacientes por parte de Recepción 
+Como Administrador, quiero buscar y visualizar las mascotas registradas asociadas a un cliente específico, para poder seleccionar al paciente correcto al momento de agendar un turno de forma manual. Criterios de aceptación:
+
+- El método buscarMascotas() ejecutado por el perfil Administrador debe permitir filtrar resultados por el id_cliente o nombre del dueño.
+- El sistema debe devolver el listado de mascotas activas (activo = true) permitiendo al Administrador seleccionarlas para continuar con el flujo de solicitud de turno.
+
 
 ---
 

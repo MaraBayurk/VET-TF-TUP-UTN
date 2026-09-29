@@ -17,11 +17,9 @@ El frontend será responsable de:
 - Interfaz de usuario.
 - Navegación entre las diferentes vistas.
 - Formularios y validaciones de entrada.
-- Gestión de sesiones de usuario.
 - Visualización y gestión de mascotas.
 - Solicitud y consulta de turnos.
 - Consulta de la libreta sanitaria.
-- Interfaces específicas según el rol del usuario.
 
 ## Roles
 
