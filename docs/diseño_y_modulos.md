@@ -131,34 +131,41 @@ Son las restricciones lógicas y operativas propias del dominio de la clínica v
 
 # 4. Matriz de Permisos del MVP
 
-| **Entidad**         | **Acción**               | **Administrador**    | **Veterinario**      | **Cliente**          |
-| ------------------- | ------------------------ | -------------------- | -------------------- | -------------------- |
-| Usuarios            | Crear                    | ✔ (Cualquier rol)    | X                    | X                    |
-| (Perfiles)          | Consultar                | ✔ (Todos)            | ✔ (Solo propio)      | ✔ (Solo propio)      |
-|                     | Modificar                | ✔ (Todos)            | ✔ (Solo propio)      | ✔ (Solo propio)      |
-|                     | Dar de baja              | ✔ (Todos)            | X                    | X                    |
-| Mascotas            | Crear                    | ✔                    | ✔                    | ✔ (Para sí mismo)    |
-| (Pacientes)         | Consultar                | ✔ (Todas)            | ✔ (Todas)            | ✔ (Solo propias)     |
-|                     | Modificar                | ✔ (Todas)            | ✔ (Todas)            | ✔ (Solo propias)     |
-|                     | Dar de baja              | ✔ (Todas)            | ✔ (Todas)            | ✔ (Solo propias)     |
-| Turnos              | Crear (Solicitar)        | ✔                    | X                    | ✔ (Solo propios)     |
-| (Agenda)            | Consultar                | ✔ (Todos)            | ✔ (Solo asignados)   | ✔ (Solo propios)     |
-|                     | Modificar (Reprogramar)  | ✔ (Control total)    | X                    | X                    |
-|                     | Cancelar / Completar     | ✔ (Ambas acciones)   | X                    | ✔ (Solo cancelar)    |
-| Atención Clínica    | Crear (Registrar)        | X                    | ✔                    | X                    |
-| (Libreta Sanitaria) | Consultar                | X                    | ✔ (Todas)            | ✔ (Solo propias)     |
-|                     | Modificar (Correcciones) | X                    | ✔ (Sus registros)    | X                    |
-|                     | Dar de baja              | X (RN-03: Inmutable)  | X (RN-03: Inmutable)  | X (RN-03: Inmutable) |
-| Especialidades      | Crear                    | ✔                    | X                    | X                    |
-| (Catálogo)          | Consultar                | ✔                    | ✔                    | X                    |
-|                     | Modificar                | ✔                    | X                    | X                    |
-|                     | Dar de baja              | ✔                    | X                    | X                    |
+| **Entidad**         | **Acción**               | **Administrador**                       | **Veterinario**      | **Cliente**                          |
+| ------------------- | ------------------------ | --------------------------------------- | -------------------- | ------------------------------------ |
+| Usuarios            | Crear                    | ✔ (Cualquier rol: Admin, Vet, Cliente)  | X                    | ✔ (Solo cuenta propia, rol Cliente)  |
+| (Perfiles)          | Consultar                | ✔ (Todos)                               | ✔ (Solo propio)      | ✔ (Solo propio)                      |
+|                     | Modificar                | ✔ (Todos)                               | ✔ (Solo propio)      | ✔ (Solo propio)                      |
+|                     | Dar de baja              | ✔ (Todos)                               | X                    | X                                    |
+| Mascotas            | Crear                    | ✔                                       | ✔                    | ✔ (Para sí mismo)                    |
+| (Pacientes)         | Consultar                | ✔ (Todas)                               | ✔ (Todas)            | ✔ (Solo propias)                     |
+|                     | Modificar                | ✔ (Todas)                               | ✔ (Todas)            | ✔ (Solo propias)                     |
+|                     | Dar de baja              | ✔ (Todas)                               | ✔ (Todas)            | ✔ (Solo propias)                     |
+| Turnos              | Crear (Solicitar)        | ✔                                       | X                    | ✔ (Solo propios)                     |
+| (Agenda)            | Consultar                | ✔ (Todos)                               | ✔ (Solo asignados)   | ✔ (Solo propios)                     |
+|                     | Modificar (Reprogramar)  | ✔ (Control total)                       | X                    | X                                    |
+|                     | Cancelar / Completar     | ✔ (Ambas acciones)                      | X                    | ✔ (Solo cancelar)                    |
+| Atención Clínica    | Crear (Registrar)        | X                                       | ✔                    | X                                    |
+| (Libreta Sanitaria) | Consultar                | X                                       | ✔ (Todas)            | ✔ (Solo propias)                     |
+|                     | Modificar (Correcciones) | X                                       | ✔ (Sus registros)    | X                                    |
+|                     | Dar de baja              | X (RN-03: Inmutable)                    | X (RN-03: Inmutable) | X (RN-03: Inmutable)                 |
+| Especialidades      | Crear                    | ✔                                       | X                    | X                                    |
+| (Catálogo)          | Consultar                | ✔                                       | ✔                    | X                                    |
+|                     | Modificar                | ✔                                       | X                    | X                                    |
+|                     | Dar de baja              | ✔                                       | X                    | X                                    |
 
 **Referencias:**
 
 - ✔: Permiso concedido (con el alcance aclarado entre paréntesis).
 - X: Permiso denegado por arquitectura o regla de negocio.
 - RN-03: El historial clínico tiene estrictamente prohibida su eliminación para garantizar trazabilidad legal.
+
+| **Estado Origen**    | **Estado Destino** | **Actor Responsable**      | **Regla de Negocio / Disparador**                                                                                 |
+| -------------------- | ------------------ | -------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| N/A (Creación)       | PENDIENTE          | Cliente, Administrador     | Se genera al solicitar una nueva reserva en el sistema.                                                           |
+| PENDIENTE            | APROBADO           | Administrador              | Confirmación de disponibilidad en la agenda de la clínica.                                                        |
+| PENDIENTE / APROBADO | CANCELADO          | Cliente, Administrador     | Inasistencia, cancelación voluntaria o indisponibilidad médica.                                                   |
+| APROBADO             | COMPLETADO         | Veterinario, Administrador | Se dispara automáticamente al vincular el turno a una nueva AtencionClinica, o manualmente en el checkout.       |
 
 ---
 
