@@ -27,7 +27,6 @@ En el análisis de competencias nos encontramos dos escenarios:
 
 Se propone desarrollar una plataforma web integral para la gestión de una veterinaria, destinada a centralizar la información administrativa y clínica de sus pacientes y facilitar la interacción con sus clientes. El sistema contará con diferentes roles de usuario y permitirá gestionar clientes, mascotas, profesionales, turnos, atenciones y vacunas.
 Nuestra propuesta de valor y mayor fortaleza es la comunicación bidireccional. Que la plataforma sea web responsive y que el dueño tenga su propio portal para ver la información. Es decir, los clientes de la veterinaria al loguearse en la página pueden realizar diferentes acciones relacionadas con la gestión de la salud de su mascota. 
-También fueron contempladas funcionalidades complementarias que podrían agregar valor al proyecto como la incorporación de un chatbot que pueda responder consultas frecuentes y asistir a los usuarios en determinadas operaciones, como la búsqueda o solicitud de turnos. También podría ser un módulo de Pet Shop para la consulta de productos, gestión de stock y generación de pedidos.
 
 La propuesta busca aportar valor mediante:
 * Centralización de la información.
@@ -38,7 +37,6 @@ La propuesta busca aportar valor mediante:
 * Acceso de los clientes a la información de sus mascotas.
 * Posibilidad de realizar determinadas gestiones de manera online.
 
-La estructuras la  planteamos como una pantalla
 
 ## 4. Alcance
 
@@ -128,7 +126,7 @@ La propuesta tecnológica estará conformada por React, TypeScript, Node.js, Exp
 * React
 * TypeScript
 * SCSS
-React permitirá desarrollar la interfaz web de manera modular, mientras que TypeScrip permitirá trabajar con tipado estático. SCSS será utilizado para organizar y mantener los estilo de la aplicación. Y se utilizarán elementos aleatorios de Material-UI. 
+React permitirá desarrollar la interfaz web de manera modular, mientras que TypeScript permitirá trabajar con tipado estático. SCSS será utilizado para organizar y mantener los estilo de la aplicación. Y se utilizarán elementos aleatorios de Material-UI. 
 
 **Backend** 
 * Node.js
@@ -139,7 +137,7 @@ Node.js será utilizado como entorno de ejecución para el desarrollo del backen
 * MySQL
 * MySQL Workbench
 
-Se utilizará MySQL como sistema de gestión de base de datos relacional. La elección de una base de datos relacional resulta adecuada para el dominio del proyecto, debido a la existencia de múltiples entidades y relaciones entre ellas, como usuarios, mascotas, veterinarios, turnos y productos.
+Se utilizará MySQL como sistema de gestión de base de datos relacional. La elección de una base de datos relacional resulta adecuada para el dominio del proyecto, debido a la existencia de múltiples entidades y relaciones entre ellas, como usuarios, mascotas, veterinarios y turnos.
 
 El modelo relacional permitirá establecer relaciones entre las distintas entidades mediante claves primarias y foráneas, favoreciendo la integridad, consistencia y organización de los datos. MySQL Workbench será utilizado como herramienta para el diseño, administración y gestión de la base de datos durante el desarrollo.
 

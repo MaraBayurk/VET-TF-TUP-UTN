@@ -41,6 +41,19 @@ Definen la arquitectura, tecnologías y atributos de calidad del sistema.
     - Segunda Forma Normal (2FN - Dependencia Completa): Todas las entidades poseen una clave primaria simple (identificadores autoincrementales, como id_usuario o id_turno). Por lo tanto, todo atributo no clave depende funcionalmente por completo de la clave primaria, eliminando el riesgo de dependencias parciales.
     - Tercera Forma Normal (3FN - Sin Dependencias Transitivas): Ningún atributo no clave depende de otro atributo no clave. Esto se evidencia en la extracción de catálogos y descripciones: en la tabla Turno no se almacena la cadena de texto del estado (ej. "Pendiente"), sino su clave foránea id_estado_turno. Del mismo modo, la tabla Veterinario no guarda el nombre de su área médica, sino que depende exclusivamente de Especialidad_id_especialidad, evitando anomalías de inserción y actualización.
 
+- **Diseño Web Adaptable (Responsive Web Design):** La plataforma debe desarrollarse bajo estándares de diseño web responsivo, garantizando su correcta visualización, navegabilidad y usabilidad en múltiples resoluciones de pantalla. Tanto el portal público (Landing Page y autogestión de clientes) como el sistema de backoffice (perfiles de administradores y veterinarios) deben adaptarse dinámicamente y ser completamente operativos desde dispositivos móviles (smartphones), tablets y computadoras de escritorio. 
+
+- **Respaldo de Información (Backups Automatizados):**  Para garantizar la integridad y el resguardo de la información clínica y operativa, el sistema debe ejecutar una política de copias de seguridad automatizadas de la base de datos relacional. Para el alcance de este MVP, se establecerá un backup completo diario (frecuencia de 24 horas) ejecutado en horario nocturno, conservando un histórico de retención de al menos 7 días para permitir la recuperación ante fallos críticos. 
+
+- **Disponibilidad del Sistema (Uptime):**  La plataforma web debe asegurar una alta disponibilidad orientada a la franja horaria operativa de la clínica. El sistema apuntará a un nivel de servicio (SLA) del 99% de tiempo de actividad durante el horario comercial, garantizando que el personal y los clientes puedan gestionar la agenda médica sin interrupciones. Las tareas de mantenimiento o despliegue de actualizaciones deberán programarse fuera de esta franja para minimizar el impacto. 
+
+
+- **Autenticación y Manejo de Sesión (JWT):** La plataforma implementará un sistema de autenticación sin estado (stateless) basado en JSON Web Tokens (JWT) para gestionar las sesiones de los usuarios de manera segura.
+
+    - Inicio de Sesión: Al ejecutar el método iniciarSesion(), el backend validará las credenciales contra la base de datos y emitirá un token JWT firmado digitalmente. Este token contendrá en su carga útil (payload) el id_usuario y el id_rol, permitiendo identificar al actor y sus permisos.
+    - Manejo de Sesión: El frontend almacenará el JWT de forma segura (ej. Local Storage o HTTP-Only Cookies) y lo enviará en la cabecera (Header de Autorización: Bearer) de cada petición HTTP para acceder a las rutas protegidas.
+    - Cierre de Sesión y Seguridad: El token tendrá un tiempo de expiración corto (ej. 8 horas) para mitigar riesgos. La acción de cerrarSesion() se resolverá del lado del cliente eliminando el token del almacenamiento local, cortando inmediatamente el acceso al sistema.
+
 
 ## 2.3 Reglas de Negocio
 
@@ -50,7 +63,7 @@ Son las restricciones lógicas y operativas propias del dominio de la clínica v
 
 - **RN-02: Dependencia Estricta del Paciente:** Una Mascota no puede existir en el sistema de forma aislada. Su creación requiere obligatoriamente la vinculación a un Cliente responsable registrado en el sistema (Relación 1 a N).
 
-- **RN-03: Inmutabilidad del Registro Clínico:** Una vez que un Veterinario guarda un registro de AtencionClinica, este no puede ser eliminado del sistema. Solo se permite su creación, lectura y actualización (corrección de errores ortográficos o ampliación de observaciones).
+- **RN-03: Inmutabilidad del Registro Clínico:** RN-03: Queda estrictamente prohibida la eliminación física (DELETE) o la baja lógica de un registro de AtencionClinica una vez guardado. Se permite la actualización de los datos (corrección de errores ortográficos, o ampliación de diagnóstico y tratamiento) exclusivamente por usuarios con rol VETERINARIO. Para garantizar la validez legal del documento, toda modificación debe quedar registrada de forma transparente, impactando automáticamente en los campos de auditoría id_usuario_ultima_modificacion y fecha_ultima_modificacion de la base de datos.
 
 - **RN-04: Exclusividad de Especialidades:** El vínculo con una especialidad médica se persiste de forma exclusiva en la tabla Veterinario aplicando la estrategia Class Table Inheritance. Para Administradores y Clientes, esta relación es estructuralmente inexistente, evitando la proliferación de valores nulos en la base de datos. 
 
@@ -62,10 +75,22 @@ Son las restricciones lógicas y operativas propias del dominio de la clínica v
 
 - **RN-08: Gestión de Dominios Cerrados (Estados y Tipos):** Los valores correspondientes a los roles de sistema, los estados de los turnos y los tipos de atención clínica operan como dominios cerrados mediante tablas catálogo. El código de la aplicación (backend) debe consumir estos catálogos dinámicamente mediante sus respectivos identificadores (id_rol, id_estado_turno, id_tipo_atencion) en lugar de validar cadenas de texto plano (strings) en el código, asegurando la consistencia entre la base de datos y la lógica de negocio. 
 
+- **RN-09: Trazabilidad Turno-Atención (Cierre Automático):** Existe una relación directa entre la reserva y la práctica médica. Cuando un Veterinario registra una nueva AtencionClinica, el sistema debe permitir vincularla a un id_turno existente. Al persistir este vínculo, el sistema debe cambiar automáticamente el estado de ese turno a COMPLETADO, optimizando el flujo de trabajo de la recepción y garantizando la coherencia de la agenda. 
+
+- **RN-10: Cancelación en Cascada por Baja Lógica:** Cuando se aplica la baja lógica a un paciente (modificando activo = false en la tabla Mascota), el sistema debe liberar automáticamente la agenda médica. El backend ejecutará una actualización en bloque sobre la tabla Turno, buscando todas las reservas futuras vinculadas a ese id_mascota que se encuentren en estado PENDIENTE o APROBADO, y modificará su estado a CANCELADO. Los turnos pasados (históricos) o ya completados permanecerán inalterados para preservar la auditoría. 
+
+- **RN-11: Motor de Cálculo de Disponibilidad:** El sistema calcula los horarios disponibles de forma dinámica. Para ello, segmenta la franja horaria definida en la entidad HorarioAtencion (desde hora_inicio hasta hora_fin) basándose en el intervalo_minutos estipulado para ese profesional (ej. consultas de 30 minutos). A ese total de bloques posibles, el backend le resta automáticamente aquellos horarios que ya se encuentren registrados en la entidad Turno con estado PENDIENTE o APROBADO para esa misma fecha y veterinario. 
+
+- **RN-12: Registro Específico de Vacunación:** Cuando una atención médica se categoriza bajo el TipoAtencion de "Vacuna", el sistema trasciende el registro clínico estándar y exige completar obligatoriamente la entidad VacunaAplicada. Este registro anexo asegura la trazabilidad del insumo médico (lote, dosis, laboratorio) y proyecta la fecha de la proxima_aplicacion. 
+
 
 ---
 
 # 3. Módulos a Desarrollar
+
+## 3.0 Módulo de Portal Web Público (Landing Page): 
+- **Interfaz pública de presentación de la veterinaria.** Actúa como el punto de entrada principal para la captación de clientes. Contiene información institucional estática (servicios ofrecidos, ubicación, horarios de contacto) y provee los accesos directos (Call to Action) para que los usuarios visitantes puedan iniciar sesión o registrarse en la plataforma de autogestión. 
+
 
 ## 3.1 Módulo de Autenticación y Seguridad
 
@@ -90,11 +115,12 @@ Son las restricciones lógicas y operativas propias del dominio de la clínica v
 - **Gestión y Trazabilidad (Admin):** Panel de control para que el administrador visualice, apruebe o modifique los turnos. Incluye el registro interno de auditoría (id_usuario_creador y fecha_actualizacion).
 - **Cancelación de Turnos:** Funcionalidad para que tanto clientes como administradores puedan cambiar el estado de un turno a "CANCELADO" sin eliminar el registro físico.
 - **Consulta de Agenda (Veterinario):** Vista de solo lectura para que el profesional médico pueda visualizar los turnos que tiene asignados en el día, incluyendo el motivo de la consulta, el horario y el paciente a atender. 
+- **Configuración de Agenda Médica (Administrador):** Interfaz interna que permite al recepcionista definir los días laborables (dia_semana), el horario de apertura y cierre, y la duración estándar de las consultas (intervalo_minutos) para cada médico. Estos parámetros son el insumo principal que utiliza el sistema para proyectar la disponibilidad en el portal de clientes.
 
 ## 3.5 Módulo de Atención Clínica y Libreta Sanitaria
 
-- **Registro Médico (Veterinario):** Formularios para que el profesional registre el resultado de una visita, categorizándola mediante el tipo de atención (Consulta, Vacuna o Control), ingresando diagnóstico, tratamiento y fecha del proximo_control.
-- **Libreta Sanitaria Digital (Propuesta de Valor):**  Vista de solo lectura diseñada como el núcleo del portal web del Cliente, donde el dueño puede consultar la línea de tiempo inmutable con el historial de vacunas y atenciones de sus propias mascotas. El Veterinario también cuenta con un acceso equivalente (modo clínico) para revisar el historial completo de cualquier paciente antes de atenderlo.
+- **Registro Médico (Veterinario):**  Formularios para que el profesional registre el resultado de una visita. El sistema permite seleccionar el turno PENDIENTE o APROBADO asignado a ese paciente para vincularlo directamente con la nueva atención clínica. El profesional categoriza la visita (Consulta, Vacuna o Control), ingresando diagnóstico, tratamiento y fecha del proximo_control.
+- **Libreta Sanitaria Digital (Propuesta de Valor):**  Vista de solo lectura diseñada como el núcleo del portal web del Cliente, donde el dueño puede consultar la línea de tiempo con el historial auditado de vacunas y atenciones de sus propias mascotas. El Veterinario también cuenta con un acceso equivalente (modo clínico) para revisar el registro completo de cualquier paciente antes de atenderlo, visualizando la trazabilidad de cualquier corrección o ampliación médica realizada.
 
 
 ## 3.6 Módulo de Catálogos (Configuración)
@@ -138,9 +164,24 @@ Son las restricciones lógicas y operativas propias del dominio de la clínica v
 
 # 5. Historias de Usuario
 
+
+## 5.1 Módulo 0: Landing Page
+
+### HU-VET-00: Visualización del Portal Público (Landing Page) 
+
+Como usuario visitante, quiero acceder a la página de inicio pública de la veterinaria, para conocer los servicios que ofrecen, sus datos de contacto y encontrar los accesos a la plataforma web. 
+
+#### Criterios de aceptación:
+
+- El sistema debe mostrar una interfaz pública accesible sin necesidad de autenticación.
+- La página debe incluir información institucional básica (logo, dirección, servicios y vías de contacto).
+- La interfaz debe contar con botones de acceso claros ("Llamados a la acción") que redirijan a los flujos de "Iniciar Sesión" (HU-VET-01) y "Registrarse" (HU-VET-01b).
+- El diseño debe ser responsivo (adaptable a dispositivos móviles) para facilitar el acceso de los clientes desde sus teléfonos.
+
+
 ## 5.1 Módulo 1: Autenticación y Seguridad
 
-### HU-VET-01: Iniciar sesión en el sistema
+### HU-VET-01a: Iniciar sesión en el sistema
 
 Como usuario registrado (Administrador, Veterinario o Cliente), quiero iniciar sesión utilizando mi email y contraseña, para acceder a las funcionalidades correspondientes a mi perfil.
 
@@ -149,6 +190,28 @@ Como usuario registrado (Administrador, Veterinario o Cliente), quiero iniciar s
 - El sistema debe validar que las credenciales coincidan con los registros de la base de datos.
 - Se debe validar el atributo activo: si el usuario tiene activo = false (baja lógica), el sistema debe denegar el acceso y mostrar un mensaje de error.
 - Tras un inicio exitoso, el sistema debe redirigir a una vista específica según el atributo rol del usuario.
+
+### HU-VET-01b: Alta centralizada de usuarios (Backoffice) 
+
+Como Administrador, quiero poder registrar nuevas cuentas de usuario en el sistema y asignarles su rol correspondiente, para dar de alta al nuevo personal de la clínica (Veterinarios/Admins) o a clientes que se presentan presencialmente y no poseen cuenta web. 
+
+#### Criterios de aceptación:
+
+- El formulario interno debe permitir al Administrador seleccionar el rol del nuevo usuario (id_rol mapeado a Administrador, Veterinario o Cliente).
+- Si el Administrador selecciona el rol Cliente, el sistema debe habilitar el flujo secundario para ejecutar el método crearMascota() y vincular al animal inmediatamente.
+- Si el Administrador selecciona el rol Veterinario, el sistema debe requerir el ingreso de la matrícula y la vinculación a una Especialidad existente.
+
+### HU-VET-01c: Registro público de Cliente y Mascota (Onboarding) 
+
+Como usuario visitante, quiero poder registrar una cuenta en el portal y cargar los datos primarios de mi mascota, para convertirme en cliente de la veterinaria y poder solicitar turnos online. 
+
+#### Criterios de aceptación:
+
+- El formulario de registro público debe solicitar los datos personales del usuario (nombre, apellido, email, contraseña, teléfono).
+- Seguridad (Hardcoding de Rol): El backend debe asignar automáticamente y de forma obligatoria el id_rol correspondiente a CLIENTE a todas las cuentas creadas desde esta interfaz pública.
+Una vez creada la cuenta de usuario, el flujo (Onboarding) debe redirigir al cliente a un segundo formulario para ejecutar el método crearMascota(), solicitando los datos primarios del animal (nombre, especie, raza).
+- Las contraseñas deben almacenarse encriptadas (ej. bcrypt) en la base de datos.
+
 
 ---
 
@@ -188,6 +251,7 @@ Como Veterinario, quiero registrar una nueva mascota asociándola obligatoriamen
 - La creación de la mascota exige el ingreso de un id_cliente válido. Si no se provee, el método crear() debe fallar.
 - Por defecto, el registro se crea con el atributo activo = true.
 - Se debe validar que la fecha_nacimiento no sea mayor a la fecha actual del sistema.
+- Liberación de agenda (Cascada): Al confirmar la baja lógica de la mascota, el sistema debe identificar automáticamente todos los turnos futuros vinculados a esta que se encuentren en estado PENDIENTE o APROBADO, y cambiar su estado a CANCELADO. 
 
 ### HU-VET-05: Baja lógica de Paciente
 
@@ -230,7 +294,7 @@ Como Administrador, quiero buscar y visualizar las mascotas registradas asociada
 
 ## 5.4 Módulo 4: Agenda y Turnos
 
-### HU-VET-07: Solicitud de Turno Médico
+### HU-VET-07a: Solicitud de Turno Médico
 
 Como Cliente o Administrador, quiero solicitar un turno seleccionando mascota, fecha, hora, motivo y veterinario, para reservar un espacio de atención en la clínica.
 
@@ -238,18 +302,32 @@ Como Cliente o Administrador, quiero solicitar un turno seleccionando mascota, f
 
 - Al ejecutar solicitarTurno(), el registro se guarda por defecto con el estado = PENDIENTE.
 - El sistema debe registrar automáticamente en el atributo id_usuario_creador el ID de la persona logueada (ya sea el propio cliente o el administrador en recepción).
-- Se debe validar que la combinación de fecha, hora e id_veterinario no colisione con un turno previamente APROBADO.
+- Filtro y Motor de Disponibilidad: Al momento de solicitar el turno, la interfaz no debe permitir seleccionar horarios arbitrarios, presentando únicamente un selector con los bloques estrictamente libres. Para calcularlos dinámicamente, el backend cruzará las franjas activas de la tabla HorarioAtencion del profesional, fragmentándolas según su intervalo_minutos, y restando aquellos horarios ya ocupados en la tabla Turno (estados PENDIENTE o APROBADO).
+
+### HU-VET-07b: Configuración de Horarios de Atención 
+Como Administrador, quiero configurar los días, franjas horarias e intervalos de atención de cada Veterinario, para que el sistema pueda calcular y ofrecer automáticamente los turnos disponibles a los clientes. 
+
+#### Criterios de aceptación:
+
+- El sistema debe permitir definir franjas horarias indicando el dia_semana, la hora_inicio y la hora_fin para un id_veterinario específico.
+- Se debe poder configurar la duración de cada consulta mediante el campo numérico intervalo_minutos.
+- El formulario debe permitir guardar múltiples registros para un mismo veterinario (ejemplo: cargar una franja para el lunes a la mañana y otra separada para el lunes a la tarde).
+
 
 ### HU-VET-08: Gestión de Agenda Diaria
 
-Como Administrador, quiero buscar, actualizar o cancelar turnos del sistema, para organizar y optimizar el flujo de atención clínica.
+Como Administrador, quiero gestionar los cambios de estado de los turnos solicitados, para mantener la agenda organizada, confirmar la asistencia y auditar las atenciones finalizadas. Criterios de aceptación:
 
 #### Criterios de aceptación
 
-- El Administrador puede modificar el estado de un turno a APROBADO o CANCELADO.
-- Cualquier invocación a actualizarTurno() o cancelarTurno() debe registrar la estampa de tiempo actual en el atributo fecha_actualizacion para mantener trazabilidad.
+- El sistema debe permitir al Administrador cambiar el estado de una reserva de PENDIENTE a APROBADO tras confirmar la disponibilidad en la agenda.
+- Transición a COMPLETADO (Disparador Automático): El cambio de estado a COMPLETADO se dispara automáticamente en el backend cuando un Veterinario crea un registro de AtencionClinica referenciando el id_turno correspondiente. El Administrador también conserva la capacidad de forzar este estado manualmente en casos excepcionales. 
+- El Administrador debe tener la capacidad de pasar un turno a CANCELADO si el cliente avisa su inasistencia o si el profesional no se presenta.
+- Queda estrictamente prohibida la eliminación física del registro del turno de la base de datos, garantizando que el historial de reservas quede intacto para auditoría.
+- El sistema debe registrar automáticamente la marca de tiempo de cualquier modificación de estado en el campo fecha_actualizacion de la tabla Turno.
 
-### HU-VET-09: Cancelación de Turno Propio
+
+### HU-VET-09a: Cancelación de Turno Propio
 
 Como Cliente, quiero cancelar un turno que solicité previamente, para liberar el horario si no puedo asistir.
 
@@ -258,21 +336,52 @@ Como Cliente, quiero cancelar un turno que solicité previamente, para liberar e
 - El Cliente solo puede ejecutar el método cancelarTurno() sobre aquellos registros donde la mascota pertenezca a su id_cliente.
 - La acción solo modifica el estado a CANCELADO y estampa la fecha_actualizacion; bajo ningún concepto elimina físicamente la fila de la base de datos.
 
+### HU-VET-09b: Consulta de Agenda Médica 
+Como Veterinario, quiero visualizar el listado de turnos que tengo asignados, para organizar mi jornada laboral y prepararme para los pacientes que atenderé. 
+
+#### Criterios de aceptación:
+
+- El método buscarTurnos() invocado por el Veterinario debe filtrar automáticamente la búsqueda en la base de datos utilizando su propio id_veterinario resuelto desde su sesión.
+- El sistema no debe permitir al Veterinario modificar el estado de los turnos, reprogramarlos ni cancelarlos (acciones exclusivas del Administrador y/o Cliente).
+- La vista debe ordenar los turnos cronológicamente por el atributo fecha_hora.
+
+
+### HU-VET-09c: Consulta de próximos turnos (Cliente)
+Como Cliente, quiero visualizar el listado de mis próximos turnos solicitados, para recordar las fechas, horarios y profesionales asignados a mis mascotas.
+
+#### Criterios de aceptación:
+
+- El método consultarTurnos() invocado por el Cliente debe filtrar automáticamente la búsqueda, devolviendo exclusivamente los registros asociados a las mascotas que pertenecen a su propio id_cliente.
+- La interfaz debe mostrar únicamente los turnos que se encuentren en estado PENDIENTE o APROBADO. Los turnos históricos (COMPLETADO o CANCELADO) no deben aparecer en esta vista principal (podrían ir a un historial separado).
+- El listado debe ordenarse cronológicamente de forma ascendente utilizando el campo fecha_hora.
+- Desde esta misma vista, el usuario debe tener a la vista la opción de cancelar la reserva, lo cual actúa como disparador del flujo detallado en la HU-VET-09.
+
 ---
 
 ## 5.5 Módulo 5: Atención Clínica y Libreta Sanitaria
 
-### HU-VET-10: Registro de Atención Médica
+### HU-VET-10a: Registro de Atención Médica
 
-Como Veterinario, quiero registrar una atención clínica indicando tipo, diagnóstico y tratamiento, para dejar constancia formal e inmutable de la consulta de un paciente.
+Como Veterinario, quiero poder corregir o ampliar el diagnóstico, tratamiento u observaciones de una atención clínica que registré previamente, para mantener la exactitud del historial médico sin vulnerar su integridad legal.
 
 #### Criterios de aceptación
 
-- El sistema debe obligar a clasificar la visita utilizando el TipoAtencion (CONSULTA, VACUNA, CONTROL).
-- El registro de atención se asocia automáticamente al id_veterinario logueado y al id_mascota seleccionada.
-- Si la atención requiere seguimiento, el sistema debe permitir ingresar el atributo proximo_control.
+- Solo los usuarios con rol VETERINARIO pueden ejecutar la acción de editar una atención clínica (actualizarAtencion()).
+- El sistema tiene restringida por diseño la opción de eliminar el registro. Solo se pueden modificar los campos de texto (diagnostico, tratamiento, observaciones).
+- Auditoría obligatoria: Al guardar los cambios, el sistema debe registrar automáticamente de forma invisible el id_usuario de quien realizó la corrección en el campo id_usuario_ultima_modificacion, junto con la fecha y hora exacta en fecha_ultima_modificacion.
+- La interfaz (Libreta Sanitaria) debe mostrar un indicador visual (ej. "Editado") si el campo fecha_ultima_modificacion no es nulo.
 
-### HU-VET-11: Consulta de Libreta Sanitaria
+### HU-VET-10b: Registro detallado de Vacunación
+Como Veterinario, quiero registrar los datos específicos de un biológico aplicado durante la consulta, para mantener un estricto control sanitario y cumplir con las normativas de trazabilidad médica.
+
+#### Criterios de aceptación:
+
+- Si durante una nueva AtencionClinica el Veterinario selecciona "Vacuna" como tipo de atención, el sistema debe desplegar un formulario anexo.
+- El sistema debe persistir los datos ingresados en la tabla VacunaAplicada (nombre_vacuna, dosis, lote, laboratorio, fecha_aplicacion, proxima_aplicacion).
+- El registro de la vacuna debe quedar vinculado de forma unívoca a la atención clínica que lo originó (relación 1 a 1).
+
+
+### HU-VET-11a: Consulta de Libreta Sanitaria
 
 Como Cliente o Veterinario, quiero leer el historial de atenciones clínicas de una mascota, para conocer de manera cronológica sus tratamientos y diagnósticos pasados.
 
@@ -280,6 +389,15 @@ Como Cliente o Veterinario, quiero leer el historial de atenciones clínicas de 
 
 - El acceso a este módulo es de solo lectura (no existen métodos de actualización o eliminación en la vista de Libreta Sanitaria).
 - Si el actor es un Cliente, el método buscarAtenciones() debe limitarse estrictamente a los historiales correspondientes a los id_mascota de los que es dueño.
+
+
+### HU-VET-11b: Panel de Próximos Controles y Vacunas (Alertas)
+Como Cliente y Veterinario, quiero visualizar un listado o alertas con las fechas de las próximas vacunas y controles de las mascotas, para garantizar la continuidad del plan de medicina preventiva.
+
+#### Criterios de aceptación:
+- El backend debe calcular los vencimientos consultando el campo proxima_aplicacion de la tabla VacunaAplicada y el campo proximo_control de la tabla AtencionClinica.
+- En el portal del Cliente, la Libreta Sanitaria mostrará alertas visuales únicamente para los vencimientos de las mascotas asociadas a su perfil.
+- En el panel interno de la veterinaria, el personal podrá visualizar un listado global de pacientes con controles o vacunas próximas a vencer en los siguientes 30 días, facilitando el contacto proactivo.
 
 ---
 
