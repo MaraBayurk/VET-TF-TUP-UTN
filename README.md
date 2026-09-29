@@ -8,7 +8,7 @@
 - **Comisión:** 10
 - **Grupo:** 216
 - **Docente titular:** Sofía Raia
-- **Fecha:** 30 de septiembre de 2026
+- **Fecha:** 29 de septiembre de 2026
 
 ### Integrantes
 

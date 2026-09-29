@@ -32,8 +32,9 @@ Se contemplará el uso de:
 - Controladores
 - Servicios
 - Repositorios
-- Modelos/Entidades
 - Middlewares
+- Config
+- Rutas
 
 ## Seguridad
 
