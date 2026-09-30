@@ -157,18 +157,18 @@ Configuración paramétrica de la disponibilidad temporal del plantel veterinari
 
 ## Tabla: VacunaAplicada
 
-Registro detallado de los productos biológicos administrados a un paciente.
+- **Descripción:** Registro detallado de los productos biológicos administrados a un paciente. Permite asociar una o múltiples vacunas a una misma atención clínica.
 
-| Campo | Tipo de dato | Restricciones | Descripción |
-|---|---|---|---|
-| id_vacuna_aplicada | INT UNSIGNED | PK, AUTO_INCREMENT | Identificador único de la vacuna aplicada. |
-| id_atencion | INT UNSIGNED | FK, UNIQUE, NOT NULL | Relación con una instancia específica de AtencionClinica. |
-| nombre_vacuna | VARCHAR(120) | NOT NULL | Identificación de la vacuna proporcionada. |
-| dosis | VARCHAR(80) | NULL | Proporción o cantidad de la vacuna aplicada. |
-| lote | VARCHAR(80) | NULL | Número de trazabilidad del producto biológico. |
-| fecha_aplicacion | DATE | NOT NULL | Día en que ocurrió la aplicación. |
-| proxima_aplicacion | DATE | NULL | Fecha prevista para la renovación o refuerzo de la vacuna. |
-| laboratorio | VARCHAR(120) | NULL | Información del fabricante de la vacuna. |
+| Campo | Tipo de dato | Restricciones / Descripción |
+|---|---|---|
+| id_vacuna_aplicada | INT UNSIGNED | Clave Primaria (PK). Identificador único autoincremental. |
+| id_atencion | INT UNSIGNED | Clave Foránea (FK). Dependencia de una instancia de AtencionClinica en particular (sin restricción UNIQUE, lo que permite relación 1 a N). |
+| nombre_vacuna | VARCHAR(120) | Identificación de la vacuna proporcionada. |
+| dosis | VARCHAR(80) | Proporción de la vacuna aplicada. Permite valores nulos. |
+| lote | VARCHAR(80) | Número de trazabilidad del biológico. Permite nulos. |
+| fecha_aplicacion | DATE | Día específico en que ocurrió la aplicación. |
+| proxima_aplicacion | DATE | Fecha para la renovación o refuerzo de la vacuna, si procede. |
+| laboratorio | VARCHAR(120) | Información del fabricante. Admite nulos. |
 
 ## Consideraciones generales
 

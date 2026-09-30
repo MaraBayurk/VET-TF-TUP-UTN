@@ -160,12 +160,12 @@ Son las restricciones lógicas y operativas propias del dominio de la clínica v
 - X: Permiso denegado por arquitectura o regla de negocio.
 - RN-03: El historial clínico tiene estrictamente prohibida su eliminación para garantizar trazabilidad legal.
 
-| **Estado Origen**    | **Estado Destino** | **Actor Responsable**      | **Regla de Negocio / Disparador**                                                                                 |
-| -------------------- | ------------------ | -------------------------- | ----------------------------------------------------------------------------------------------------------------- |
-| N/A (Creación)       | PENDIENTE          | Cliente, Administrador     | Se genera al solicitar una nueva reserva en el sistema.                                                           |
-| PENDIENTE            | APROBADO           | Administrador              | Confirmación de disponibilidad en la agenda de la clínica.                                                        |
-| PENDIENTE / APROBADO | CANCELADO          | Cliente, Administrador     | Inasistencia, cancelación voluntaria o indisponibilidad médica.                                                   |
-| APROBADO             | COMPLETADO         | Veterinario, Administrador | Se dispara automáticamente al vincular el turno a una nueva AtencionClinica, o manualmente en el checkout.       |
+| **Estado Origen**    | **Estado Destino** | **Actor Responsable**      | **Regla de Negocio / Disparador**                                                                          |
+| -------------------- | ------------------ | -------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| N/A (Creación)       | PENDIENTE          | Cliente, Administrador     | Se genera al solicitar una nueva reserva en el sistema.                                                    |
+| PENDIENTE            | APROBADO           | Administrador              | Confirmación de disponibilidad en la agenda de la clínica.                                                 |
+| PENDIENTE / APROBADO | CANCELADO          | Cliente, Administrador     | Inasistencia, cancelación voluntaria o indisponibilidad médica.                                            |
+| APROBADO             | COMPLETADO         | Veterinario, Administrador | Se dispara automáticamente al vincular el turno a una nueva AtencionClinica, o manualmente en el checkout. |
 
 ---
 
@@ -385,7 +385,7 @@ Como Veterinario, quiero registrar los datos específicos de un biológico aplic
 
 - Si durante una nueva AtencionClinica el Veterinario selecciona "Vacuna" como tipo de atención, el sistema debe desplegar un formulario anexo.
 - El sistema debe persistir los datos ingresados en la tabla VacunaAplicada (nombre_vacuna, dosis, lote, laboratorio, fecha_aplicacion, proxima_aplicacion).
-- El registro de la vacuna debe quedar vinculado de forma unívoca a la atención clínica que lo originó (relación 1 a 1).
+- El registro de la vacuna debe quedar vinculado de forma unívoca a la atención clínica que lo originó permitiendo cargar múltiples vacunas en una misma consulta (relación 1 a N)..
 
 
 ### HU-VET-11a: Consulta de Libreta Sanitaria
