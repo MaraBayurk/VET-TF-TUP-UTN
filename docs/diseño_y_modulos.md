@@ -63,25 +63,27 @@ Son las restricciones lógicas y operativas propias del dominio de la clínica v
 
 - **RN-02: Dependencia Estricta del Paciente:** Una Mascota no puede existir en el sistema de forma aislada. Su creación requiere obligatoriamente la vinculación a un Cliente responsable registrado en el sistema (Relación 1 a N).
 
-- **RN-03: Integridad y Auditoría del Registro Clínico:** RN-03: Queda estrictamente prohibida la eliminación física (DELETE) o la baja lógica de un registro de AtencionClinica una vez guardado. Se permite la actualización de los datos (corrección de errores ortográficos, o ampliación de diagnóstico y tratamiento) exclusivamente por usuarios con rol VETERINARIO. Para garantizar la validez legal del documento, toda modificación debe quedar registrada de forma transparente, impactando automáticamente en los campos de auditoría id_usuario_ultima_modificacion y fecha_ultima_modificacion de la base de datos.
+- **RN-03: Integridad y Auditoría del Registro Clínico:** Queda estrictamente prohibida la eliminación física (DELETE) o la baja lógica de un registro de AtencionClinica una vez guardado. Se permite la actualización de los datos, como la corrección de errores ortográficos o la ampliación del diagnóstico y tratamiento, exclusivamente al Veterinario que haya registrado la atención clínica. Toda modificación debe quedar registrada de forma transparente, actualizando automáticamente los campos id_usuario_ultima_modificacion y fecha_ultima_modificacion de la base de datos, con el objetivo de preservar la trazabilidad e integridad del historial clínico.
 
 - **RN-04: Exclusividad de Especialidades:** El vínculo con una especialidad médica se persiste de forma exclusiva en la tabla Veterinario aplicando la estrategia Class Table Inheritance. Para Administradores y Clientes, esta relación es estructuralmente inexistente, evitando la proliferación de valores nulos en la base de datos. 
 
-- **RN-05: Control Centralizado de Agenda:** Los Clientes tienen permisos limitados sobre los turnos: solo pueden solicitarlos (ingresan como PENDIENTE) o cancelarlos. La potestad de reprogramar o dar por completado un turno recae exclusivamente en el Administrador de la clínica.
+- **RN-05: Control Centralizado de Agenda:** Los Clientes tienen permisos limitados sobre los turnos: pueden solicitar turnos, que ingresan en estado PENDIENTE, y cancelar sus propios turnos. El Administrador es responsable de aprobar, reprogramar, cancelar y completar turnos manualmente. El Veterinario no puede modificar manualmente el estado de los turnos. Sin embargo, cuando registra una atención clínica asociada a un turno, el backend debe cambiar automáticamente el estado de dicho turno a COMPLETADO.
 
-- **RN-06: Auditoría de Reservas:** Todo Turno generado debe registrar inmutablemente el ID del usuario que originó la transacción (id_usuario_creador), permitiendo a la clínica auditar si el turno fue auto-gestionado por el dueño o cargado manualmente por el recepcionista.
+- **RN-06: Auditoría de Reservas:** Todo turno generado debe registrar de forma inmutable el ID del usuario que originó la transacción (id_usuario_creador), permitiendo a la clínica auditar si el turno fue solicitado directamente por el Cliente o cargado manualmente por el Administrador durante las tareas de recepción.
 
 - **RN-07: Resolución de Identidad (Usuarios a Perfiles Específicos):** Dado que el modelo implementa la separación de tablas mediante Class Table Inheritance, las operaciones exclusivas de un rol (como la creación de mascotas por parte de un Cliente o el registro de una atención por un Veterinario) requieren una resolución de identidad. La sesión del sistema opera sobre la base del id_usuario. Antes de ejecutar inserciones o consultas en entidades dependientes (como Mascota o Turno), el backend debe obligatoriamente cruzar el id_usuario con la tabla de la extensión del perfil (Cliente o Veterinario) para obtener y operar con la clave primaria específica (id_cliente o id_veterinario). 
 
 - **RN-08: Gestión de Dominios Cerrados (Estados y Tipos):** Los valores correspondientes a los roles de sistema, los estados de los turnos y los tipos de atención clínica operan como dominios cerrados mediante tablas catálogo. El código de la aplicación (backend) debe consumir estos catálogos dinámicamente mediante sus respectivos identificadores (id_rol, id_estado_turno, id_tipo_atencion) en lugar de validar cadenas de texto plano (strings) en el código, asegurando la consistencia entre la base de datos y la lógica de negocio. 
 
-- **RN-09: Trazabilidad Turno-Atención (Cierre Automático):** Existe una relación directa entre la reserva y la práctica médica. Cuando un Veterinario registra una nueva AtencionClinica, el sistema debe permitir vincularla a un id_turno existente. Al persistir este vínculo, el sistema debe cambiar automáticamente el estado de ese turno a COMPLETADO, optimizando el flujo de trabajo de la recepción y garantizando la coherencia de la agenda. 
+- **RN-09: Trazabilidad Turno-Atención (Cierre Automático):** Una atención clínica puede registrarse asociada a un turno existente o sin turno asociado, en casos de urgencias o consultas espontáneas. Cuando el Veterinario registra una atención clínica vinculada a un turno, el sistema debe validar que la mascota y el veterinario coincidan con los datos del turno, que este no se encuentre en estado CANCELADO y que no tenga otra atención clínica asociada. Una vez que la atención se registra correctamente, el sistema debe cambiar automáticamente el estado del turno a COMPLETADO. Si la atención se registra sin un turno asociado, no se debe modificar el estado de ningún turno.
 
-- **RN-10: Cancelación en Cascada por Baja Lógica:** Cuando se aplica la baja lógica a un paciente (modificando activo = false en la tabla Mascota), el sistema debe liberar automáticamente la agenda médica. El backend ejecutará una actualización en bloque sobre la tabla Turno, buscando todas las reservas futuras vinculadas a ese id_mascota que se encuentren en estado PENDIENTE o APROBADO, y modificará su estado a CANCELADO. Los turnos pasados (históricos) o ya completados permanecerán inalterados para preservar la auditoría. 
+- **RN-10: Baja lógica de Mascotas y gestión de turnos asociados:**  Cuando una mascota recibe una baja lógica, el sistema debe cambiar su estado a inactivo (`activo = false`) y cancelar automáticamente los turnos futuros asociados que se encuentren en estado `PENDIENTE` o `APROBADO`. Los turnos anteriores y las atenciones clínicas registradas deben conservarse para mantener la trazabilidad del historial. No se podrán generar nuevos turnos ni registrar nuevas atenciones clínicas para mascotas inactivas. Si existe una atención clínica en curso al momento de la baja, esta deberá finalizar o ser cancelada por un usuario autorizado antes de completar la baja. La reactivación de una mascota solo podrá ser realizada por el Administrador o el Veterinario, verificando previamente que sus datos se encuentren vigentes.
 
 - **RN-11: Motor de Cálculo de Disponibilidad:** El sistema calcula los horarios disponibles de forma dinámica. Para ello, segmenta la franja horaria definida en la entidad HorarioAtencion (desde hora_inicio hasta hora_fin) basándose en el intervalo_minutos estipulado para ese profesional (ej. consultas de 30 minutos). A ese total de bloques posibles, el backend le resta automáticamente aquellos horarios que ya se encuentren registrados en la entidad Turno con estado PENDIENTE o APROBADO para esa misma fecha y veterinario. 
 
 - **RN-12: Registro Específico de Vacunación:** Cuando una atención médica se categoriza bajo el TipoAtencion de "Vacuna", el sistema trasciende el registro clínico estándar y exige completar obligatoriamente la entidad VacunaAplicada. Este registro anexo asegura la trazabilidad del insumo médico (lote, dosis, laboratorio) y proyecta la fecha de la proxima_aplicacion. 
+
+- **RN-13: Control de Acceso y Gestión de Mascotas:** El sistema debe garantizar que las operaciones sobre mascotas respeten los permisos establecidos para cada rol. El Administrador y el Veterinario podrán crear, consultar, modificar y dar de baja lógicamente cualquier mascota registrada. El Cliente podrá crear, consultar y modificar únicamente las mascotas asociadas a su propio perfil, sin disponer de permisos para dar de baja registros. Todas las operaciones deberán validarse en el backend, verificando la identidad del usuario, su rol y, cuando corresponda, la pertenencia de la mascota al cliente autenticado.
 
 
 ---
@@ -115,7 +117,7 @@ Son las restricciones lógicas y operativas propias del dominio de la clínica v
 - **Gestión y Trazabilidad (Admin):** Panel de control para que el administrador visualice, apruebe o modifique los turnos. Incluye el registro interno de auditoría (id_usuario_creador y fecha_actualizacion).
 - **Cancelación de Turnos:** Funcionalidad para que tanto clientes como administradores puedan cambiar el estado de un turno a "CANCELADO" sin eliminar el registro físico.
 - **Consulta de Agenda (Veterinario):** Vista de solo lectura para que el profesional médico pueda visualizar los turnos que tiene asignados en el día, incluyendo el motivo de la consulta, el horario y el paciente a atender. 
-- **Configuración de Agenda Médica (Administrador):** Interfaz interna que permite al recepcionista definir los días laborables (dia_semana), el horario de apertura y cierre, y la duración estándar de las consultas (intervalo_minutos) para cada médico. Estos parámetros son el insumo principal que utiliza el sistema para proyectar la disponibilidad en el portal de clientes.
+- **Configuración de Agenda Médica (Administrador):** Interfaz interna que permite al administrador definir los días laborables (dia_semana), el horario de apertura y cierre, y la duración estándar de las consultas (intervalo_minutos) para cada médico. Estos parámetros son el insumo principal que utiliza el sistema para proyectar la disponibilidad en el portal de clientes.
 
 ## 3.5 Módulo de Atención Clínica y Libreta Sanitaria
 
@@ -159,6 +161,7 @@ Son las restricciones lógicas y operativas propias del dominio de la clínica v
 - ✔: Permiso concedido (con el alcance aclarado entre paréntesis).
 - X: Permiso denegado por arquitectura o regla de negocio.
 - RN-03: El historial clínico tiene estrictamente prohibida su eliminación para garantizar trazabilidad legal.
+- Aclaración: La transición de un turno al estado COMPLETADO también puede realizarse automáticamente desde el backend cuando el Veterinario registra una atención clínica asociada al turno. Esta transición automática no constituye una modificación manual del estado por parte del Veterinario.
 
 | **Estado Origen**    | **Estado Destino** | **Actor Responsable**      | **Regla de Negocio / Disparador**                                                                          |
 | -------------------- | ------------------ | -------------------------- | ---------------------------------------------------------------------------------------------------------- |
@@ -207,6 +210,7 @@ Como Administrador, quiero poder registrar nuevas cuentas de usuario en el siste
 - El formulario interno debe permitir al Administrador seleccionar el rol del nuevo usuario (id_rol mapeado a Administrador, Veterinario o Cliente).
 - Si el Administrador selecciona el rol Cliente, el sistema debe habilitar el flujo secundario para ejecutar el método crearMascota() y vincular al animal inmediatamente.
 - Si el Administrador selecciona el rol Veterinario, el sistema debe requerir el ingreso de la matrícula y la vinculación a una Especialidad existente.
+- El registro de un Cliente no implica la creación automática de una mascota. Una vez creada su cuenta y perfil, el Cliente podrá registrar sus propias mascotas mediante la funcionalidad de alta de pacientes, definida en la HU-VET-04.
 
 ### HU-VET-01c: Registro público de Cliente y Mascota (Onboarding) 
 
@@ -251,24 +255,30 @@ Como usuario autenticado, quiero poder actualizar mis propios datos personales, 
 
 ### HU-VET-04: Alta y vinculación de Paciente
 
-Como Veterinario, quiero registrar una nueva mascota asociándola obligatoriamente a un cliente existente, para iniciar su legajo clínico en la veterinaria.
+Como Administrador, Veterinario o Cliente, quiero registrar una nueva mascota y asociarla obligatoriamente a un cliente existente, para incorporar al paciente al sistema y permitir su seguimiento.
 
 #### Criterios de aceptación
 
-- La creación de la mascota exige el ingreso de un id_cliente válido. Si no se provee, el método crear() debe fallar.
-- Por defecto, el registro se crea con el atributo activo = true.
-- Se debe validar que la fecha_nacimiento no sea mayor a la fecha actual del sistema.
-- Liberación de agenda (Cascada): Al confirmar la baja lógica de la mascota, el sistema debe identificar automáticamente todos los turnos futuros vinculados a esta que se encuentren en estado PENDIENTE o APROBADO, y cambiar su estado a CANCELADO. 
+- El Administrador y el Veterinario pueden registrar mascotas y asociarlas a cualquier cliente existente.
+- El Cliente puede registrar únicamente mascotas asociadas a su propio perfil, obtenido a partir de la sesión autenticada.
+- El sistema debe validar que el cliente asociado exista y se encuentre activo.
+- Por defecto, la mascota se registra con activo = true.
+No se permite registrar una mascota con una fecha de nacimiento posterior a la fecha actual.
 
 ### HU-VET-05: Baja lógica de Paciente
 
-Como Veterinario, quiero aplicar una baja lógica a una mascota (por fallecimiento o inactividad prolongada), para excluirla de las atenciones futuras sin eliminar su historial médico.
+Como Administrador o Veterinario, quiero aplicar una baja lógica a una mascota, para excluirla de las nuevas atenciones y reservas, preservando su historial clínico.
 
 #### Criterios de aceptación
 
-- El método darDeBaja() debe cambiar el estado del atributo activo a false.
-- El sistema debe restringir la creación de nuevos turnos o atenciones clínicas para mascotas con activo = false.
-- Los turnos históricos y atenciones previas de esa mascota deben permanecer inmutables y consultables.
+- El Administrador puede dar de baja cualquier mascota registrada.
+- El Veterinario puede dar de baja cualquier mascota registrada.
+- El Cliente no puede dar de baja directamente a sus mascotas desde el sistema.
+- Al realizar la baja, el atributo activo debe cambiar a false.
+- El sistema debe cancelar automáticamente los turnos futuros PENDIENTES o APROBADOS asociados a la mascota.
+- Las atenciones clínicas y los turnos históricos deben conservarse y permanecer consultables por los usuarios autorizados.
+- El sistema debe impedir la creación de nuevos turnos y atenciones para mascotas inactivas.
+- Liberación de agenda (Cascada): Al confirmar la baja lógica de la mascota, el sistema debe identificar automáticamente todos los turnos   futuros vinculados a esta que se encuentren en estado PENDIENTE o APROBADO, y cambiar su estado a CANCELADO.
 
 ### HU-VET-06-a: Visualización de mis mascotas
 
@@ -281,16 +291,17 @@ Como Cliente, quiero visualizar un listado con los perfiles de mis mascotas, par
 
 ### HU-VET-06-b: Actualización de datos de mascotas (Autogestión) 
 
-Como Cliente, quiero poder editar la información básica de los perfiles de mis mascotas, para mantener sus datos actualizados sin tener que depender del recepcionista de la clínica. 
+Como Cliente, quiero poder editar la información básica de los perfiles de mis mascotas, para mantener sus datos actualizados sin tener que depender del administrador de la clínica. 
 
 #### Criterios de aceptación:
 
-- El sistema debe permitir al usuario modificar campos descriptivos de la mascota (raza, sexo, observaciones, etc.).
-- Validación de pertenencia: El método actualizarMascota() ejecutado por el Cliente debe validar obligatoriamente que el id_mascota que se intenta modificar pertenezca al id_cliente de su sesión activa, impidiendo que altere datos de mascotas de otros usuarios.
-- El sistema debe actualizar automáticamente el campo fecha_actualizacion de la tabla Mascota al momento de guardar los cambios.
+- El Cliente puede modificar únicamente los campos descriptivos autorizados de sus propias mascotas, como raza, sexo y observaciones.
+- El Administrador y el Veterinario pueden modificar los datos de cualquier mascota, de acuerdo con sus responsabilidades dentro de la clínica.
+- Ningún usuario puede modificar la mascota de un Cliente distinto cuando actúa con el rol Cliente.
+- No se permite modificar los datos de una mascota inactiva mediante el flujo habitual de edición.
+- Toda modificación debe actualizar automáticamente el campo fecha_actualizacion.
 
-
-### HU-VET-06-c: Búsqueda de pacientes por parte de Recepción 
+### HU-VET-06-c: Búsqueda de pacientes por parte del administrador
 Como Administrador, quiero buscar y visualizar las mascotas registradas asociadas a un cliente específico, para poder seleccionar al paciente correcto al momento de agendar un turno de forma manual. Criterios de aceptación:
 
 - El método buscarMascotas() ejecutado por el perfil Administrador debe permitir filtrar resultados por el id_cliente o nombre del dueño.
@@ -328,7 +339,7 @@ Como Administrador, quiero gestionar los cambios de estado de los turnos solicit
 #### Criterios de aceptación
 
 - El sistema debe permitir al Administrador cambiar el estado de una reserva de PENDIENTE a APROBADO tras confirmar la disponibilidad en la agenda.
-- Transición a COMPLETADO (Disparador Automático): El cambio de estado a COMPLETADO se dispara automáticamente en el backend cuando un Veterinario crea un registro de AtencionClinica referenciando el id_turno correspondiente. El Administrador también conserva la capacidad de forzar este estado manualmente en casos excepcionales. 
+- Transición a COMPLETADO (Disparador Automático): Cuando el Veterinario registra una atención clínica asociada a un turno, el backend debe cambiar automáticamente el estado del turno a COMPLETADO. Esta operación no requiere que el Veterinario modifique manualmente el estado. El Administrador también puede establecer manualmente este estado en situaciones excepcionales, dejando registrada la modificación para fines de auditoría.
 - El Administrador debe tener la capacidad de pasar un turno a CANCELADO si el cliente avisa su inasistencia o si el profesional no se presenta.
 - Queda estrictamente prohibida la eliminación física del registro del turno de la base de datos, garantizando que el historial de reservas quede intacto para auditoría.
 - El sistema debe registrar automáticamente la marca de tiempo de cualquier modificación de estado en el campo fecha_actualizacion de la tabla Turno.
@@ -351,6 +362,7 @@ Como Veterinario, quiero visualizar el listado de turnos que tengo asignados, pa
 - El método buscarTurnos() invocado por el Veterinario debe filtrar automáticamente la búsqueda en la base de datos utilizando su propio id_veterinario resuelto desde su sesión.
 - El sistema no debe permitir al Veterinario modificar el estado de los turnos, reprogramarlos ni cancelarlos (acciones exclusivas del Administrador y/o Cliente).
 - La vista debe ordenar los turnos cronológicamente por el atributo fecha_hora.
+- La restricción de modificación manual de estados no impide que el backend actualice automáticamente un turno a `COMPLETADO` cuando se registra una atención clínica asociada, según lo establecido en la HU-VET-08.
 
 
 ### HU-VET-09c: Consulta de próximos turnos (Cliente)
@@ -369,7 +381,7 @@ Como Cliente, quiero visualizar el listado de mis próximos turnos solicitados, 
 
 ### HU-VET-10a: Registro de Atención Médica
 
-Como Veterinario, quiero poder corregir o ampliar el diagnóstico, tratamiento u observaciones de una atención clínica que registré previamente, para mantener la exactitud del historial médico sin vulnerar su integridad legal.
+Solo los usuarios con rol VETERINARIO pueden ejecutar la acción de editar una atención clínica, y únicamente sobre los registros que hayan creado previamente, mediante el método actualizarAtencion().
 
 #### Criterios de aceptación
 
@@ -396,6 +408,7 @@ Como Cliente o Veterinario, quiero leer el historial de atenciones clínicas de 
 
 - El acceso a este módulo es de solo lectura (no existen métodos de actualización o eliminación en la vista de Libreta Sanitaria).
 - Si el actor es un Cliente, el método buscarAtenciones() debe limitarse estrictamente a los historiales correspondientes a los id_mascota de los que es dueño.
+- La consulta de la Libreta Sanitaria es de solo lectura. Las correcciones de los registros clínicos se realizan mediante la funcionalidad de edición definida en la HU-VET-10a, respetando los permisos y mecanismos de auditoría establecidos.
 
 
 ### HU-VET-11b: Panel de Próximos Controles y Vacunas (Alertas)
