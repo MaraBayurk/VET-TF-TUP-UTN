@@ -30,14 +30,16 @@ Contiene los datos principales de registro e inicio de sesión para todas las pe
 | Campo | Tipo de dato | Restricciones | Descripción |
 |---|---|---|---|
 | id_usuario | INT UNSIGNED | PK, AUTO_INCREMENT | Identificador único del usuario. |
-| nombre | VARCHAR(100) | NOT NULL | Nombre completo del usuario. |
+| nombre | VARCHAR(100) | NOT NULL | Nombre del usuario. |
+| apellido | VARCHAR(100) | NOT NULL | Apellido del usuario. |
+| numero_documento | VARCHAR(20) | UNIQUE, NOT NULL | Documento de identidad del usuario. |
 | email | VARCHAR(150) | UNIQUE, NOT NULL | Correo electrónico de contacto y acceso. |
 | password_hash | VARCHAR(255) | NOT NULL | Contraseña cifrada del usuario. |
 | telefono | VARCHAR(30) | NULL | Número de teléfono del usuario. |
 | id_rol | TINYINT UNSIGNED | FK, NOT NULL | Relaciona al usuario con un nivel de acceso de la tabla Rol. |
-| activo | TINYINT(1) | NOT NULL, DEFAULT 1 | Valor booleano para el manejo lógico de usuarios. |
 | fecha_creacion | DATETIME | NOT NULL, DEFAULT CURRENT_TIMESTAMP | Fecha y hora de creación del registro. |
 | fecha_actualizacion | DATETIME | NOT NULL, ON UPDATE CURRENT_TIMESTAMP | Fecha y hora de la última modificación del registro. |
+| activo | TINYINT(1) | NOT NULL, DEFAULT 1 | Valor booleano para el manejo lógico de usuarios. |
 
 ### Tabla: Cliente
 
@@ -60,12 +62,12 @@ Guarda los perfiles biológicos de los pacientes veterinarios.
 | nombre | VARCHAR(100) | NOT NULL | Nombre de la mascota. |
 | especie | VARCHAR(60) | NOT NULL | Clasificación de la especie del animal. |
 | raza | VARCHAR(100) | NULL | Raza del paciente. |
-| fecha_nacimiento | DATE | NULL | Fecha de nacimiento de la mascota. |
+| fecha_nacimiento | DATE | NULL | Fecha de nacimiento de la mascota. (Nota: El sistema utiliza este campo para calcular dinámicamente la edad exacta en la interfaz, evitando almacenar valores estáticos). |
 | sexo | VARCHAR(20) | NOT NULL | Identificación del sexo biológico. |
 | observaciones | TEXT | NULL | Notas generales sobre la mascota. |
-| activo | TINYINT(1) | NOT NULL, DEFAULT 1 | Valor lógico para gestionar altas y bajas. |
 | fecha_creacion | DATETIME | NOT NULL, DEFAULT CURRENT_TIMESTAMP | Fecha y hora de registro de la mascota. |
 | fecha_actualizacion | DATETIME | NOT NULL, ON UPDATE CURRENT_TIMESTAMP | Fecha y hora de la última modificación. |
+| activo | TINYINT(1) | NOT NULL, DEFAULT 1 | Valor lógico para gestionar altas y bajas. |
 
 ### Tabla: TipoAtencion
 
@@ -94,6 +96,7 @@ Define las ramas médicas con las que cuenta la veterinaria.
 | id_especialidad | INT UNSIGNED | PK, AUTO_INCREMENT | Identificador único de la especialidad. |
 | nombre | VARCHAR(100) | UNIQUE, NOT NULL | Título de la especialidad. |
 | descripcion | VARCHAR(255) | NULL | Texto explicativo sobre el alcance de la especialidad. |
+| activo | TINYINT(1) | NOT NULL, DEFAULT 1 | Valor lógico para gestionar la disponibilidad (baja lógica) de la especialidad. |
 
 ### Tabla: Veterinario
 
@@ -104,7 +107,7 @@ Extiende la información del usuario para el personal médico.
 | id_veterinario | INT UNSIGNED | PK, AUTO_INCREMENT | Identificador único del veterinario. |
 | id_usuario | INT UNSIGNED | FK, UNIQUE, NOT NULL | Relación 1 a 1 con el perfil base de la tabla Usuario. |
 | matricula | VARCHAR(50) | UNIQUE, NOT NULL | Número de registro o matrícula profesional. |
-| Especialidad_id_especialidad | INT UNSIGNED | FK, NOT NULL | Vincula al profesional con la tabla Especialidad. |
+| id_especialidad | INT UNSIGNED | FK, NOT NULL | Vincula al profesional con la tabla Especialidad. |
 
 ### Tabla: Turno
 
@@ -141,6 +144,7 @@ Historial de las intervenciones y evaluaciones de salud realizadas a las mascota
 | fecha_atencion | DATETIME | NOT NULL, DEFAULT CURRENT_TIMESTAMP | Fecha y hora en que se ejecuta la visita. |
 | id_usuario_ultima_modificacion | INT UNSIGNED | FK, NULL | Usuario que realizó la última modificación del registro clínico. |
 | fecha_ultima_modificacion | DATETIME | NULL | Fecha y hora de la última modificación. |
+| activo | TINYINT(1) | NOT NULL, DEFAULT 1 | Indicador de baja lógica para ocultar registros clínicos cargados por error sin eliminarlos físicamente. |
 
 ### Tabla: HorarioAtencion
 
@@ -163,7 +167,7 @@ Registro detallado de los productos biológicos administrados a un paciente. Per
 | Campo | Tipo de dato | Restricciones | Descripción |
 |---|---|---|---|
 | id_vacuna_aplicada | INT UNSIGNED | PK, AUTO_INCREMENT | Identificador único autoincremental. |
-| AtencionClinica_id_atencion | INT UNSIGNED | FK, NOT NULL | Dependencia de una instancia de AtencionClinica en particular (relación 1 a N). |
+| id_atencion | INT UNSIGNED | FK, NOT NULL | Dependencia de una instancia de AtencionClinica en particular (relación 1 a N). |
 | nombre_vacuna | VARCHAR(120) | NOT NULL | Identificación de la vacuna proporcionada. |
 | dosis | VARCHAR(80) | NULL | Proporción de la vacuna aplicada. |
 | lote | VARCHAR(80) | NULL | Número de trazabilidad del biológico. |

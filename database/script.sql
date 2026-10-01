@@ -33,7 +33,6 @@ AUTO_INCREMENT = 4
 DEFAULT CHARACTER SET = utf8mb4
 COLLATE = utf8mb4_unicode_ci;
 
-
 -- -----------------------------------------------------
 -- Table `veterinaria_db`.`Usuario`
 -- -----------------------------------------------------
@@ -42,6 +41,8 @@ DROP TABLE IF EXISTS `veterinaria_db`.`Usuario` ;
 CREATE TABLE IF NOT EXISTS `veterinaria_db`.`Usuario` (
   `id_usuario` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `nombre` VARCHAR(100) NOT NULL,
+  `apellido` VARCHAR(100) NOT NULL,
+  `numero_documento` VARCHAR(20) NOT NULL,
   `email` VARCHAR(150) NOT NULL,
   `password_hash` VARCHAR(255) NOT NULL,
   `telefono` VARCHAR(30) NULL,
@@ -51,6 +52,7 @@ CREATE TABLE IF NOT EXISTS `veterinaria_db`.`Usuario` (
   `fecha_actualizacion` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id_usuario`),
   UNIQUE INDEX `email` (`email` ASC) VISIBLE,
+  UNIQUE INDEX `numero_documento` (`numero_documento` ASC) VISIBLE,
   INDEX `fk_usuario_rol` (`id_rol` ASC) VISIBLE,
   CONSTRAINT `fk_usuario_rol`
     FOREIGN KEY (`id_rol`)
@@ -153,6 +155,7 @@ CREATE TABLE IF NOT EXISTS `veterinaria_db`.`Especialidad` (
   `id_especialidad` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `nombre` VARCHAR(100) NOT NULL,
   `descripcion` VARCHAR(255) NULL DEFAULT NULL,
+  `activo` TINYINT(1) NOT NULL DEFAULT '1',
   PRIMARY KEY (`id_especialidad`),
   UNIQUE INDEX `nombre` (`nombre` ASC) VISIBLE)
 ENGINE = InnoDB
@@ -169,18 +172,18 @@ CREATE TABLE IF NOT EXISTS `veterinaria_db`.`Veterinario` (
   `id_veterinario` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `id_usuario` INT UNSIGNED NOT NULL,
   `matricula` VARCHAR(50) NOT NULL,
-  `Especialidad_id_especialidad` INT UNSIGNED NOT NULL,
+  `id_especialidad` INT UNSIGNED NOT NULL,
   PRIMARY KEY (`id_veterinario`),
   UNIQUE INDEX `id_usuario` (`id_usuario` ASC) VISIBLE,
   UNIQUE INDEX `matricula` (`matricula` ASC) VISIBLE,
-  INDEX `fk_Veterinario_Especialidad1_idx` (`Especialidad_id_especialidad` ASC) VISIBLE,
+  INDEX `fk_Veterinario_Especialidad1_idx` (`id_especialidad` ASC) VISIBLE,
   CONSTRAINT `fk_veterinario_usuario`
     FOREIGN KEY (`id_usuario`)
     REFERENCES `veterinaria_db`.`Usuario` (`id_usuario`)
     ON DELETE RESTRICT
     ON UPDATE CASCADE,
   CONSTRAINT `fk_Veterinario_Especialidad1`
-    FOREIGN KEY (`Especialidad_id_especialidad`)
+    FOREIGN KEY (`id_especialidad`)
     REFERENCES `veterinaria_db`.`Especialidad` (`id_especialidad`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
@@ -254,6 +257,7 @@ CREATE TABLE IF NOT EXISTS `veterinaria_db`.`AtencionClinica` (
   `fecha_atencion` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `id_usuario_ultima_modificacion` INT UNSIGNED NULL DEFAULT NULL,
   `fecha_ultima_modificacion` DATETIME NULL DEFAULT NULL,
+  `activo` TINYINT(1) NOT NULL DEFAULT '1',
   PRIMARY KEY (`id_atencion`),
   UNIQUE INDEX `id_turno` (`id_turno` ASC) VISIBLE,
   INDEX `fk_atencion_veterinario` (`id_veterinario` ASC) VISIBLE,
@@ -328,17 +332,42 @@ CREATE TABLE IF NOT EXISTS `veterinaria_db`.`VacunaAplicada` (
   `fecha_aplicacion` DATE NOT NULL,
   `proxima_aplicacion` DATE NULL DEFAULT NULL,
   `laboratorio` VARCHAR(120) NULL DEFAULT NULL,
-  `AtencionClinica_id_atencion` INT UNSIGNED NOT NULL,
+  `id_atencion` INT UNSIGNED NOT NULL,
   PRIMARY KEY (`id_vacuna_aplicada`),
-  INDEX `fk_VacunaAplicada_AtencionClinica1_idx` (`AtencionClinica_id_atencion` ASC) VISIBLE,
+  INDEX `fk_VacunaAplicada_AtencionClinica1_idx` (`id_atencion` ASC) VISIBLE,
   CONSTRAINT `fk_VacunaAplicada_AtencionClinica1`
-    FOREIGN KEY (`AtencionClinica_id_atencion`)
+    FOREIGN KEY (`id_atencion`)
     REFERENCES `veterinaria_db`.`AtencionClinica` (`id_atencion`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb4
 COLLATE = utf8mb4_unicode_ci;
+
+-- -----------------------------------------------------
+-- Carga de datos iniciales (Seeders) para Catálogos
+-- -----------------------------------------------------
+USE `veterinaria_db`;
+
+-- Carga de Roles
+INSERT INTO `Rol` (`nombre`) VALUES 
+('Administrador'),
+('Cliente'),
+('Veterinario');
+
+-- Carga de Estados de Turno (Según tabla de transiciones)
+INSERT INTO `EstadoTurno` (`nombre`) VALUES 
+('PENDIENTE'),
+('APROBADO'),
+('COMPLETADO'),
+('CANCELADO');
+
+-- Carga de Tipos de Atención (Según Módulo 5)
+INSERT INTO `TipoAtencion` (`nombre`) VALUES 
+('Consulta'),
+('Control'),
+('Vacuna'),
+('Urgencia');
 
 
 SET SQL_MODE=@OLD_SQL_MODE;
