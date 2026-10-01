@@ -71,7 +71,7 @@ Son las restricciones lógicas y operativas propias del dominio de la clínica v
 
 - **RN-08: Gestión de Dominios Cerrados (Estados y Tipos):** Los valores correspondientes a los roles de sistema, los estados de los turnos y los tipos de atención clínica operan como dominios cerrados mediante tablas catálogo. El código de la aplicación (backend) debe consumir estos catálogos dinámicamente mediante sus respectivos identificadores (id_rol, id_estado_turno, id_tipo_atencion) en lugar de validar cadenas de texto plano (strings) en el código, asegurando la consistencia entre la base de datos y la lógica de negocio.
 
-- **RN-09: Trazabilidad Turno-Atención (Cierre Automático):**  Una atención médica puede registrarse como espontánea o asociarse a un turno existente. En este último caso, el sistema deberá validar que el turno corresponda a la misma mascota y veterinario, que se encuentre en estado `APROBADO` y que no tenga otra atención asociada. Una vez registrada la atención, el sistema cambiará automáticamente el estado del turno a `COMPLETADO`. Los turnos en estado `PENDIENTE` o `CANCELADO` no podrán completarse mediante este mecanismo.
+- **RN-09: Trazabilidad Turno-Atención (Cierre Automático):** Una atención clínica puede registrarse asociada a un turno existente o sin turno asociado, en casos de urgencias o consultas espontáneas. Cuando el Veterinario registra una atención clínica vinculada a un turno, el sistema debe validar que la mascota y el veterinario coincidan con los datos del turno, que este se encuentre exclusivamente en estado APROBADO y que no tenga otra atención clínica asociada. Una vez que la atención se registra correctamente, el sistema debe cambiar automáticamente el estado del turno a COMPLETADO. Si la atención se registra sin un turno asociado, no se debe modificar el estado de ningún turno.
 
 - **RN-10: Baja lógica de Mascotas y gestión de turnos asociados:** Cuando una mascota recibe una baja lógica, el sistema debe cambiar su estado a inactivo (activo = false) y cancelar automáticamente los turnos futuros asociados que se encuentren en estado PENDIENTE o APROBADO. Los turnos históricos y las atenciones clínicas registradas deben conservarse para mantener la trazabilidad del historial. No se podrán generar nuevos turnos ni registrar nuevas atenciones clínicas para mascotas inactivas. La reactivación de una mascota solo podrá ser realizada por el Administrador o el Veterinario, verificando previamente que sus datos se encuentren vigentes.
 
@@ -115,7 +115,7 @@ Son las restricciones lógicas y operativas propias del dominio de la clínica v
 
 ## 3.5 Módulo de Atención Clínica y Libreta Sanitaria
 
-- **Registro Médico (Veterinario):** Formularios para que el profesional registre el resultado de una visita. El sistema permite seleccionar el turno PENDIENTE o APROBADO asignado a ese paciente para vincularlo directamente con la nueva atención clínica. El profesional categoriza la visita (Consulta, Vacuna o Control), ingresando diagnóstico, tratamiento y fecha del proximo_control.
+- **Registro Médico (Veterinario):** Formularios para que el profesional registre el resultado de una visita. El sistema permite seleccionar el turno APROBADO asignado a ese paciente para vincularlo directamente con la nueva atención clínica. El profesional categoriza la visita (Consulta, Vacuna o Control), ingresando diagnóstico, tratamiento y fecha del proximo_control.
 - **Libreta Sanitaria Digital (Propuesta de Valor):** Vista de solo lectura diseñada como el núcleo del portal web del Cliente, donde el dueño puede consultar la línea de tiempo con el historial auditado de vacunas y atenciones de sus propias mascotas. El Veterinario también cuenta con un acceso equivalente (modo clínico) para revisar el registro completo de cualquier paciente antes de atenderlo, visualizando la trazabilidad de cualquier corrección o ampliación médica realizada.
 
 ## 3.6 Módulo de Catálogos (Configuración)
@@ -132,13 +132,10 @@ Son las restricciones lógicas y operativas propias del dominio de la clínica v
 | (Perfiles)          | Consultar                | ✔ (Todos)                                     | ✔ (Solo propio)                          | ✔ (Solo propio)                     |
 |                     | Modificar                | ✔ (Todos)                                     | ✔ (Solo propio)                          | ✔ (Solo propio)                     |
 |                     | Dar de baja              | ✔ (Todos)                                     | X                                        | X                                   |
-| **Mascotas**        | Crear                    | ✔                                             | ✔                                        | ✔ (Propias)                         |
+| Mascotas            | Crear                    | ✔                                             | ✔                                        | ✔ (Propias)                         |
 |                     | Consultar                | ✔ (Todas)                                     | ✔ (Todas)                                | ✔ (Propias)                         |
 |                     | Modificar                | ✔                                             | ✔                                        | ✔ (Propias)                         |
 |                     | Baja lógica              | ✔                                             | ✔                                        | X                                   |
-| (Pacientes)         | Consultar                | ✔ (Todas)                                     | ✔ (Todas)                                | ✔ (Solo propias)                    |
-|                     | Modificar                | ✔ (Todas)                                     | ✔ (Todas)                                | ✔ (Solo propias)                    |
-|                     | Dar de baja              | ✔ (Todas)                                     | ✔ (Todas)                                | ✔ (Solo propias)                    |
 | Turnos (Agenda)     | Cancelar / Completar     | ✔ (Puede realizar ambas acciones manualmente) | ✘ (No puede cambiar estados manualmente) | ✔ (Solo cancelar turnos propios)    |
 | (Agenda)            | Consultar                | ✔ (Todos)                                     | ✔ (Solo asignados)                       | ✔ (Solo propios)                    |
 |                     | Modificar (Reprogramar)  | ✔ (Control total)                             | X                                        | X                                   |
@@ -161,13 +158,13 @@ Aclaración: La transición de un turno al estado COMPLETADO también puede real
 - RN-03: El historial clínico tiene estrictamente prohibida su eliminación para garantizar trazabilidad legal.
 - Aclaración: La transición de un turno al estado COMPLETADO también puede realizarse automáticamente desde el backend cuando el Veterinario registra una atención clínica asociada al turno. Esta transición automática no constituye una modificación manual del estado por parte del Veterinario.
 
-| **Estado Origen** | **Estado Destino** | **Actor Responsable**  | **Regla de Negocio / Disparador**                                                           |
-| ----------------- | ------------------ | ---------------------- | ------------------------------------------------------------------------------------------- |
-| N/A (Creación)    | PENDIENTE          | Cliente, Administrador | Se genera al solicitar una nueva reserva en el sistema.                                     |
-| PENDIENTE         | APROBADO           | Administrador          | El administrador confirma la solicitud del turno.                                           |
-| PENDIENTE         | CANCELADO          | Cliente, Administrador | El cliente cancela su propio turno o el administrador cancela cualquier turno.              |
-| APROBADO          | CANCELADO          | Cliente, Administrador | El cliente cancela su propio turno o el administrador cancela cualquier turno.              |
-| APROBADO          | COMPLETADO         | Sistema                | Se registra una atención médica asociada al turno y se cumplen las condiciones de la RN-09. |
+| **Estado Origen**    | **Estado Destino** | **Actor Responsable**  | **Regla de Negocio / Disparador**                                                                            |
+| -------------------- | ------------------ | ---------------------- | ------------------------------------------------------------------------------------------------------------ |
+| N/A (Creación)       | PENDIENTE          | Cliente, Administrador | Se genera al solicitar una nueva reserva en el sistema.                                                      |
+| PENDIENTE            | APROBADO           | Administrador          | Confirmación de disponibilidad en la agenda de la clínica.                                                   |
+| PENDIENTE / APROBADO | CANCELADO          | Cliente, Administrador | Inasistencia, cancelación voluntaria o indisponibilidad médica.                                              |
+| APROBADO             | COMPLETADO         | Sistema (Backend)      | **Transición Automática:** Se dispara cuando se vincula exitosamente el turno a una nueva AtencionClinica.   |
+| APROBADO             | COMPLETADO         | Administrador          | **Transición Manual:** Se ejecuta desde la recepción (checkout administrativo) en situaciones excepcionales. |
 
 ---
 
@@ -372,24 +369,26 @@ Como Cliente, quiero visualizar el listado de mis próximos turnos solicitados, 
 - El listado debe ordenarse cronológicamente de forma ascendente utilizando el campo fecha_hora.
 - Desde esta misma vista, el usuario debe tener a la vista la opción de cancelar la reserva, lo cual actúa como disparador del flujo detallado en la HU-VET-09a.
 
-
 ---
 
 ## 5.5 Módulo 5: Atención Clínica y Libreta Sanitaria
 
 ### HU-VET-10a: Registro de Atención Médica
 
-Como Veterinario, quiero registrar el resultado de una nueva atención clínica, asociándola opcionalmente a un turno previo, para asentar el diagnóstico y tratamiento de la mascota en su libreta sanitaria.
+Como Veterinario, quiero registrar una atención clínica para una mascota, para mantener actualizado su historial médico y dejar constancia de la consulta realizada.
 
 #### Criterios de aceptación
 
-- Solo los usuarios con rol VETERINARIO pueden registrar nuevas atenciones clínicas.
-- El sistema debe requerir los campos obligatorios: id_mascota, id_veterinario, id_tipo_atencion, diagnóstico y tratamiento. El campo proximo_control es opcional.
-- Vinculación opcional (Urgencias): El formulario debe permitir dejar el id_turno en blanco (NULL) para admitir consultas espontáneas.
-- Validación de coincidencia: Si el Veterinario selecciona un turno, el backend debe validar que el id_mascota y el id_veterinario ingresados coincidan exactamente con los registrados en ese turno.
-- Disparador de estado: Al guardar exitosamente una atención vinculada a un turno, el sistema debe cambiar automáticamente el estado de dicho turno a COMPLETADO.
+- Solo un Veterinario autenticado puede registrar una atención clínica.
+- La atención debe estar asociada obligatoriamente a una mascota existente y activa.
+- La atención puede asociarse a un turno existente o registrarse sin turno previo.
+- El sistema debe validar en el backend los datos requeridos antes de registrar la atención.
+- Los campos clínicos diagnóstico y tratamiento podrán registrarse según la información disponible en la consulta.
+- Una vez registrada la atención, el sistema debe conservarla como parte del historial clínico y no permitir su eliminación.
+- Si la atención está asociada a un turno, el sistema debe actualizar automáticamente el estado del turno a COMPLETADO.
+- El registro debe almacenar la fecha de la atención y el Veterinario responsable.
 
-### HU-VET-10b: Registro detallado de Vacunación
+### HU-VET-10b: Edición y Corrección de Atención Médica
 
 Solo los usuarios con rol VETERINARIO pueden ejecutar la acción de editar una atención clínica, y únicamente sobre los registros que hayan creado previamente, mediante el método actualizarAtencion().
 
@@ -398,7 +397,6 @@ Solo los usuarios con rol VETERINARIO pueden ejecutar la acción de editar una a
 - El sistema tiene restringida por diseño la opción de eliminar el registro. Solo se pueden modificar los campos de texto (diagnostico, tratamiento, observaciones).
 - Auditoría obligatoria: Al guardar los cambios, el sistema debe registrar automáticamente de forma invisible el id_usuario de quien realizó la corrección en el campo id_usuario_ultima_modificacion, junto con la fecha y hora exacta en fecha_ultima_modificacion.
 - La interfaz (Libreta Sanitaria) debe mostrar un indicador visual (ej. "Editado") si el campo fecha_ultima_modificacion no es nulo.
-
 
 ### HU-VET-10c: Registro detallado de Vacunación
 
@@ -409,7 +407,6 @@ Como Veterinario, quiero registrar los datos específicos de un biológico aplic
 - Si durante una nueva AtencionClinica el Veterinario selecciona "Vacuna" como tipo de atención, el sistema debe desplegar un formulario anexo.
 - El sistema debe persistir los datos ingresados en la tabla VacunaAplicada (nombre_vacuna, dosis, lote, laboratorio, fecha_aplicacion, proxima_aplicacion).
 - El registro de la vacuna debe quedar vinculado a la atención clínica que lo originó, permitiendo cargar múltiples vacunas en una misma consulta (relación 1 a N).
-
 
 ### HU-VET-11a: Consulta de Libreta Sanitaria
 
