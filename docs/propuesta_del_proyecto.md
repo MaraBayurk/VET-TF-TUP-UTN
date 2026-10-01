@@ -15,7 +15,30 @@ Las preguntas disparadoras fueron:
 Las veterinarias gestionan diariamente información relacionada con clientes, mascotas, turnos, consultas, tratamientos y vacunaciones. En aquellos establecimientos donde estos procesos se realizan mediante agendas físicas, planillas u otras herramientas no integradas, la información puede encontrarse dispersa, dificultando su consulta y actualización. Esta situación puede generar problemas en la organización de los turnos, dificultades para acceder rápidamente al historial de una mascota, pérdida o duplicación de información y falta de seguimiento de vacunas y controles.
 Los principales actores afectados por esta problemática son el personal administrativo de la veterinaria, los profesionales veterinarios y los clientes o responsables de las mascotas. Cada uno necesita acceder a información diferente para llevar adelante sus actividades de manera eficiente.
 Frente a esta problemática, se propone desarrollar una aplicación web que permita centralizar la información y digitalizar los principales procesos de gestión de una veterinaria. El objetivo no es solamente reemplazar registros en papel por registros digitales, sino facilitar el acceso a la información y permitir nuevas funcionalidades, como la solicitud de turnos online, el seguimiento de vacunas y la consulta del historial de atención de las mascotas.
-La problemática planteada deberá ser validada posteriormente mediante el relevamiento de las necesidades de usuarios reales del ámbito veterinario, ya que resulta necesario confirmar cómo se realizan actualmente estos procesos, qué dificultades se presentan y cuáles son las funcionalidades que mayor valor aportarían.
+
+
+## Validación de la problemática
+
+Con el objetivo de validar la problemática identificada y conocer las necesidades reales de los potenciales usuarios del sistema, se realizará un relevamiento mediante encuestas digitales utilizando Google Forms, dirigidas a veterinarios y clientes de clínicas veterinarias.
+
+Las encuestas permitirán recopilar información sobre la gestión actual de turnos, el seguimiento de la historia clínica de las mascotas, el control de vacunación y las principales dificultades que se presentan en estos procesos. De esta manera, se busca contrastar las necesidades identificadas por el equipo con las experiencias de las personas involucradas.
+
+El relevamiento se desarrollará en las siguientes etapas:
+
+1. **Diseño de las encuestas:** elaboración de formularios con preguntas específicas para veterinarios y clientes, relacionadas con los procesos que busca mejorar el sistema.
+2. **Distribución:** difusión de los formularios digitales entre veterinarias, profesionales del área y personas que tengan mascotas y utilicen servicios veterinarios.
+3. **Recopilación de respuestas:** almacenamiento de las respuestas obtenidas mediante Google Forms.
+4. **Análisis de resultados:** organización e interpretación de las respuestas, identificando necesidades frecuentes, dificultades y oportunidades de mejora.
+5. **Documentación:** incorporación de los resultados al presente trabajo, como evidencia del relevamiento realizado.
+
+Los formularios y la información recopilada se conservarán en la siguiente carpeta de Google Drive, cuyo enlace se incluirá como material complementario del proyecto:
+
+[Carpeta de Google Drive](https://drive.google.com/drive/folders/1EzJE4IEZu5_a9iD_fMCQCw2Y5hCOeT6N?usp=sharing)
+
+### Enlaces a las encuestas de Google Forms
+
+- **Para veterinarias:** [Acceder al formulario](https://docs.google.com/forms/d/e/1FAIpQLSed7VHk3DoS-2VisnXzeYDOOE9wneMdLkNykQ6_nyZznPXX0g/viewform)
+- **Para clientes:** [Acceder al formulario](https://docs.google.com/forms/d/e/1FAIpQLSf4EVYX1Nkr_rRJaaU-9_1hE2JmpAr8P-a9g07lL7Csh-cvgg/viewform)
 
 ## 2. Análisis de Competencia en el Mercado
 
@@ -93,12 +116,6 @@ El MVP del sistema contempla las siguientes funcionalidades:
 * Información de contacto y ubicación.
 * Acceso al sistema.
 
-**ACTUALIZACIONES POSIBLES - MVP VERSIÓN 2.0:** 
-El chatbot será considerado una funcionalidad complementaria y su implementación quedará condicionada al tiempo disponible y a la viabilidad técnica.
-* Chatbot
-* Respuestas a preguntas frecuentes.
-* Orientación sobre el uso de la plataforma.
-* Asistencia básica para la solicitud de turnos.
 
 ### 5.a. Fuera del alcance inicial
 

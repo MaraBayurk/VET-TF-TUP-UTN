@@ -375,7 +375,7 @@ Como Cliente, quiero visualizar el listado de mis próximos turnos solicitados, 
 
 ### HU-VET-10a: Registro de Atención Médica
 
-Como Veterinario, quiero registrar una atención clínica para una mascota, para mantener actualizado su historial médico y dejar constancia de la consulta realizada.
+Como Veterinario, quiero registrar el resultado de una nueva atención clínica, asociándola opcionalmente a un turno previo, para asentar el diagnóstico y tratamiento de la mascota en su libreta sanitaria.
 
 #### Criterios de aceptación
 
@@ -386,9 +386,8 @@ Como Veterinario, quiero registrar una atención clínica para una mascota, para
 - Los campos clínicos diagnóstico y tratamiento podrán registrarse según la información disponible en la consulta.
 - Una vez registrada la atención, el sistema debe conservarla como parte del historial clínico y no permitir su eliminación.
 - Si la atención está asociada a un turno, el sistema debe actualizar automáticamente el estado del turno a COMPLETADO.
-- El registro debe almacenar la fecha de la atención y el Veterinario responsable.
 
-### HU-VET-10b: Edición y Corrección de Atención Médica
+### HU-VET-10b: Registro detallado de Vacunación
 
 Solo los usuarios con rol VETERINARIO pueden ejecutar la acción de editar una atención clínica, y únicamente sobre los registros que hayan creado previamente, mediante el método actualizarAtencion().
 
