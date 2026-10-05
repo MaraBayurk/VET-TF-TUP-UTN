@@ -29,7 +29,6 @@ CREATE TABLE IF NOT EXISTS `veterinaria_db`.`Rol` (
   PRIMARY KEY (`id_rol`),
   UNIQUE INDEX `nombre` (`nombre` ASC) VISIBLE)
 ENGINE = InnoDB
-AUTO_INCREMENT = 4
 DEFAULT CHARACTER SET = utf8mb4
 COLLATE = utf8mb4_unicode_ci;
 
@@ -125,7 +124,6 @@ CREATE TABLE IF NOT EXISTS `veterinaria_db`.`TipoAtencion` (
   PRIMARY KEY (`id_tipo_atencion`),
   UNIQUE INDEX `nombre` (`nombre` ASC) VISIBLE)
 ENGINE = InnoDB
-AUTO_INCREMENT = 4
 DEFAULT CHARACTER SET = utf8mb4
 COLLATE = utf8mb4_unicode_ci;
 
@@ -141,7 +139,6 @@ CREATE TABLE IF NOT EXISTS `veterinaria_db`.`EstadoTurno` (
   PRIMARY KEY (`id_estado_turno`),
   UNIQUE INDEX `nombre` (`nombre` ASC) VISIBLE)
 ENGINE = InnoDB
-AUTO_INCREMENT = 5
 DEFAULT CHARACTER SET = utf8mb4
 COLLATE = utf8mb4_unicode_ci;
 

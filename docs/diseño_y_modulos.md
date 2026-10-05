@@ -10,7 +10,7 @@
 
 Son las acciones específicas que el sistema debe permitir realizar a los usuarios.
 
-- **Gestión de Acceso:** El sistema debe permitir la autenticación de usuarios mediante correo electrónico y contraseña, redirigiendo a interfaces específicas según el rol (ADMIN, VETERINARIO, CLIENTE).
+- **Gestión de Acceso:** El sistema debe permitir la autenticación de usuarios mediante correo electrónico y contraseña, redirigiendo a interfaces específicas según el rol (ADMINISTRADOR, VETERINARIO, CLIENTE).
 
 - **Gestión de Usuarios:** El sistema debe permitir al Administrador realizar el alta, búsqueda, actualización y baja lógica de los perfiles de clientes y personal médico.
 
@@ -20,7 +20,7 @@ Son las acciones específicas que el sistema debe permitir realizar a los usuari
 
 - **Gestión de Turnos:** El sistema debe permitir solicitar turnos (Cliente/Administrador) y gestionar su estado a lo largo del ciclo de vida: PENDIENTE, APROBADO, CANCELADO o COMPLETADO (Administrador).
 
-- **Historial Clínico:** El sistema debe permitir al Veterinario registrar la atención clínica (Consulta, Vacuna o Control) y permitir tanto a Veterinarios como a Clientes consultar el historial médico de las mascotas. Solo los administradoras podran dar de baja una atencion mediante baja lógica. 
+- **Historial Clínico:** El sistema debe permitir al Veterinario registrar la atención clínica (Consulta, Vacuna, Control o Urgencia) y permitir tanto a Veterinarios como a Clientes consultar el historial médico de las mascotas. Solo los administradoras podran dar de baja una atencion mediante baja lógica. 
 
 - **Acceso Público (Landing y Registro)** El sistema debe proveer una página de inicio (Landing) de acceso público que detalle los servicios de la veterinaria, las especialidades médicas ofrecidas y la información de contacto, sin requerir autenticación. El sistema debe disponer de un formulario de registro abierto para que usuarios no autenticados puedan crear una cuenta con el rol de "Cliente", ingresando sus datos personales (nombre, apellido, documento, email y contraseña).
 
@@ -67,7 +67,7 @@ Son las restricciones lógicas y operativas propias del dominio de la clínica v
 
 - **RN-02: Dependencia Estricta del Paciente:** Una Mascota no puede existir en el sistema de forma aislada. Su creación requiere obligatoriamente la vinculación a un Cliente responsable registrado en el sistema (Relación 1 a N).
 
-- **RN-03: Integridad y Auditoría del Registro Clínico:** Queda estrictamente prohibida la eliminación física (DELETE) de un registro de AtencionClinica una vez guardado. Solo los administradores podrán realizar baja logica sobre las atenciones. Se permite la actualización de los datos, como la corrección de errores ortográficos o la ampliación del diagnóstico y tratamiento, exclusivamente a los Veterinarios. Toda modificación debe quedar registrada de forma transparente, actualizando automáticamente los campos id_usuario_ultima_modificacion y fecha_ultima_modificacion de la base de datos, con el objetivo de preservar la trazabilidad e integridad del historial clínico.
+- **RN-03: Integridad y Auditoría del Registro Clínico:** Queda estrictamente prohibida la eliminación física (DELETE) de un registro de AtencionClinica una vez guardado. Solo los administradores podrán realizar baja logica sobre las atenciones. Se permite la actualización de los datos (como la ampliación de un diagnóstico o corrección de tratamiento) a cualquier usuario con el rol Veterinario, dado que un paciente puede ser tratado por distintos profesionales en turnos rotativos. Para garantizar la trazabilidad legal, toda modificación actualizará automáticamente los campos id_usuario_ultima_modificacion y fecha_ultima_modificacion, registrando qué profesional alteró el registro original.
 
 - **RN-04: Exclusividad de Especialidades:** El vínculo con una especialidad médica se persiste de forma exclusiva en la tabla Veterinario aplicando la estrategia Class Table Inheritance. Para Administradores y Clientes, esta relación es estructuralmente inexistente, evitando la proliferación de valores nulos en la base de datos.
 
@@ -123,7 +123,7 @@ Son las restricciones lógicas y operativas propias del dominio de la clínica v
 
 ## 3.5 Módulo de Atención Clínica y Libreta Sanitaria
 
-- **Registro Médico (Veterinario):** Formularios para que el profesional registre el resultado de una visita. El sistema permite seleccionar el turno APROBADO asignado a ese paciente para vincularlo directamente con la nueva atención clínica. El profesional categoriza la visita (Consulta, Vacuna o Control), ingresando diagnóstico, tratamiento y fecha del proximo_control.
+- **Registro Médico (Veterinario):** Formularios para que el profesional registre el resultado de una visita. El sistema permite seleccionar el turno APROBADO asignado a ese paciente para vincularlo directamente con la nueva atención clínica. El profesional categoriza la visita (Consulta, Vacuna, Control o Urgencia), ingresando diagnóstico, tratamiento y fecha del proximo_control.
 - **Libreta Sanitaria Digital (Propuesta de Valor):** Vista de solo lectura diseñada como el núcleo del portal web del Cliente, donde el dueño puede consultar la línea de tiempo con el historial auditado de vacunas y atenciones de sus propias mascotas. El Veterinario también cuenta con un acceso equivalente (modo clínico) para revisar el registro completo de cualquier paciente antes de atenderlo, visualizando la trazabilidad de cualquier corrección o ampliación médica realizada.
 
 ## 3.6 Módulo de Catálogos (Configuración)
@@ -135,8 +135,8 @@ Son las restricciones lógicas y operativas propias del dominio de la clínica v
 # 4. Matriz de Permisos del MVP
 
 | **Entidad**         | **Acción**               | **Administrador**                             | **Veterinario**                          | **Cliente**                         |
-| ------------------- | ------------------------ | --------------------------------------------- | ---------------------------------------- | ----------------------------------- |
-| Usuarios            | Crear                    | ✔ (Cualquier rol: Admin, Vet, Cliente)        | X                                        | ✔ (Solo cuenta propia, rol Cliente) |
+| ------------------- | ------------------------ | --------------------------------------------- | ---------------------------------------- | ------------------------------------ |
+| Usuarios            | Crear                    | ✔ (Cualquier rol: Administrador, Veterinario, Cliente)        | X                                        | ✔ (Solo cuenta propia, rol Cliente) |
 |           | Consultar                | ✔ (Todos)                                     | ✔ (Solo propio)                          | ✔ (Solo propio)                     |
 |                     | Modificar                | ✔ (Todos)                                     | ✔ (Solo propio)                          | ✔ (Solo propio)                     |
 |                     | Baja lógica              | ✔ (Todos)                                     | X                                        | X                                   |
@@ -149,8 +149,8 @@ Son las restricciones lógicas y operativas propias del dominio de la clínica v
 |                     | Baja lógica    | ✔                            | X                                        | ✔ (Solo cancelar turnos propios)                   |
 |                     | Crear    | ✔                             | X                                        | ✔                 |
 | Atención Clínica    | Crear (Registrar)        | X                                             | ✔                                        | X                                   |
-| (Libreta Sanitaria) | Consultar                | X                                             | ✔ (Todas)                                | ✔ (Solo propias)                    |
-|                     | Modificar (Correcciones) | X                                             | ✔ (Sus registros)                        | X                                   |
+| (Libreta Sanitaria) | Consultar                | ✔                                             | ✔ (Todas)                                | ✔ (Solo propias)                    |
+|                     | Modificar (Correcciones) | X                                             | ✔                         | X                                   |
 |                     | Baja lógica              | ✔                         | X                      | X                 |
 | Especialidades      | Crear                    | ✔                                             | X                                        | X                                   |
 |          | Consultar                | ✔                                             | ✔                                        | X                                   |
@@ -243,7 +243,7 @@ Como Administrador, quiero registrar, consultar, actualizar y dar de baja lógic
 Criterios de Aceptación:
 
 - Mapeo de Herencia (Alta de usuario): La creación de un perfil debe impactar en las tablas correspondientes aplicando la estrategia de herencia Class Table Inheritance:
-  - Si el rol es ADMIN, los datos se insertan únicamente en la tabla base Usuario.
+  - Si el rol es ADMINISTRADOR, los datos se insertan únicamente en la tabla base Usuario.
   - Si el rol es CLIENTE, el sistema debe generar el registro base en Usuario y su extensión vinculada en la tabla Cliente.
   - Si el rol es VETERINARIO, el sistema debe generar el registro base en Usuario y su extensión vinculada en la tabla Veterinario.
 - Asignación de Especialidad: Al crear o actualizar un perfil con rol VETERINARIO, es obligatorio proporcionar una especialidad médica válida, la cual se persiste exclusivamente a través del campo Especialidad_id_especialidad en la tabla Veterinario. Los usuarios con roles CLIENTE o ADMIN carecen por completo de esta relación.
@@ -405,10 +405,11 @@ Como Veterinario, quiero registrar el resultado de una nueva atención clínica,
 
 ### HU-VET-10-b: Modificación de Atención Médica
 
-Solo los usuarios con rol VETERINARIO pueden ejecutar la acción de editar una atención clínica, mediante el método actualizarAtencion().
+Como Veterinario, quiero poder editar o ampliar una atención clínica (incluso si fue iniciada por otro colega), para mantener actualizado el historial médico del paciente ante la llegada de nuevos estudios o durante cambios de guardia.
 
 #### Criterios de aceptación:
 
+- Cualquier usuario autenticado con el rol VETERINARIO puede ejecutar el método actualizarAtencion() sobre cualquier registro clínico activo.
 - El sistema tiene restringida por diseño la opción de eliminar el registro. Solo se pueden modificar los campos de texto (diagnostico, tratamiento, observaciones).
 - Auditoría obligatoria: Al guardar los cambios, el sistema debe registrar automáticamente de forma invisible el id_usuario de quien realizó la corrección en el campo id_usuario_ultima_modificacion, junto con la fecha y hora exacta en fecha_ultima_modificacion.
 - La interfaz (Libreta Sanitaria) debe mostrar un indicador visual (ej. "Editado") si el campo fecha_ultima_modificacion no es nulo.
