@@ -38,6 +38,7 @@ permitiendo una mejor organización de las tareas administrativas y clínicas.
 - [Documentación Database](./database/README.md)
 - [Documentación Frontend](./frontend/README.md)
 - [Documentación Backend](./backend/README.md)
+- [Relevamiento de encuestas](./docs/relevamiento_encuestas.md)
 
 
 ## Funcionalidades principales

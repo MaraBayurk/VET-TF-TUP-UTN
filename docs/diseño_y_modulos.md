@@ -197,7 +197,7 @@ Como usuario visitante, quiero acceder a la página de inicio pública de la vet
 - El sistema debe mostrar una interfaz pública accesible sin necesidad de autenticación.
 - La página debe incluir información institucional básica (logo, dirección, servicios y vías de contacto).
 - La interfaz debe contar con botones de acceso claros ("Llamados a la acción") que redirijan a los flujos de "Iniciar Sesión" y "Registrarse".
-- El diseño debe ser responsivo (web first) para facilitar el acceso de los clientes desde sus computadoras.
+- El diseño está orientado principalmente a entornos web, priorizando la experiencia de uso desde computadoras.
 
 ## 5.1 Módulo 1: Autenticación y Seguridad
 
