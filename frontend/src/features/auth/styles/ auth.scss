@@ -1,0 +1,154 @@
+@use "../../../styles/variables" as *;
+
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: $color-background;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 1000px;
+  min-height: 600px;
+  display: grid;
+  grid-template-columns: 38% 62%;
+  overflow: hidden;
+  background: $color-surface;
+  border-radius: $radius-card;
+  box-shadow: $shadow-card;
+
+  &__sidebar {
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    padding: 50px;
+    background: $color-panel;
+  }
+
+  &__sidebar-content {
+    position: relative;
+    z-index: 2;
+
+    h1 {
+      color: $color-heading;
+      font-family: Georgia, serif;
+      font-size: 34px;
+      line-height: 1.2;
+    }
+
+    p {
+      margin-top: 20px;
+      color: $color-text;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+  }
+
+  &__decoration {
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+
+    &--top {
+      width: 200px;
+      height: 200px;
+      top: -100px;
+      right: -80px;
+      background: $color-decoration;
+    }
+
+    &--bottom {
+      width: 180px;
+      height: 180px;
+      bottom: -100px;
+      left: -80px;
+      background: #d4e6df;
+    }
+  }
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 65px 75px;
+    background: $color-surface;
+  }
+
+  &__brand {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 45px;
+    color: $color-heading;
+
+    &-icon {
+      width: 48px;
+      height: 48px;
+      display: grid;
+      place-items: center;
+      border: 2px solid $color-heading;
+      border-radius: 50%;
+      font-family: Georgia, serif;
+      font-size: 27px;
+      font-weight: bold;
+    }
+
+    span {
+      margin-top: 5px;
+      font-family: Georgia, serif;
+      font-size: 29px;
+      font-weight: bold;
+      letter-spacing: 2px;
+    }
+
+    small {
+      margin-top: 3px;
+      font-size: 9px;
+      letter-spacing: 2px;
+    }
+  }
+
+  &__heading {
+    margin-bottom: 35px;
+
+    h2 {
+      color: $color-heading;
+      font-family: Georgia, serif;
+      font-size: 29px;
+    }
+
+    p {
+      margin-top: 7px;
+      color: $color-text;
+      font-size: 15px;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .auth-page {
+    padding: 16px;
+  }
+
+  .auth-card {
+    max-width: 480px;
+    grid-template-columns: 1fr;
+
+    &__sidebar {
+      min-height: 180px;
+      padding: 30px;
+    }
+
+    &__sidebar-content h1 {
+      font-size: 26px;
+    }
+
+    &__content {
+      padding: 40px 30px;
+    }
+  }
+}
