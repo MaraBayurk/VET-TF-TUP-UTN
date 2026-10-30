@@ -1,0 +1,41 @@
+# Entornos virtuales (Dependencias locales)
+venv/
+env/
+ENV/
+.venv/
+
+# Cache y archivos compilados de Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+
+# Variables de entorno y secretos (CRITICO PARA SEGURIDAD)
+.env
+.env.local
+*.pem
+*.key
+
+# Bases de datos locales
+*.sqlite3
+*.db
+
+# Herramientas de desarrollo, testing y logs
+*.log
+.coverage
+htmlcov/
+
+# Archivos del Sistema Operativo
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDEs y Editores
+.vscode/
+.idea/
+*.sw?
