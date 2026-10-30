@@ -1,0 +1,16 @@
+@use "./reset";
+@use "./variables" as *;
+
+body {
+  min-width: 320px;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+button:focus-visible,
+input:focus-visible {
+  outline: 2px solid $color-primary;
+  outline-offset: 2px;
+}
