@@ -1,4 +1,5 @@
 import RegisterForm from "../components/RegisterForm";
+import { Link } from "react-router-dom";
 import "../styles/auth.scss";
 import "../styles/register-page.scss";
 
@@ -19,7 +20,9 @@ function RegisterPage() {
               Accedé a todos nuestros servicios y comenzá a cuidar la salud de
               tus mascotas.
             </p>
-            <span className="register-card__heart" aria-hidden="true">♡</span>
+            <span className="register-card__heart" aria-hidden="true">
+              ♡
+            </span>
           </div>
         </aside>
 
@@ -36,6 +39,9 @@ function RegisterPage() {
           </div>
 
           <RegisterForm />
+          <p className="auth-card__switch">
+            ¿Ya tenés una cuenta? <Link to="/login">Iniciá sesión</Link>
+          </p>
         </section>
       </section>
     </main>

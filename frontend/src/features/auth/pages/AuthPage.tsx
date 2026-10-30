@@ -1,5 +1,6 @@
 import LoginForm from "../components/LoginForm";
-import "../styles/ auth.scss"
+import { Link } from "react-router-dom";
+import "../styles/auth.scss";
 
 function AuthPage() {
   return (
@@ -39,6 +40,9 @@ function AuthPage() {
           </div>
 
           <LoginForm />
+          <p className="auth-card__switch">
+            ¿No tenés una cuenta? <Link to="/registro">Registrate</Link>
+          </p>
         </section>
       </section>
     </main>
