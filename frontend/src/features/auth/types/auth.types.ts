@@ -17,3 +17,14 @@ export interface AuthResponse {
   token: string;
   user: AuthUser;
 }
+
+export interface RegisterData {
+  nombre: string;
+  apellido: string;
+  username: string;
+  password: string;
+}
+
+export interface RegisterResponse {
+  message: string;
+}
