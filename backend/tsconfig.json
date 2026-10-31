@@ -1,44 +1,14 @@
 {
-  // Visit https://aka.ms/tsconfig to read more about this file
   "compilerOptions": {
-    // File Layout
-    // "rootDir": "./src",
-    // "outDir": "./dist",
-
-    // Environment Settings
-    // See also https://aka.ms/tsconfig/module
-    "module": "nodenext",
-    "target": "esnext",
-    "types": [],
-    // For nodejs:
-    // "lib": ["esnext"],
-    // "types": ["node"],
-    // and npm install -D @types/node
-
-    // Other Outputs
-    "sourceMap": true,
-    "declaration": true,
-    "declarationMap": true,
-
-    // Stricter Typechecking Options
-    "noUncheckedIndexedAccess": true,
-    "exactOptionalPropertyTypes": true,
-
-    // Style Options
-    // "noImplicitReturns": true,
-    // "noImplicitOverride": true,
-    // "noUnusedLocals": true,
-    // "noUnusedParameters": true,
-    // "noFallthroughCasesInSwitch": true,
-    // "noPropertyAccessFromIndexSignature": true,
-
-    // Recommended Options
-    "strict": true,
-    "jsx": "react-jsx",
-    "verbatimModuleSyntax": true,
-    "isolatedModules": true,
-    "noUncheckedSideEffectImports": true,
-    "moduleDetection": "force",
-    "skipLibCheck": true,
-  }
+    "target": "es2022",                                  /* Define la versión de JavaScript a la que se va a compilar. */
+    "module": "node16",                                  /* Permite que Node.js lea el código compilado sin problemas. */
+    "moduleResolution": "node16",                        /* Le dice a TypeScript cómo buscar los archivos en node_modules. */
+    "outDir": "./dist",                                  /* Carpeta donde se guardará el código compilado (para producción). */
+    "esModuleInterop": true,                             /* SOLUCIÓN AL ERROR: Permite mezclar importaciones modernas con librerías antiguas de forma segura. */
+    "forceConsistentCasingInFileNames": true,            /* Evita errores si alguien usa Windows y otro Mac/Linux con mayúsculas/minúsculas. */
+    "strict": true,                                      /* Activa las validaciones de seguridad de TypeScript. */
+    "skipLibCheck": true                                 /* Ignora chequeos de tipos dentro de la carpeta node_modules para que compile más rápido. */
+  },
+  "include": ["src/**/*", "app.ts", "server.ts"],        /* Archivos que TypeScript debe vigilar y compilar. */
+  "exclude": ["node_modules", "dist"]                    /* Archivos que TypeScript debe ignorar. */
 }
