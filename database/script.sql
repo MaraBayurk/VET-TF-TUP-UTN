@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS `veterinaria_db`.`Rol` (
   `id_rol` TINYINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `nombre` VARCHAR(30) NOT NULL,
   PRIMARY KEY (`id_rol`),
-  UNIQUE INDEX `nombre` (`nombre` ASC) VISIBLE)
+  UNIQUE INDEX `nombre` (`nombre` ASC) )
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb4
 COLLATE = utf8mb4_unicode_ci;
@@ -50,9 +50,9 @@ CREATE TABLE IF NOT EXISTS `veterinaria_db`.`Usuario` (
   `fecha_creacion` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `fecha_actualizacion` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id_usuario`),
-  UNIQUE INDEX `email` (`email` ASC) VISIBLE,
-  UNIQUE INDEX `numero_documento` (`numero_documento` ASC) VISIBLE,
-  INDEX `fk_usuario_rol` (`id_rol` ASC) VISIBLE,
+  UNIQUE INDEX `email` (`email` ASC) ,
+  UNIQUE INDEX `numero_documento` (`numero_documento` ASC) ,
+  INDEX `fk_usuario_rol` (`id_rol` ASC) ,
   CONSTRAINT `fk_usuario_rol`
     FOREIGN KEY (`id_rol`)
     REFERENCES `veterinaria_db`.`Rol` (`id_rol`)
@@ -73,7 +73,7 @@ CREATE TABLE IF NOT EXISTS `veterinaria_db`.`Cliente` (
   `id_usuario` INT UNSIGNED NOT NULL,
   `direccion` VARCHAR(255) NULL DEFAULT NULL,
   PRIMARY KEY (`id_cliente`),
-  UNIQUE INDEX `id_usuario` (`id_usuario` ASC) VISIBLE,
+  UNIQUE INDEX `id_usuario` (`id_usuario` ASC) ,
   CONSTRAINT `fk_cliente_usuario`
     FOREIGN KEY (`id_usuario`)
     REFERENCES `veterinaria_db`.`Usuario` (`id_usuario`)
@@ -102,7 +102,7 @@ CREATE TABLE IF NOT EXISTS `veterinaria_db`.`Mascota` (
   `fecha_creacion` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `fecha_actualizacion` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id_mascota`),
-  INDEX `idx_mascota_cliente` (`id_cliente` ASC) VISIBLE,
+  INDEX `idx_mascota_cliente` (`id_cliente` ASC) ,
   CONSTRAINT `fk_mascota_cliente`
     FOREIGN KEY (`id_cliente`)
     REFERENCES `veterinaria_db`.`Cliente` (`id_cliente`)
@@ -122,7 +122,7 @@ CREATE TABLE IF NOT EXISTS `veterinaria_db`.`TipoAtencion` (
   `id_tipo_atencion` TINYINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `nombre` VARCHAR(30) NOT NULL,
   PRIMARY KEY (`id_tipo_atencion`),
-  UNIQUE INDEX `nombre` (`nombre` ASC) VISIBLE)
+  UNIQUE INDEX `nombre` (`nombre` ASC) )
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb4
 COLLATE = utf8mb4_unicode_ci;
@@ -137,7 +137,7 @@ CREATE TABLE IF NOT EXISTS `veterinaria_db`.`EstadoTurno` (
   `id_estado_turno` TINYINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `nombre` VARCHAR(20) NOT NULL,
   PRIMARY KEY (`id_estado_turno`),
-  UNIQUE INDEX `nombre` (`nombre` ASC) VISIBLE)
+  UNIQUE INDEX `nombre` (`nombre` ASC) )
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb4
 COLLATE = utf8mb4_unicode_ci;
@@ -154,7 +154,7 @@ CREATE TABLE IF NOT EXISTS `veterinaria_db`.`Especialidad` (
   `descripcion` VARCHAR(255) NULL DEFAULT NULL,
   `activo` TINYINT(1) NOT NULL DEFAULT '1',
   PRIMARY KEY (`id_especialidad`),
-  UNIQUE INDEX `nombre` (`nombre` ASC) VISIBLE)
+  UNIQUE INDEX `nombre` (`nombre` ASC) )
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb4
 COLLATE = utf8mb4_unicode_ci;
@@ -171,9 +171,9 @@ CREATE TABLE IF NOT EXISTS `veterinaria_db`.`Veterinario` (
   `matricula` VARCHAR(50) NOT NULL,
   `id_especialidad` INT UNSIGNED NOT NULL,
   PRIMARY KEY (`id_veterinario`),
-  UNIQUE INDEX `id_usuario` (`id_usuario` ASC) VISIBLE,
-  UNIQUE INDEX `matricula` (`matricula` ASC) VISIBLE,
-  INDEX `fk_Veterinario_Especialidad1_idx` (`id_especialidad` ASC) VISIBLE,
+  UNIQUE INDEX `id_usuario` (`id_usuario` ASC) ,
+  UNIQUE INDEX `matricula` (`matricula` ASC) ,
+  INDEX `fk_Veterinario_Especialidad1_idx` (`id_especialidad` ASC) ,
   CONSTRAINT `fk_veterinario_usuario`
     FOREIGN KEY (`id_usuario`)
     REFERENCES `veterinaria_db`.`Usuario` (`id_usuario`)
@@ -206,11 +206,11 @@ CREATE TABLE IF NOT EXISTS `veterinaria_db`.`Turno` (
   `fecha_creacion` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `fecha_actualizacion` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id_turno`),
-  INDEX `fk_turno_creador` (`id_usuario_creador` ASC) VISIBLE,
-  INDEX `fk_turno_estado` (`id_estado_turno` ASC) VISIBLE,
-  INDEX `idx_turno_fecha_estado` (`fecha_hora` ASC, `id_estado_turno` ASC) VISIBLE,
-  INDEX `idx_turno_mascota` (`id_mascota` ASC) VISIBLE,
-  INDEX `idx_turno_veterinario_fecha` (`id_veterinario` ASC, `fecha_hora` ASC) VISIBLE,
+  INDEX `fk_turno_creador` (`id_usuario_creador` ASC) ,
+  INDEX `fk_turno_estado` (`id_estado_turno` ASC) ,
+  INDEX `idx_turno_fecha_estado` (`fecha_hora` ASC, `id_estado_turno` ASC) ,
+  INDEX `idx_turno_mascota` (`id_mascota` ASC) ,
+  INDEX `idx_turno_veterinario_fecha` (`id_veterinario` ASC, `fecha_hora` ASC) ,
   CONSTRAINT `fk_turno_creador`
     FOREIGN KEY (`id_usuario_creador`)
     REFERENCES `veterinaria_db`.`Usuario` (`id_usuario`)
@@ -256,11 +256,11 @@ CREATE TABLE IF NOT EXISTS `veterinaria_db`.`AtencionClinica` (
   `fecha_ultima_modificacion` DATETIME NULL DEFAULT NULL,
   `activo` TINYINT(1) NOT NULL DEFAULT '1',
   PRIMARY KEY (`id_atencion`),
-  UNIQUE INDEX `id_turno` (`id_turno` ASC) VISIBLE,
-  INDEX `fk_atencion_veterinario` (`id_veterinario` ASC) VISIBLE,
-  INDEX `fk_atencion_tipo` (`id_tipo_atencion` ASC) VISIBLE,
-  INDEX `fk_atencion_modificador` (`id_usuario_ultima_modificacion` ASC) VISIBLE,
-  INDEX `idx_atencion_mascota_fecha` (`id_mascota` ASC, `fecha_atencion` ASC) VISIBLE,
+  UNIQUE INDEX `id_turno` (`id_turno` ASC) ,
+  INDEX `fk_atencion_veterinario` (`id_veterinario` ASC) ,
+  INDEX `fk_atencion_tipo` (`id_tipo_atencion` ASC) ,
+  INDEX `fk_atencion_modificador` (`id_usuario_ultima_modificacion` ASC) ,
+  INDEX `idx_atencion_mascota_fecha` (`id_mascota` ASC, `fecha_atencion` ASC) ,
   CONSTRAINT `fk_atencion_mascota`
     FOREIGN KEY (`id_mascota`)
     REFERENCES `veterinaria_db`.`Mascota` (`id_mascota`)
@@ -305,7 +305,7 @@ CREATE TABLE IF NOT EXISTS `veterinaria_db`.`HorarioAtencion` (
   `intervalo_minutos` SMALLINT UNSIGNED NOT NULL DEFAULT '30',
   `activo` TINYINT(1) NOT NULL DEFAULT '1',
   PRIMARY KEY (`id_horario`),
-  INDEX `idx_horario_veterinario_dia` (`id_veterinario` ASC, `dia_semana` ASC) VISIBLE,
+  INDEX `idx_horario_veterinario_dia` (`id_veterinario` ASC, `dia_semana` ASC) ,
   CONSTRAINT `fk_horario_veterinario`
     FOREIGN KEY (`id_veterinario`)
     REFERENCES `veterinaria_db`.`Veterinario` (`id_veterinario`)
@@ -331,7 +331,7 @@ CREATE TABLE IF NOT EXISTS `veterinaria_db`.`VacunaAplicada` (
   `laboratorio` VARCHAR(120) NULL DEFAULT NULL,
   `id_atencion` INT UNSIGNED NOT NULL,
   PRIMARY KEY (`id_vacuna_aplicada`),
-  INDEX `fk_VacunaAplicada_AtencionClinica1_idx` (`id_atencion` ASC) VISIBLE,
+  INDEX `fk_VacunaAplicada_AtencionClinica1_idx` (`id_atencion` ASC) ,
   CONSTRAINT `fk_VacunaAplicada_AtencionClinica1`
     FOREIGN KEY (`id_atencion`)
     REFERENCES `veterinaria_db`.`AtencionClinica` (`id_atencion`)
