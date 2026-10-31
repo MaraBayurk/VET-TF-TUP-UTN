@@ -8,7 +8,7 @@ Está desarrollado con:
 
 - **Node.js:** entorno de ejecución de JavaScript.
 - **Express:** framework para la construcción de la API REST.
-- **MySQL:** sistema de gestión de bases de datos relacionales.
+- **MariaDB (vía XAMPP):** sistema de gestión de bases de datos relacionales, manteniendo compatibilidad con MySQL.
 
 ## Arquitectura
 
@@ -97,10 +97,10 @@ La validación de permisos se realiza en el servidor, independientemente de las 
 
 ## Base de Datos
 
-El backend utiliza MySQL como sistema de persistencia, gestionando las operaciones sobre las entidades definidas en el modelo de datos.
+El backend utiliza MariaDB (vía XAMPP) como sistema de persistencia, gestionando las operaciones sobre las entidades definidas en el modelo de datos.
 
 La estructura de la base de datos, sus relaciones y restricciones se encuentran documentadas en la carpeta `database/` del repositorio.
 
 ## Comunicación con el Frontend
 
-El backend expone una API REST que permite al frontend realizar operaciones mediante solicitudes HTTP. Las respuestas se envían en formato JSON, utilizando los códigos de estado HTTP correspondientes para informar el resultado de cada operación.
+El backend expone una API REST que permite al frontend realizar operaciones mediante solicitudes HTTP. Las respuestas se envían en formato JSON, utilizando los códigos de estado HTTP correspondientes para informar el resultado de cada operación. Para el desarrollo, validación y especificación de esta API REST, el equipo utiliza **Postman** (simulación y testing de endpoints) y **Swagger / OpenAPI** (documentación viva y prueba interactiva).

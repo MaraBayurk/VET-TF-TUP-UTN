@@ -152,12 +152,12 @@ React permitirá desarrollar la interfaz web de manera modular, mientras que Typ
 Node.js será utilizado como entorno de ejecución para el desarrollo del backend, mientras que Express permitirá implementar la API y gestionar las solicitudes realizadas por el frontend. El backend será responsable de la lógica de negocio, la validación de datos, la gestión de las operaciones sobre la base de datos y la comunicación con el frontend mediante una API REST.
 
 **Base de datos**
-* MySQL
+* MariaDB (vía XAMPP)
 * MySQL Workbench
 
-Se utilizará MySQL como sistema de gestión de base de datos relacional. La elección de una base de datos relacional resulta adecuada para el dominio del proyecto, debido a la existencia de múltiples entidades y relaciones entre ellas, como usuarios, mascotas, veterinarios y turnos.
+Se utilizará MariaDB 10.4.x (empaquetado vía XAMPP) como sistema de gestión de base de datos relacional, manteniendo compatibilidad estructural con el estándar MySQL. La elección de una base de datos relacional resulta adecuada para el dominio del proyecto, debido a la existencia de múltiples entidades y relaciones entre ellas, como usuarios, mascotas, veterinarios y turnos.
 
-El modelo relacional permitirá establecer relaciones entre las distintas entidades mediante claves primarias y foráneas, favoreciendo la integridad, consistencia y organización de los datos. MySQL Workbench será utilizado como herramienta para el diseño, administración y gestión de la base de datos durante el desarrollo.
+El modelo relacional permitirá establecer relaciones entre las distintas entidades mediante claves primarias y foráneas, favoreciendo la integridad, consistencia y organización de los datos. MySQL Workbench será utilizado como herramienta para el diseño, administración y gestión de la base de datos durante el desarrollo local.
 
 **Control de versiones**
 * Git
@@ -168,6 +168,10 @@ El proyecto será desarrollado por las tres integrantes mediante un único repos
 * Vercel para el despliegue del frontend.
 * El backend será desplegado en un servicio compatible con Node.js, a definir durante la etapa de implementación.
 * MySQL será alojado en un servicio de base de datos compatible con el proyecto, cuya elección será definida teniendo en cuenta las restricciones técnicas y económicas del mismo.
+
+**Herramientas de Desarrollo y Testing**
+* Postman: Utilizado para la simulación de peticiones HTTP y validación del comportamiento de los endpoints del backend.
+* Swagger (OpenAPI): Implementado para la documentación viva, especificación y prueba interactiva de la API REST.
 
 ## 7. Repositorio
 
