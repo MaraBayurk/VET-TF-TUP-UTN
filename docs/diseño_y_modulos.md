@@ -36,13 +36,13 @@ Definen la arquitectura, tecnologías y atributos de calidad del sistema.
 
 - **Pila Tecnológica:** El sistema debe estar desarrollado utilizando Node.js/Express para la API backend y React (con TypeScript) para el frontend.
 
-- **Persistencia de Datos:** La información debe almacenarse en una base de datos relacional MySQL, garantizando la integridad referencial (Foreign Keys) y normalización.
+- **Persistencia de Datos:** La información debe almacenarse en una base de datos relacional MariaDB (vía XAMPP), garantizando la integridad referencial (Foreign Keys) y normalización.
 
 - **Paradigma y Diseño:** El backend debe construirse respetando la Programación Orientada a Objetos (POO), aplicando herencia para los perfiles de usuario y respetando los principios SOLID.
 
 - **Seguridad y Auditoría:** Las contraseñas deben estar encriptadas (ej. bcrypt) y la comunicación protegida. El sistema debe dejar registro del usuario creador y fecha de modificación en las transacciones clave (Turnos).
 
-- **Persistencia de Datos y Normalización (3FN):** La información debe almacenarse en una base de datos relacional MySQL, garantizando la integridad referencial mediante Foreign Keys y respetando estrictamente las reglas de normalización hasta la Tercera Forma Normal (3FN) para eliminar redundancias estructurales:
+- **Persistencia de Datos y Normalización (3FN):** La información debe almacenarse en una base de datos relacional MariaDB, garantizando la integridad referencial mediante Foreign Keys y respetando estrictamente las reglas de normalización hasta la Tercera Forma Normal (3FN) para eliminar redundancias estructurales:
   - Primera Forma Normal (1FN - Atomicidad): Todos los campos contienen valores atómicos y se eliminaron los grupos repetitivos (ej. creando la tabla independiente Mascota vinculada por id_cliente en lugar de una lista en el perfil del usuario).
   - Segunda Forma Normal (2FN - Dependencia Completa): Todas las entidades poseen una clave primaria simple (autoincrementales como id_usuario o id_turno). Todo atributo no clave depende funcionalmente por completo de esta clave primaria, eliminando el riesgo de dependencias parciales.
   - Tercera Forma Normal (3FN - Sin Dependencias Transitivas): Ningún atributo no clave depende de otro atributo no clave. Esto se evidencia en la extracción de catálogos y descripciones (ej. en la tabla Turno se guarda id_estado_turno en lugar del texto, y el Veterinario depende exclusivamente de Especialidad_id_especialidad).
