@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { obtenerUsuarios, obtenerUsuarioPorId, crearUsuario } from './usuarios.controller';
+import { obtenerUsuarios, obtenerUsuarioPorId, crearUsuario, eliminarUsuario } from './usuarios.controller';
 import { verificarToken, verificarRol } from '../../middlewares/auth.middleware';
 
 const router = Router();
@@ -11,5 +11,6 @@ router.use(verificarToken);
 router.get('/', verificarRol([1]), obtenerUsuarios);
 router.get('/:id', verificarRol([1]), obtenerUsuarioPorId);
 router.post('/', verificarRol([1]), crearUsuario);
+router.delete('/:id', verificarRol([1]), eliminarUsuario);
 
 export default router;

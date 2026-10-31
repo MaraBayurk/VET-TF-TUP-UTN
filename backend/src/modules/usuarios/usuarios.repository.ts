@@ -49,4 +49,14 @@ export class UsuariosRepository {
             throw error; // Propagamos cualquier otro error inesperado
         }
     }
+
+    // Move Method: Lógica de actualización encapsulada (Baja Lógica / RN-01)
+    static async eliminarLogicamente(id: string): Promise<boolean> {
+        const [result]: any = await pool.query(`
+            UPDATE Usuario SET activo = 0 WHERE id_usuario = ?
+        `, [id]);
+        
+        // Retornamos true si se modificó alguna fila, false si el id no existía
+        return result.affectedRows > 0;
+    }
 }
