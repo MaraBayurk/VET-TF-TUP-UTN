@@ -28,7 +28,7 @@ backend/
 │       │   └── index.ts
 │       ├── pets/
 │       │   └── index.ts
-│       ├── users/
+│       ├── usuarios/
 │       │   └── index.ts
 │       ├── catalogs/
 │       │   └── index.ts

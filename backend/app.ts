@@ -1,37 +1,27 @@
-import express, { Application, Request, Response } from 'express';
-import cors from 'cors';
-import pool from './src/config/db';
+import express, { Application } from 'express';
+import 'dotenv/config';
 
-// 1. Importamos el enrutador de autenticación que acabamos de crear
+// Importación de módulos de rutas
 import authRoutes from './src/modules/auth/auth.routes';
+import usuariosRoutes from './src/modules/usuarios/usuarios.routes';
 
 const app: Application = express();
 
-// Middlewares globales
-app.use(cors());
-// express.json() es vital: sin esto, req.body llegaría como "undefined" y el login fallaría
+
+// MIDDLEWARES GLOBALES
 app.use(express.json());
 
-// Endpoint de prueba (Tarea 19)
-app.get('/api/test-db', async (req: Request, res: Response) => {
-    try {
-        const [rows] = await pool.query('SELECT 1 + 1 AS solution');
-        res.status(200).json({
-            status: 'success',
-            message: '¡Conexión a MariaDB exitosa!',
-            data: rows
-        });
-    } catch (error) {
-        res.status(500).json({
-            status: 'error',
-            message: 'Error de conexión',
-            error: error instanceof Error ? error.message : 'Error desconocido'
-        });
-    }
-});
 
-// 2. Montamos las rutas de autenticación
-// Al poner '/api/auth' aquí, la ruta '/login' de tu enrutador se convierte automáticamente en '/api/auth/login'
+// RUTAS DE LA API
 app.use('/api/auth', authRoutes);
+app.use('/api/usuarios', usuariosRoutes);
+
+
+// INICIALIZACIÓN DEL SERVIDOR
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+    console.log(`Servidor corriendo en http://localhost:${PORT}`);
+});
 
 export default app;
