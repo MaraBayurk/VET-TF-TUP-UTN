@@ -12,9 +12,6 @@ SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,N
 -- -----------------------------------------------------
 DROP SCHEMA IF EXISTS `veterinaria_db` ;
 
--- -----------------------------------------------------
--- Schema veterinaria_db
--- -----------------------------------------------------
 CREATE SCHEMA IF NOT EXISTS `veterinaria_db` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ;
 USE `veterinaria_db` ;
 
@@ -62,7 +59,6 @@ ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb4
 COLLATE = utf8mb4_unicode_ci;
 
-
 -- -----------------------------------------------------
 -- Table `veterinaria_db`.`Cliente`
 -- -----------------------------------------------------
@@ -83,7 +79,6 @@ ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb4
 COLLATE = utf8mb4_unicode_ci;
 
-
 -- -----------------------------------------------------
 -- Table `veterinaria_db`.`Mascota`
 -- -----------------------------------------------------
@@ -97,7 +92,7 @@ CREATE TABLE IF NOT EXISTS `veterinaria_db`.`Mascota` (
   `raza` VARCHAR(100) NULL DEFAULT NULL,
   `fecha_nacimiento` DATE NULL DEFAULT NULL,
   `sexo` VARCHAR(20) NOT NULL,
-  `observaciones` TEXT NULL DEFAULT NULL,
+  `observaciones` TEXT NULL, 
   `activo` TINYINT(1) NOT NULL DEFAULT '1',
   `fecha_creacion` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `fecha_actualizacion` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -111,7 +106,6 @@ CREATE TABLE IF NOT EXISTS `veterinaria_db`.`Mascota` (
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb4
 COLLATE = utf8mb4_unicode_ci;
-
 
 -- -----------------------------------------------------
 -- Table `veterinaria_db`.`TipoAtencion`
@@ -127,7 +121,6 @@ ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb4
 COLLATE = utf8mb4_unicode_ci;
 
-
 -- -----------------------------------------------------
 -- Table `veterinaria_db`.`EstadoTurno`
 -- -----------------------------------------------------
@@ -141,7 +134,6 @@ CREATE TABLE IF NOT EXISTS `veterinaria_db`.`EstadoTurno` (
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb4
 COLLATE = utf8mb4_unicode_ci;
-
 
 -- -----------------------------------------------------
 -- Table `veterinaria_db`.`Especialidad`
@@ -158,7 +150,6 @@ CREATE TABLE IF NOT EXISTS `veterinaria_db`.`Especialidad` (
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb4
 COLLATE = utf8mb4_unicode_ci;
-
 
 -- -----------------------------------------------------
 -- Table `veterinaria_db`.`Veterinario`
@@ -188,7 +179,6 @@ ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb4
 COLLATE = utf8mb4_unicode_ci;
 
-
 -- -----------------------------------------------------
 -- Table `veterinaria_db`.`Turno`
 -- -----------------------------------------------------
@@ -202,7 +192,7 @@ CREATE TABLE IF NOT EXISTS `veterinaria_db`.`Turno` (
   `id_estado_turno` TINYINT UNSIGNED NOT NULL,
   `fecha_hora` DATETIME NOT NULL,
   `motivo` VARCHAR(500) NULL DEFAULT NULL,
-  `observaciones` TEXT NULL DEFAULT NULL,
+  `observaciones` TEXT NULL, 
   `fecha_creacion` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `fecha_actualizacion` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id_turno`),
@@ -235,7 +225,6 @@ ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb4
 COLLATE = utf8mb4_unicode_ci;
 
-
 -- -----------------------------------------------------
 -- Table `veterinaria_db`.`AtencionClinica`
 -- -----------------------------------------------------
@@ -247,9 +236,9 @@ CREATE TABLE IF NOT EXISTS `veterinaria_db`.`AtencionClinica` (
   `id_mascota` INT UNSIGNED NOT NULL,
   `id_veterinario` INT UNSIGNED NOT NULL,
   `id_tipo_atencion` TINYINT UNSIGNED NOT NULL,
-  `diagnostico` TEXT NULL DEFAULT NULL,
-  `tratamiento` TEXT NULL DEFAULT NULL,
-  `observaciones` TEXT NULL DEFAULT NULL,
+  `diagnostico` TEXT NULL, 
+  `tratamiento` TEXT NULL, 
+  `observaciones` TEXT NULL, 
   `proximo_control` DATE NULL DEFAULT NULL,
   `fecha_atencion` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `id_usuario_ultima_modificacion` INT UNSIGNED NULL DEFAULT NULL,
@@ -290,7 +279,6 @@ ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb4
 COLLATE = utf8mb4_unicode_ci;
 
-
 -- -----------------------------------------------------
 -- Table `veterinaria_db`.`HorarioAtencion`
 -- -----------------------------------------------------
@@ -314,7 +302,6 @@ CREATE TABLE IF NOT EXISTS `veterinaria_db`.`HorarioAtencion` (
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb4
 COLLATE = utf8mb4_unicode_ci;
-
 
 -- -----------------------------------------------------
 -- Table `veterinaria_db`.`VacunaAplicada`
@@ -365,7 +352,6 @@ INSERT INTO `TipoAtencion` (`nombre`) VALUES
 ('Control'),
 ('Vacuna'),
 ('Urgencia');
-
 
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
