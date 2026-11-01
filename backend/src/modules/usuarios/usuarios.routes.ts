@@ -1,13 +1,27 @@
 import { Router } from 'express';
-import { obtenerUsuarios, obtenerUsuarioPorId, crearUsuario, eliminarUsuario } from './usuarios.controller';
+import { 
+    obtenerUsuarios, 
+    obtenerUsuarioPorId, 
+    crearUsuario, 
+    eliminarUsuario, 
+    actualizarMiPerfil 
+} from './usuarios.controller';
 import { verificarToken, verificarRol } from '../../middlewares/auth.middleware';
 
 const router = Router();
 
-// 1. Inyectamos el middleware de autenticación a TODAS las rutas de este archivo
+// Middleware global para este router: Todos deben estar logueados
 router.use(verificarToken);
 
-// 2. Definimos las rutas y validamos que solo el Administrador (id_rol: 1) tenga acceso al ABML
+// ==========================================
+// RUTAS DE PERFIL (Cualquier usuario autenticado)
+// ==========================================
+// IMPORTANTE: Esta ruta debe ir antes de las rutas con /:id
+router.put('/perfil', actualizarMiPerfil);
+
+// ==========================================
+// RUTAS ADMINISTRATIVAS (Solo id_rol: 1)
+// ==========================================
 router.get('/', verificarRol([1]), obtenerUsuarios);
 router.get('/:id', verificarRol([1]), obtenerUsuarioPorId);
 router.post('/', verificarRol([1]), crearUsuario);
