@@ -3,7 +3,9 @@ import { CrearUsuarioDTO } from './usuarios.dto';
 
 export class UsuariosRepository {
     
-    // Move Method: Trasladamos la lectura de todos los usuarios
+
+    // MÉTODOS DE LECTURA Y BAJA LÓGICA
+
     static async obtenerTodos(): Promise<any[]> {
         const [rows] = await pool.query(`
             SELECT id_usuario, nombre, apellido, numero_documento, email, telefono, id_rol, activo, fecha_creacion 
@@ -13,7 +15,6 @@ export class UsuariosRepository {
         return rows as any[];
     }
 
-    // Move Method: Trasladamos la lectura por ID
     static async obtenerPorId(id: string): Promise<any> {
         const [rows]: any = await pool.query(`
             SELECT id_usuario, nombre, apellido, numero_documento, email, telefono, id_rol, activo, fecha_creacion 
@@ -23,10 +24,37 @@ export class UsuariosRepository {
         
         return (rows as any[]).length > 0 ? rows[0] : null;
     }
+
+    // Cumple con RN-01: Baja lógica
+    static async eliminarLogicamente(id: string): Promise<boolean> {
+        const [result]: any = await pool.query(`
+            UPDATE Usuario SET activo = 0 WHERE id_usuario = ?
+        `, [id]);
+        
+        return result.affectedRows > 0;
+    }
+
+
+    // EXTRACT METHOD (Funciones auxiliares privadas)
     
-    // Move Method + Introduce Parameter Object + TRANSACCIÓN SQL
+    private static async insertarCliente(connection: any, idUsuario: number, direccion?: string): Promise<void> {
+        await connection.query(`
+            INSERT INTO Cliente (id_usuario, direccion) VALUES (?, ?)
+        `, [idUsuario, direccion || null]);
+    }
+
+    private static async insertarVeterinario(connection: any, idUsuario: number, matricula?: string, idEspecialidad?: number): Promise<void> {
+        if (!matricula || !idEspecialidad) {
+            throw new Error('MISSING_VET_DATA');
+        }
+        await connection.query(`
+            INSERT INTO Veterinario (id_usuario, matricula, id_especialidad) VALUES (?, ?, ?)
+        `, [idUsuario, matricula, idEspecialidad]);
+    }
+
+    // MÉTODO PRINCIPAL DE CREACIÓN CON TRANSACCIÓN
+    
     static async crear(usuario: CrearUsuarioDTO): Promise<number> {
-        // Obtenemos una conexión exclusiva para aislar la transacción
         const connection = await pool.getConnection(); 
         
         try {
@@ -43,48 +71,25 @@ export class UsuariosRepository {
             
             const idUsuario = resultUsuario.insertId;
 
-            // 2. Insertar en la tabla derivada correspondiente
+            // 2. Extract Method: Delegamos la inserción de las tablas hijas
             if (usuario.id_rol === 2) { 
-                // Es Cliente
-                await connection.query(`
-                    INSERT INTO Cliente (id_usuario, direccion) VALUES (?, ?)
-                `, [idUsuario, usuario.direccion || null]);
-                
+                await this.insertarCliente(connection, idUsuario, usuario.direccion);
             } else if (usuario.id_rol === 3) { 
-                // Es Veterinario
-                if (!usuario.matricula || !usuario.id_especialidad) {
-                    throw new Error('MISSING_VET_DATA');
-                }
-                await connection.query(`
-                    INSERT INTO Veterinario (id_usuario, matricula, id_especialidad) VALUES (?, ?, ?)
-                `, [idUsuario, usuario.matricula, usuario.id_especialidad]);
+                await this.insertarVeterinario(connection, idUsuario, usuario.matricula, usuario.id_especialidad);
             }
 
-            // Si llegamos hasta acá sin errores, confirmamos todos los cambios a la vez
+            // 3. Confirmar la transacción
             await connection.commit();
             return idUsuario;
 
         } catch (error: any) {
-            // Hubo un error, deshacemos todo para evitar registros "zombies" o huérfanos
             await connection.rollback(); 
-            
             if (error.code === 'ER_DUP_ENTRY') {
                 throw new Error('DUPLICATE_ENTRY');
             }
             throw error; 
         } finally {
-            // Siempre debemos liberar la conexión al pool
             connection.release(); 
         }
-    }
-
-    // Move Method: Lógica de actualización encapsulada (Baja Lógica / RN-01)
-    static async eliminarLogicamente(id: string): Promise<boolean> {
-        const [result]: any = await pool.query(`
-            UPDATE Usuario SET activo = 0 WHERE id_usuario = ?
-        `, [id]);
-        
-        // Retornamos true si se modificó alguna fila, false si el id no existía
-        return result.affectedRows > 0;
     }
 }
