@@ -23,30 +23,58 @@ export class UsuariosRepository {
         
         return (rows as any[]).length > 0 ? rows[0] : null;
     }
-
-    // Move Method + Introduce Parameter Object
+    
+    // Move Method + Introduce Parameter Object + TRANSACCIÓN SQL
     static async crear(usuario: CrearUsuarioDTO): Promise<number> {
+        // Obtenemos una conexión exclusiva para aislar la transacción
+        const connection = await pool.getConnection(); 
+        
         try {
-            const [result]: any = await pool.query(`
+            await connection.beginTransaction();
+
+            // 1. Insertar el registro base en la tabla Usuario
+            const [resultUsuario]: any = await connection.query(`
                 INSERT INTO Usuario (nombre, apellido, numero_documento, email, password_hash, telefono, id_rol) 
                 VALUES (?, ?, ?, ?, ?, ?, ?)
             `, [
-                usuario.nombre, 
-                usuario.apellido, 
-                usuario.numero_documento, 
-                usuario.email, 
-                usuario.password_hash, 
-                usuario.telefono || null, 
-                usuario.id_rol
+                usuario.nombre, usuario.apellido, usuario.numero_documento, 
+                usuario.email, usuario.password_hash, usuario.telefono || null, usuario.id_rol
             ]);
             
-            return result.insertId;
+            const idUsuario = resultUsuario.insertId;
+
+            // 2. Insertar en la tabla derivada correspondiente
+            if (usuario.id_rol === 2) { 
+                // Es Cliente
+                await connection.query(`
+                    INSERT INTO Cliente (id_usuario, direccion) VALUES (?, ?)
+                `, [idUsuario, usuario.direccion || null]);
+                
+            } else if (usuario.id_rol === 3) { 
+                // Es Veterinario
+                if (!usuario.matricula || !usuario.id_especialidad) {
+                    throw new Error('MISSING_VET_DATA');
+                }
+                await connection.query(`
+                    INSERT INTO Veterinario (id_usuario, matricula, id_especialidad) VALUES (?, ?, ?)
+                `, [idUsuario, usuario.matricula, usuario.id_especialidad]);
+            }
+
+            // Si llegamos hasta acá sin errores, confirmamos todos los cambios a la vez
+            await connection.commit();
+            return idUsuario;
+
         } catch (error: any) {
-            // Manejo de Errores Estandarizado: Ocultamos los detalles de MariaDB
+            // Hubo un error, deshacemos todo para evitar registros "zombies" o huérfanos
+            await connection.rollback(); 
+            
             if (error.code === 'ER_DUP_ENTRY') {
                 throw new Error('DUPLICATE_ENTRY');
             }
-            throw error; // Propagamos cualquier otro error inesperado
+            throw error; 
+        } finally {
+            // Siempre debemos liberar la conexión al pool
+            connection.release(); 
         }
     }
 

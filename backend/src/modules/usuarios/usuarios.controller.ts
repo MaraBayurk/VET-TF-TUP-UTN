@@ -47,41 +47,37 @@ export const obtenerUsuarioPorId = async (req: Request, res: Response): Promise<
 
 export const crearUsuario = async (req: Request, res: Response): Promise<void> => {
     try {
-        // 1. Extract Method: Validación limpia
         if (!validarDatosRequeridos(req.body)) {
-            res.status(400).json({ status: 'error', message: 'Faltan campos obligatorios' });
+            res.status(400).json({ status: 'error', message: 'Faltan campos obligatorios base' });
             return;
         }
 
-        const { nombre, apellido, numero_documento, email, password, telefono, id_rol } = req.body;
+        // Agregamos los campos extra en la destructuración
+        const { nombre, apellido, numero_documento, email, password, telefono, id_rol, direccion, matricula, id_especialidad } = req.body;
 
-        // 2. Extract Method: Criptografía aislada
         const password_hash = await encriptarPassword(password);
 
-        // 3. Introduce Parameter Object: Mapeo estricto mediante DTO
         const nuevoUsuario: CrearUsuarioDTO = {
-            nombre,
-            apellido,
-            numero_documento,
-            email,
-            password_hash,
-            telefono,
-            id_rol
+            nombre, apellido, numero_documento, email, password_hash, telefono, id_rol,
+            direccion, matricula, id_especialidad
         };
 
-        // 4. Move Method: El controlador ya no sabe de SQL, solo delega
         const id_usuario = await UsuariosRepository.crear(nuevoUsuario);
 
         res.status(201).json({
             status: 'success',
-            message: 'Usuario creado exitosamente',
+            message: 'Usuario y perfil extendido creados exitosamente',
             data: { id_usuario }
         });
 
     } catch (error: any) {
-        // 5. Abstracción de Errores: Ya no dependemos de "ER_DUP_ENTRY" de MariaDB
         if (error.message === 'DUPLICATE_ENTRY') {
-            res.status(409).json({ status: 'error', message: 'El email o número de documento ya se encuentra registrado' });
+            res.status(409).json({ status: 'error', message: 'El email, documento o matrícula ya se encuentra registrado' });
+            return;
+        }
+        // Manejamos el error específico del veterinario sin romper la abstracción
+        if (error.message === 'MISSING_VET_DATA') {
+            res.status(400).json({ status: 'error', message: 'Para registrar un veterinario, la matrícula y la especialidad son obligatorias' });
             return;
         }
 
@@ -96,9 +92,9 @@ export const eliminarUsuario = async (req: Request, res: Response): Promise<void
         const fueEliminado = await UsuariosRepository.eliminarLogicamente(req.params.id as string);
 
         if (!fueEliminado) {
-            res.status(404).json({ 
-                status: 'error', 
-                message: 'Usuario no encontrado o ya se encontraba inactivo' 
+            res.status(404).json({
+                status: 'error',
+                message: 'Usuario no encontrado o ya se encontraba inactivo'
             });
             return;
         }

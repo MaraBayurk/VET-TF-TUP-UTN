@@ -4,6 +4,10 @@ export interface CrearUsuarioDTO {
     numero_documento: string;
     email: string;
     password_hash: string;
-    telefono?: string; // Opcional
+    telefono?: string;
     id_rol: number;
+    // Extensiones
+    direccion?: string;        // Para el Cliente
+    matricula?: string;        // Para el Veterinario
+    id_especialidad?: number;  // Para el Veterinario
 }
