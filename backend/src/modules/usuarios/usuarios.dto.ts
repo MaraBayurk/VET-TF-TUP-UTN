@@ -11,3 +11,8 @@ export interface CrearUsuarioDTO {
     matricula?: string;        // Para el Veterinario
     id_especialidad?: number;  // Para el Veterinario
 }
+
+export interface ActualizarPerfilDTO {
+    telefono?: string;
+    direccion?: string;
+}

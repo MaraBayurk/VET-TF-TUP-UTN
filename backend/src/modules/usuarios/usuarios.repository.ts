@@ -1,10 +1,11 @@
 import pool from '../../config/db';
-import { CrearUsuarioDTO } from './usuarios.dto';
+import { CrearUsuarioDTO, ActualizarPerfilDTO } from './usuarios.dto';
 
 export class UsuariosRepository {
     
-
+    // ==========================================
     // MÉTODOS DE LECTURA Y BAJA LÓGICA
+    // ==========================================
 
     static async obtenerTodos(): Promise<any[]> {
         const [rows] = await pool.query(`
@@ -34,8 +35,9 @@ export class UsuariosRepository {
         return result.affectedRows > 0;
     }
 
-
+    // ==========================================
     // EXTRACT METHOD (Funciones auxiliares privadas)
+    // ==========================================
     
     private static async insertarCliente(connection: any, idUsuario: number, direccion?: string): Promise<void> {
         await connection.query(`
@@ -52,7 +54,9 @@ export class UsuariosRepository {
         `, [idUsuario, matricula, idEspecialidad]);
     }
 
+    // ==========================================
     // MÉTODO PRINCIPAL DE CREACIÓN CON TRANSACCIÓN
+    // ==========================================
     
     static async crear(usuario: CrearUsuarioDTO): Promise<number> {
         const connection = await pool.getConnection(); 
@@ -90,6 +94,39 @@ export class UsuariosRepository {
             throw error; 
         } finally {
             connection.release(); 
+        }
+    }
+
+    // ==========================================
+    // ACTUALIZACIÓN DE PERFIL DEL USUARIO
+    // ==========================================
+
+    static async actualizarPerfil(idUsuario: number, idRol: number, datos: ActualizarPerfilDTO): Promise<void> {
+        const connection = await pool.getConnection();
+
+        try {
+            await connection.beginTransaction();
+
+            // 1. Actualizamos el teléfono en la tabla base Usuario (si fue enviado)
+            if (datos.telefono !== undefined) {
+                await connection.query(`
+                    UPDATE Usuario SET telefono = ? WHERE id_usuario = ?
+                `, [datos.telefono, idUsuario]);
+            }
+
+            // 2. Actualizamos la dirección en la tabla Cliente SOLO si el rol es 2 (Cliente)
+            if (idRol === 2 && datos.direccion !== undefined) {
+                await connection.query(`
+                    UPDATE Cliente SET direccion = ? WHERE id_usuario = ?
+                `, [datos.direccion, idUsuario]);
+            }
+
+            await connection.commit();
+        } catch (error) {
+            await connection.rollback();
+            throw error;
+        } finally {
+            connection.release();
         }
     }
 }

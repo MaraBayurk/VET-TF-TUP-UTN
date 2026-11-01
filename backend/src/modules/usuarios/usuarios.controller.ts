@@ -1,47 +1,31 @@
 import { Request, Response } from 'express';
-import bcrypt from 'bcrypt';
 import { UsuariosRepository } from './usuarios.repository';
-import { CrearUsuarioDTO } from './usuarios.dto';
-
-
-// EXTRACT METHOD (Funciones auxiliares)
-const validarDatosRequeridos = (datos: any): boolean => {
-    const { nombre, apellido, numero_documento, email, password, id_rol } = datos;
-    return Boolean(nombre && apellido && numero_documento && email && password && id_rol);
-};
-
-const encriptarPassword = async (password: string): Promise<string> => {
-    const saltRounds = 10;
-    return await bcrypt.hash(password, saltRounds);
-};
-
-
-// CONTROLADOR PRINCIPAL REFACTORIZADO
+import { CrearUsuarioDTO, ActualizarPerfilDTO } from './usuarios.dto';
+// Ajusta las rutas de estas importaciones si las tienes en carpetas distintas
+import { encriptarPassword } from '../../utils/password.util'; 
+import { validarDatosRequeridos } from '../../utils/validator.util';
 
 export const obtenerUsuarios = async (req: Request, res: Response): Promise<void> => {
     try {
-        // Move Method: Delegamos la lógica al Repositorio
         const usuarios = await UsuariosRepository.obtenerTodos();
         res.status(200).json({ status: 'success', data: usuarios });
     } catch (error) {
         console.error('Error al obtener usuarios:', error);
-        res.status(500).json({ status: 'error', message: 'Error al consultar la base de datos' });
+        res.status(500).json({ status: 'error', message: 'Error interno del servidor' });
     }
 };
 
 export const obtenerUsuarioPorId = async (req: Request, res: Response): Promise<void> => {
     try {
         const usuario = await UsuariosRepository.obtenerPorId(req.params.id as string);
-
         if (!usuario) {
             res.status(404).json({ status: 'error', message: 'Usuario no encontrado o inactivo' });
             return;
         }
-
         res.status(200).json({ status: 'success', data: usuario });
     } catch (error) {
-        console.error('Error al obtener el usuario:', error);
-        res.status(500).json({ status: 'error', message: 'Error al consultar la base de datos' });
+        console.error('Error al obtener usuario por id:', error);
+        res.status(500).json({ status: 'error', message: 'Error interno del servidor' });
     }
 };
 
@@ -52,9 +36,7 @@ export const crearUsuario = async (req: Request, res: Response): Promise<void> =
             return;
         }
 
-        // Agregamos los campos extra en la destructuración
         const { nombre, apellido, numero_documento, email, password, telefono, id_rol, direccion, matricula, id_especialidad } = req.body;
-
         const password_hash = await encriptarPassword(password);
 
         const nuevoUsuario: CrearUsuarioDTO = {
@@ -75,7 +57,6 @@ export const crearUsuario = async (req: Request, res: Response): Promise<void> =
             res.status(409).json({ status: 'error', message: 'El email, documento o matrícula ya se encuentra registrado' });
             return;
         }
-        // Manejamos el error específico del veterinario sin romper la abstracción
         if (error.message === 'MISSING_VET_DATA') {
             res.status(400).json({ status: 'error', message: 'Para registrar un veterinario, la matrícula y la especialidad son obligatorias' });
             return;
@@ -88,24 +69,45 @@ export const crearUsuario = async (req: Request, res: Response): Promise<void> =
 
 export const eliminarUsuario = async (req: Request, res: Response): Promise<void> => {
     try {
-        // Casting a string para evitar el error estricto de TypeScript
         const fueEliminado = await UsuariosRepository.eliminarLogicamente(req.params.id as string);
 
         if (!fueEliminado) {
-            res.status(404).json({
-                status: 'error',
-                message: 'Usuario no encontrado o ya se encontraba inactivo'
-            });
+            res.status(404).json({ status: 'error', message: 'Usuario no encontrado o ya se encontraba inactivo' });
             return;
         }
 
-        res.status(200).json({
-            status: 'success',
-            message: 'Usuario dado de baja exitosamente'
-        });
+        res.status(200).json({ status: 'success', message: 'Usuario dado de baja exitosamente' });
 
     } catch (error) {
         console.error('Error al dar de baja al usuario:', error);
+        res.status(500).json({ status: 'error', message: 'Error interno del servidor' });
+    }
+};
+
+export const actualizarMiPerfil = async (req: Request, res: Response): Promise<void> => {
+    try {
+        // Obtenemos los datos del usuario desde el token JWT inyectado por el middleware
+        const idUsuario = (req as any).usuario.id_usuario; 
+        const idRol = (req as any).usuario.id_rol;
+        
+        const { telefono, direccion } = req.body;
+        const datos: ActualizarPerfilDTO = { telefono, direccion };
+
+        // Evitamos llamadas a la base de datos si el body está vacío
+        if (telefono === undefined && direccion === undefined) {
+            res.status(400).json({ status: 'error', message: 'No se enviaron datos para actualizar' });
+            return;
+        }
+
+        await UsuariosRepository.actualizarPerfil(idUsuario, idRol, datos);
+
+        res.status(200).json({ 
+            status: 'success', 
+            message: 'Tus datos de contacto han sido actualizados exitosamente' 
+        });
+
+    } catch (error) {
+        console.error('Error al actualizar el perfil:', error);
         res.status(500).json({ status: 'error', message: 'Error interno del servidor' });
     }
 };
