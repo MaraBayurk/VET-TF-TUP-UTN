@@ -26,7 +26,7 @@ backend/
 │   └── modules/
 │       ├── auth/
 │       │   └── index.ts
-│       ├── pets/
+│       ├── mascotas/
 │       │   └── index.ts
 │       ├── usuarios/
 │       │   └── index.ts

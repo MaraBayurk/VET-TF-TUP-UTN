@@ -5,6 +5,7 @@ import 'dotenv/config';
 import authRoutes from './src/modules/auth/auth.routes';
 import usuariosRoutes from './src/modules/usuarios/usuarios.routes';
 import especialidadesRoutes from './src/modules/especialidades/especialidades.routes';
+import mascotasRoutes from './src/modules/mascotas/mascotas.routes';
 
 const app: Application = express();
 
@@ -17,6 +18,7 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/usuarios', usuariosRoutes);
 app.use('/api/especialidades', especialidadesRoutes);
+app.use('/api/mascotas', mascotasRoutes);
 
 // INICIALIZACIÓN DEL SERVIDOR
 const PORT = process.env.PORT || 3000;
