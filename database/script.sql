@@ -8,19 +8,19 @@ SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
 
 -- -----------------------------------------------------
--- Schema veterinaria_db
+-- Schema veterinariaDB
 -- -----------------------------------------------------
-DROP SCHEMA IF EXISTS `veterinaria_db` ;
+DROP SCHEMA IF EXISTS `veterinariaDB` ;
 
-CREATE SCHEMA IF NOT EXISTS `veterinaria_db` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ;
-USE `veterinaria_db` ;
+CREATE SCHEMA IF NOT EXISTS `veterinariaDB` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ;
+USE `veterinariaDB` ;
 
 -- -----------------------------------------------------
--- Table `veterinaria_db`.`Rol`
+-- Table `veterinariaDB`.`Rol`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `veterinaria_db`.`Rol` ;
+DROP TABLE IF EXISTS `veterinariaDB`.`Rol` ;
 
-CREATE TABLE IF NOT EXISTS `veterinaria_db`.`Rol` (
+CREATE TABLE IF NOT EXISTS `veterinariaDB`.`Rol` (
   `id_rol` TINYINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `nombre` VARCHAR(30) NOT NULL,
   PRIMARY KEY (`id_rol`),
@@ -30,11 +30,11 @@ DEFAULT CHARACTER SET = utf8mb4
 COLLATE = utf8mb4_unicode_ci;
 
 -- -----------------------------------------------------
--- Table `veterinaria_db`.`Usuario`
+-- Table `veterinariaDB`.`Usuario`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `veterinaria_db`.`Usuario` ;
+DROP TABLE IF EXISTS `veterinariaDB`.`Usuario` ;
 
-CREATE TABLE IF NOT EXISTS `veterinaria_db`.`Usuario` (
+CREATE TABLE IF NOT EXISTS `veterinariaDB`.`Usuario` (
   `id_usuario` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `nombre` VARCHAR(100) NOT NULL,
   `apellido` VARCHAR(100) NOT NULL,
@@ -52,7 +52,7 @@ CREATE TABLE IF NOT EXISTS `veterinaria_db`.`Usuario` (
   INDEX `fk_usuario_rol` (`id_rol` ASC) ,
   CONSTRAINT `fk_usuario_rol`
     FOREIGN KEY (`id_rol`)
-    REFERENCES `veterinaria_db`.`Rol` (`id_rol`)
+    REFERENCES `veterinariaDB`.`Rol` (`id_rol`)
     ON DELETE RESTRICT
     ON UPDATE CASCADE)
 ENGINE = InnoDB
@@ -60,11 +60,11 @@ DEFAULT CHARACTER SET = utf8mb4
 COLLATE = utf8mb4_unicode_ci;
 
 -- -----------------------------------------------------
--- Table `veterinaria_db`.`Cliente`
+-- Table `veterinariaDB`.`Cliente`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `veterinaria_db`.`Cliente` ;
+DROP TABLE IF EXISTS `veterinariaDB`.`Cliente` ;
 
-CREATE TABLE IF NOT EXISTS `veterinaria_db`.`Cliente` (
+CREATE TABLE IF NOT EXISTS `veterinariaDB`.`Cliente` (
   `id_cliente` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `id_usuario` INT UNSIGNED NOT NULL,
   `direccion` VARCHAR(255) NULL DEFAULT NULL,
@@ -72,7 +72,7 @@ CREATE TABLE IF NOT EXISTS `veterinaria_db`.`Cliente` (
   UNIQUE INDEX `id_usuario` (`id_usuario` ASC) ,
   CONSTRAINT `fk_cliente_usuario`
     FOREIGN KEY (`id_usuario`)
-    REFERENCES `veterinaria_db`.`Usuario` (`id_usuario`)
+    REFERENCES `veterinariaDB`.`Usuario` (`id_usuario`)
     ON DELETE RESTRICT
     ON UPDATE CASCADE)
 ENGINE = InnoDB
@@ -80,11 +80,11 @@ DEFAULT CHARACTER SET = utf8mb4
 COLLATE = utf8mb4_unicode_ci;
 
 -- -----------------------------------------------------
--- Table `veterinaria_db`.`Mascota`
+-- Table `veterinariaDB`.`Mascota`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `veterinaria_db`.`Mascota` ;
+DROP TABLE IF EXISTS `veterinariaDB`.`Mascota` ;
 
-CREATE TABLE IF NOT EXISTS `veterinaria_db`.`Mascota` (
+CREATE TABLE IF NOT EXISTS `veterinariaDB`.`Mascota` (
   `id_mascota` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `id_cliente` INT UNSIGNED NOT NULL,
   `nombre` VARCHAR(100) NOT NULL,
@@ -100,7 +100,7 @@ CREATE TABLE IF NOT EXISTS `veterinaria_db`.`Mascota` (
   INDEX `idx_mascota_cliente` (`id_cliente` ASC) ,
   CONSTRAINT `fk_mascota_cliente`
     FOREIGN KEY (`id_cliente`)
-    REFERENCES `veterinaria_db`.`Cliente` (`id_cliente`)
+    REFERENCES `veterinariaDB`.`Cliente` (`id_cliente`)
     ON DELETE RESTRICT
     ON UPDATE CASCADE)
 ENGINE = InnoDB
@@ -108,11 +108,11 @@ DEFAULT CHARACTER SET = utf8mb4
 COLLATE = utf8mb4_unicode_ci;
 
 -- -----------------------------------------------------
--- Table `veterinaria_db`.`TipoAtencion`
+-- Table `veterinariaDB`.`TipoAtencion`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `veterinaria_db`.`TipoAtencion` ;
+DROP TABLE IF EXISTS `veterinariaDB`.`TipoAtencion` ;
 
-CREATE TABLE IF NOT EXISTS `veterinaria_db`.`TipoAtencion` (
+CREATE TABLE IF NOT EXISTS `veterinariaDB`.`TipoAtencion` (
   `id_tipo_atencion` TINYINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `nombre` VARCHAR(30) NOT NULL,
   PRIMARY KEY (`id_tipo_atencion`),
@@ -122,11 +122,11 @@ DEFAULT CHARACTER SET = utf8mb4
 COLLATE = utf8mb4_unicode_ci;
 
 -- -----------------------------------------------------
--- Table `veterinaria_db`.`EstadoTurno`
+-- Table `veterinariaDB`.`EstadoTurno`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `veterinaria_db`.`EstadoTurno` ;
+DROP TABLE IF EXISTS `veterinariaDB`.`EstadoTurno` ;
 
-CREATE TABLE IF NOT EXISTS `veterinaria_db`.`EstadoTurno` (
+CREATE TABLE IF NOT EXISTS `veterinariaDB`.`EstadoTurno` (
   `id_estado_turno` TINYINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `nombre` VARCHAR(20) NOT NULL,
   PRIMARY KEY (`id_estado_turno`),
@@ -136,11 +136,11 @@ DEFAULT CHARACTER SET = utf8mb4
 COLLATE = utf8mb4_unicode_ci;
 
 -- -----------------------------------------------------
--- Table `veterinaria_db`.`Especialidad`
+-- Table `veterinariaDB`.`Especialidad`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `veterinaria_db`.`Especialidad` ;
+DROP TABLE IF EXISTS `veterinariaDB`.`Especialidad` ;
 
-CREATE TABLE IF NOT EXISTS `veterinaria_db`.`Especialidad` (
+CREATE TABLE IF NOT EXISTS `veterinariaDB`.`Especialidad` (
   `id_especialidad` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `nombre` VARCHAR(100) NOT NULL,
   `descripcion` VARCHAR(255) NULL DEFAULT NULL,
@@ -152,11 +152,11 @@ DEFAULT CHARACTER SET = utf8mb4
 COLLATE = utf8mb4_unicode_ci;
 
 -- -----------------------------------------------------
--- Table `veterinaria_db`.`Veterinario`
+-- Table `veterinariaDB`.`Veterinario`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `veterinaria_db`.`Veterinario` ;
+DROP TABLE IF EXISTS `veterinariaDB`.`Veterinario` ;
 
-CREATE TABLE IF NOT EXISTS `veterinaria_db`.`Veterinario` (
+CREATE TABLE IF NOT EXISTS `veterinariaDB`.`Veterinario` (
   `id_veterinario` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `id_usuario` INT UNSIGNED NOT NULL,
   `matricula` VARCHAR(50) NOT NULL,
@@ -167,12 +167,12 @@ CREATE TABLE IF NOT EXISTS `veterinaria_db`.`Veterinario` (
   INDEX `fk_Veterinario_Especialidad1_idx` (`id_especialidad` ASC) ,
   CONSTRAINT `fk_veterinario_usuario`
     FOREIGN KEY (`id_usuario`)
-    REFERENCES `veterinaria_db`.`Usuario` (`id_usuario`)
+    REFERENCES `veterinariaDB`.`Usuario` (`id_usuario`)
     ON DELETE RESTRICT
     ON UPDATE CASCADE,
   CONSTRAINT `fk_Veterinario_Especialidad1`
     FOREIGN KEY (`id_especialidad`)
-    REFERENCES `veterinaria_db`.`Especialidad` (`id_especialidad`)
+    REFERENCES `veterinariaDB`.`Especialidad` (`id_especialidad`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
@@ -180,11 +180,11 @@ DEFAULT CHARACTER SET = utf8mb4
 COLLATE = utf8mb4_unicode_ci;
 
 -- -----------------------------------------------------
--- Table `veterinaria_db`.`Turno`
+-- Table `veterinariaDB`.`Turno`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `veterinaria_db`.`Turno` ;
+DROP TABLE IF EXISTS `veterinariaDB`.`Turno` ;
 
-CREATE TABLE IF NOT EXISTS `veterinaria_db`.`Turno` (
+CREATE TABLE IF NOT EXISTS `veterinariaDB`.`Turno` (
   `id_turno` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `id_mascota` INT UNSIGNED NOT NULL,
   `id_veterinario` INT UNSIGNED NOT NULL,
@@ -203,22 +203,22 @@ CREATE TABLE IF NOT EXISTS `veterinaria_db`.`Turno` (
   INDEX `idx_turno_veterinario_fecha` (`id_veterinario` ASC, `fecha_hora` ASC) ,
   CONSTRAINT `fk_turno_creador`
     FOREIGN KEY (`id_usuario_creador`)
-    REFERENCES `veterinaria_db`.`Usuario` (`id_usuario`)
+    REFERENCES `veterinariaDB`.`Usuario` (`id_usuario`)
     ON DELETE RESTRICT
     ON UPDATE CASCADE,
   CONSTRAINT `fk_turno_estado`
     FOREIGN KEY (`id_estado_turno`)
-    REFERENCES `veterinaria_db`.`EstadoTurno` (`id_estado_turno`)
+    REFERENCES `veterinariaDB`.`EstadoTurno` (`id_estado_turno`)
     ON DELETE RESTRICT
     ON UPDATE CASCADE,
   CONSTRAINT `fk_turno_mascota`
     FOREIGN KEY (`id_mascota`)
-    REFERENCES `veterinaria_db`.`Mascota` (`id_mascota`)
+    REFERENCES `veterinariaDB`.`Mascota` (`id_mascota`)
     ON DELETE RESTRICT
     ON UPDATE CASCADE,
   CONSTRAINT `fk_turno_veterinario`
     FOREIGN KEY (`id_veterinario`)
-    REFERENCES `veterinaria_db`.`Veterinario` (`id_veterinario`)
+    REFERENCES `veterinariaDB`.`Veterinario` (`id_veterinario`)
     ON DELETE RESTRICT
     ON UPDATE CASCADE)
 ENGINE = InnoDB
@@ -226,11 +226,11 @@ DEFAULT CHARACTER SET = utf8mb4
 COLLATE = utf8mb4_unicode_ci;
 
 -- -----------------------------------------------------
--- Table `veterinaria_db`.`AtencionClinica`
+-- Table `veterinariaDB`.`AtencionClinica`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `veterinaria_db`.`AtencionClinica` ;
+DROP TABLE IF EXISTS `veterinariaDB`.`AtencionClinica` ;
 
-CREATE TABLE IF NOT EXISTS `veterinaria_db`.`AtencionClinica` (
+CREATE TABLE IF NOT EXISTS `veterinariaDB`.`AtencionClinica` (
   `id_atencion` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `id_turno` INT UNSIGNED NULL DEFAULT NULL,
   `id_mascota` INT UNSIGNED NOT NULL,
@@ -252,27 +252,27 @@ CREATE TABLE IF NOT EXISTS `veterinaria_db`.`AtencionClinica` (
   INDEX `idx_atencion_mascota_fecha` (`id_mascota` ASC, `fecha_atencion` ASC) ,
   CONSTRAINT `fk_atencion_mascota`
     FOREIGN KEY (`id_mascota`)
-    REFERENCES `veterinaria_db`.`Mascota` (`id_mascota`)
+    REFERENCES `veterinariaDB`.`Mascota` (`id_mascota`)
     ON DELETE RESTRICT
     ON UPDATE CASCADE,
   CONSTRAINT `fk_atencion_modificador`
     FOREIGN KEY (`id_usuario_ultima_modificacion`)
-    REFERENCES `veterinaria_db`.`Usuario` (`id_usuario`)
+    REFERENCES `veterinariaDB`.`Usuario` (`id_usuario`)
     ON DELETE RESTRICT
     ON UPDATE CASCADE,
   CONSTRAINT `fk_atencion_tipo`
     FOREIGN KEY (`id_tipo_atencion`)
-    REFERENCES `veterinaria_db`.`TipoAtencion` (`id_tipo_atencion`)
+    REFERENCES `veterinariaDB`.`TipoAtencion` (`id_tipo_atencion`)
     ON DELETE RESTRICT
     ON UPDATE CASCADE,
   CONSTRAINT `fk_atencion_turno`
     FOREIGN KEY (`id_turno`)
-    REFERENCES `veterinaria_db`.`Turno` (`id_turno`)
+    REFERENCES `veterinariaDB`.`Turno` (`id_turno`)
     ON DELETE RESTRICT
     ON UPDATE CASCADE,
   CONSTRAINT `fk_atencion_veterinario`
     FOREIGN KEY (`id_veterinario`)
-    REFERENCES `veterinaria_db`.`Veterinario` (`id_veterinario`)
+    REFERENCES `veterinariaDB`.`Veterinario` (`id_veterinario`)
     ON DELETE RESTRICT
     ON UPDATE CASCADE)
 ENGINE = InnoDB
@@ -280,11 +280,11 @@ DEFAULT CHARACTER SET = utf8mb4
 COLLATE = utf8mb4_unicode_ci;
 
 -- -----------------------------------------------------
--- Table `veterinaria_db`.`HorarioAtencion`
+-- Table `veterinariaDB`.`HorarioAtencion`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `veterinaria_db`.`HorarioAtencion` ;
+DROP TABLE IF EXISTS `veterinariaDB`.`HorarioAtencion` ;
 
-CREATE TABLE IF NOT EXISTS `veterinaria_db`.`HorarioAtencion` (
+CREATE TABLE IF NOT EXISTS `veterinariaDB`.`HorarioAtencion` (
   `id_horario` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `id_veterinario` INT UNSIGNED NOT NULL,
   `dia_semana` TINYINT UNSIGNED NOT NULL COMMENT '1=lunes ... 7=domingo',
@@ -296,7 +296,7 @@ CREATE TABLE IF NOT EXISTS `veterinaria_db`.`HorarioAtencion` (
   INDEX `idx_horario_veterinario_dia` (`id_veterinario` ASC, `dia_semana` ASC) ,
   CONSTRAINT `fk_horario_veterinario`
     FOREIGN KEY (`id_veterinario`)
-    REFERENCES `veterinaria_db`.`Veterinario` (`id_veterinario`)
+    REFERENCES `veterinariaDB`.`Veterinario` (`id_veterinario`)
     ON DELETE RESTRICT
     ON UPDATE CASCADE)
 ENGINE = InnoDB
@@ -304,11 +304,11 @@ DEFAULT CHARACTER SET = utf8mb4
 COLLATE = utf8mb4_unicode_ci;
 
 -- -----------------------------------------------------
--- Table `veterinaria_db`.`VacunaAplicada`
+-- Table `veterinariaDB`.`VacunaAplicada`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `veterinaria_db`.`VacunaAplicada` ;
+DROP TABLE IF EXISTS `veterinariaDB`.`VacunaAplicada` ;
 
-CREATE TABLE IF NOT EXISTS `veterinaria_db`.`VacunaAplicada` (
+CREATE TABLE IF NOT EXISTS `veterinariaDB`.`VacunaAplicada` (
   `id_vacuna_aplicada` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `nombre_vacuna` VARCHAR(120) NOT NULL,
   `dosis` VARCHAR(80) NULL DEFAULT NULL,
@@ -321,7 +321,7 @@ CREATE TABLE IF NOT EXISTS `veterinaria_db`.`VacunaAplicada` (
   INDEX `fk_VacunaAplicada_AtencionClinica1_idx` (`id_atencion` ASC) ,
   CONSTRAINT `fk_VacunaAplicada_AtencionClinica1`
     FOREIGN KEY (`id_atencion`)
-    REFERENCES `veterinaria_db`.`AtencionClinica` (`id_atencion`)
+    REFERENCES `veterinariaDB`.`AtencionClinica` (`id_atencion`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
@@ -331,7 +331,7 @@ COLLATE = utf8mb4_unicode_ci;
 -- -----------------------------------------------------
 -- Carga de datos iniciales (Seeders) para Catálogos
 -- -----------------------------------------------------
-USE `veterinaria_db`;
+USE `veterinariaDB`;
 
 -- Carga de Roles
 INSERT INTO `Rol` (`nombre`) VALUES 

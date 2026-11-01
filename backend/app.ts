@@ -1,5 +1,6 @@
 import express, { Application } from 'express';
 import 'dotenv/config';
+import { setupSwagger } from './src/config/swagger';
 
 // Importación de módulos de rutas
 import authRoutes from './src/modules/auth/auth.routes';
@@ -13,6 +14,8 @@ const app: Application = express();
 // MIDDLEWARES GLOBALES
 app.use(express.json());
 
+// <-- 2. Ejecutá Swagger ANTES de tus rutas
+setupSwagger(app);
 
 // RUTAS DE LA API
 app.use('/api/auth', authRoutes);

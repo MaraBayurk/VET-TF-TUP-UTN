@@ -16,7 +16,7 @@ El sistema sigue una arquitectura cliente-servidor, organizada en tres component
 
 - **Frontend:** desarrollado con React, TypeScript y SCSS. Gestiona la interfaz de usuario, la navegación y la interacción con el sistema.
 - **Backend:** desarrollado con Node.js y Express. Centraliza la lógica de negocio, la validación de datos, la autenticación y la comunicación con la base de datos.
-- **Base de datos:** MariaDB (vía XAMPP). Almacena la información de usuarios, mascotas, turnos, atenciones clínicas y demás entidades del sistema, manteniendo compatibilidad estructural con MySQL.
+- **Base de datos:** MySQL (vía Aiven Cloud). Almacena la información de usuarios, mascotas, turnos, atenciones clínicas y demás entidades del sistema, operando con conexión segura SSL y permitiendo un entorno de desarrollo colaborativo y centralizado en la nube.
 
 ## Organización Funcional
 
