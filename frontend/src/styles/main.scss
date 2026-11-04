@@ -14,3 +14,16 @@ input:focus-visible {
   outline: 2px solid $color-primary;
   outline-offset: 2px;
 }
+
+.home-page {
+  h1 {
+    font-size: 28px;
+    font-weight: 600;
+    margin-bottom: 12px;
+  }
+
+  p {
+    color: $color-text;
+    line-height: 1.6;
+  }
+}
