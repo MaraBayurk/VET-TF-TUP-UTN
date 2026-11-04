@@ -1,4 +1,3 @@
-
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -193,20 +192,20 @@ function PetsPage() {
 
   const totalPages = Math.max(
     1,
-    Math.ceil(filteredPets.length / ITEMS_PER_PAGE)
+    Math.ceil(filteredPets.length / ITEMS_PER_PAGE),
   );
 
   const paginatedPets = filteredPets.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
+    currentPage * ITEMS_PER_PAGE,
   );
 
   const activePets = pets.filter((pet) => pet.activo).length;
   const caninePets = pets.filter(
-    (pet) => pet.activo && pet.especie === "Canina"
+    (pet) => pet.activo && pet.especie === "Canina",
   ).length;
   const felinePets = pets.filter(
-    (pet) => pet.activo && pet.especie === "Felina"
+    (pet) => pet.activo && pet.especie === "Felina",
   ).length;
 
   const handleDeactivate = (selectedPet: PetItem) => {
@@ -214,8 +213,8 @@ function PetsPage() {
       currentPets.map((pet) =>
         pet.id_mascota === selectedPet.id_mascota
           ? { ...pet, activo: false }
-          : pet
-      )
+          : pet,
+      ),
     );
   };
 
@@ -227,9 +226,7 @@ function PetsPage() {
   };
 
   const hasFilters =
-    search !== "" ||
-    speciesFilter !== "Todas" ||
-    statusFilter !== "Activas";
+    search !== "" || speciesFilter !== "Todas" || statusFilter !== "Activas";
 
   return (
     <section className="pets-page">
@@ -237,7 +234,9 @@ function PetsPage() {
         <div className="pets-page__banner-content">
           <span className="pets-page__eyebrow">VET</span>
           <h1>Mascotas</h1>
-          <p>Gestioná los pacientes y sus datos registrados en la veterinaria.</p>
+          <p>
+            Gestioná los pacientes y sus datos registrados en la veterinaria.
+          </p>
         </div>
 
         <div className="pets-page__banner-decoration" aria-hidden="true">
@@ -352,14 +351,14 @@ function PetsPage() {
           <SlidersHorizontal size={18} />
         </div>
 
-        <PetsTable
-          pets={paginatedPets}
-          onDeactivate={handleDeactivate}
-        />
+        <PetsTable pets={paginatedPets} onDeactivate={handleDeactivate} />
 
         <footer className="pets-page__pagination">
           <span>
-            Mostrando {filteredPets.length === 0 ? 0 : (currentPage - 1) * ITEMS_PER_PAGE + 1}
+            Mostrando{" "}
+            {filteredPets.length === 0
+              ? 0
+              : (currentPage - 1) * ITEMS_PER_PAGE + 1}
             {" a "}
             {Math.min(currentPage * ITEMS_PER_PAGE, filteredPets.length)}
             {" de "}
@@ -386,7 +385,7 @@ function PetsPage() {
                 >
                   {page}
                 </button>
-              )
+              ),
             )}
 
             <button

@@ -1,4 +1,3 @@
-
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 
 import AuthPage from "../features/auth/pages/AuthPage";
@@ -9,6 +8,7 @@ import UsersPage from "../features/users/pages/UsersPage";
 import UserDetailPage from "../features/users/pages/UserDetailPage";
 import CreateEditUserPage from "../features/users/pages/CreateEditUserPage";
 import PetsPage from "../features/pets/pages/PetsPage";
+import CreateEditPetPage from "../features/pets/pages/CreateEditPetPage";
 
 function AppRouter() {
   return (
@@ -26,12 +26,14 @@ function AppRouter() {
           <Route path="/usuarios/:id/editar" element={<CreateEditUserPage />} />
           <Route path="/usuarios/:id" element={<UserDetailPage />} />
           <Route path="/mascotas" element={<PetsPage />} />
+          <Route path="/mascotas/nueva" element={<CreateEditPetPage />} />
+          <Route path="/mascotas/:id/editar" element={<CreateEditPetPage />} />
         </Route>
 
         {/* Redirección inicial */}
         <Route path="/" element={<Navigate to="/inicio" replace />} />
 
-         {/* Ruta desconocida */}
+        {/* Ruta desconocida */}
         <Route path="*" element={<Navigate to="/inicio" replace />} />
       </Routes>
     </BrowserRouter>
