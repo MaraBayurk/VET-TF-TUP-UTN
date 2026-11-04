@@ -5,6 +5,9 @@ import AuthPage from "../features/auth/pages/AuthPage";
 import RegisterPage from "../features/auth/pages/RegisterPage";
 import HomePage from "../features/dashboard/pages/HomePage";
 import MainLayout from "../components/layouts/MainLayout";
+import UsersPage from "../features/users/pages/UsersPage";
+import UserDetailPage from "../features/users/pages/UserDetailPage";
+import CreateEditUserPage from "../features/users/pages/CreateEditUserPage";
 
 function AppRouter() {
   return (
@@ -17,12 +20,16 @@ function AppRouter() {
         {/* Rutas internas */}
         <Route element={<MainLayout />}>
           <Route path="/inicio" element={<HomePage />} />
+          <Route path="/usuarios" element={<UsersPage />} />
+          <Route path="/usuarios/nuevo" element={<CreateEditUserPage />} />
+          <Route path="/usuarios/:id/editar" element={<CreateEditUserPage />} />
+          <Route path="/usuarios/:id" element={<UserDetailPage />} />
         </Route>
 
         {/* Redirección inicial */}
         <Route path="/" element={<Navigate to="/inicio" replace />} />
 
-        {/* Ruta desconocida */}
+         {/* Ruta desconocida */}
         <Route path="*" element={<Navigate to="/inicio" replace />} />
       </Routes>
     </BrowserRouter>
