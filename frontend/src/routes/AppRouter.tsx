@@ -1,16 +1,29 @@
+
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 
 import AuthPage from "../features/auth/pages/AuthPage";
 import RegisterPage from "../features/auth/pages/RegisterPage";
+import HomePage from "../features/dashboard/pages/HomePage";
+import MainLayout from "../components/layouts/MainLayout";
 
 function AppRouter() {
   return (
     <BrowserRouter>
       <Routes>
+        {/* Rutas públicas */}
         <Route path="/login" element={<AuthPage />} />
         <Route path="/registro" element={<RegisterPage />} />
 
-        <Route path="*" element={<Navigate to="/login" replace />} />
+        {/* Rutas internas */}
+        <Route element={<MainLayout />}>
+          <Route path="/inicio" element={<HomePage />} />
+        </Route>
+
+        {/* Redirección inicial */}
+        <Route path="/" element={<Navigate to="/inicio" replace />} />
+
+        {/* Ruta desconocida */}
+        <Route path="*" element={<Navigate to="/inicio" replace />} />
       </Routes>
     </BrowserRouter>
   );
