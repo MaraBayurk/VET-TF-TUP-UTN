@@ -16,6 +16,7 @@ const navigationItems = [
   { label: "Turnos", path: "/turnos", icon: CalendarDays },
   { label: "Mascotas", path: "/mascotas", icon: PawPrint },
   { label: "Clientes", path: "/clientes", icon: Users },
+  { label: "Usuarios", path: "/usuarios", icon: Users },
   {
     label: "Historial clínico",
     path: "/historial-clinico",
