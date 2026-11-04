@@ -1,4 +1,3 @@
-
 import { useMemo, useState } from "react";
 import {
   Search,
@@ -11,6 +10,7 @@ import {
 
 import UsersTable, { type UserItem } from "../components/UsersTable";
 import "../styles/UsersPage.scss";
+import { useNavigate } from "react-router-dom";
 
 const mockUsers: UserItem[] = [
   {
@@ -74,6 +74,8 @@ function UsersPage() {
   const [roleFilter, setRoleFilter] = useState("Todos");
   const [statusFilter, setStatusFilter] = useState("Todos");
 
+  const navigate = useNavigate();
+
   const filteredUsers = useMemo(() => {
     return mockUsers.filter((user) => {
       const searchValue = search.toLowerCase();
@@ -83,8 +85,7 @@ function UsersPage() {
         user.email.toLowerCase().includes(searchValue) ||
         user.document.includes(searchValue);
 
-      const matchesRole =
-        roleFilter === "Todos" || user.role === roleFilter;
+      const matchesRole = roleFilter === "Todos" || user.role === roleFilter;
 
       const matchesStatus =
         statusFilter === "Todos" || user.status === statusFilter;
@@ -99,8 +100,8 @@ function UsersPage() {
         <div>
           <h1>Usuarios</h1>
           <p>
-            Administrá las cuentas, roles y perfiles del equipo de
-            Di Salvo Veterinaria.
+            Administrá las cuentas, roles y perfiles del equipo de Di Salvo
+            Veterinaria.
           </p>
         </div>
       </div>
@@ -179,8 +180,11 @@ function UsersPage() {
             <option value="Activo">Activo</option>
             <option value="Inactivo">Inactivo</option>
           </select>
-
-          <button type="button" className="users-page__new-button">
+          <button
+            type="button"
+            className="users-page__new-button"
+            onClick={() => navigate("/usuarios/nuevo")}
+          >
             <Plus size={16} />
             Nuevo usuario
           </button>

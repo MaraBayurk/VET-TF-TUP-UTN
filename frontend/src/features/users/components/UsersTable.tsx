@@ -1,5 +1,6 @@
-
-import { MoreVertical } from "lucide-react";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { MoreVertical, Eye } from "lucide-react";
 
 export interface UserItem {
   id: number;
@@ -16,6 +17,9 @@ interface UsersTableProps {
 }
 
 function UsersTable({ users }: UsersTableProps) {
+  const [openMenuId, setOpenMenuId] = useState<number | null>(null);
+  const navigate = useNavigate();
+
   if (users.length === 0) {
     return (
       <div className="users-table__empty">
@@ -77,13 +81,33 @@ function UsersTable({ users }: UsersTableProps) {
               </td>
 
               <td>
-                <button
-                  type="button"
-                  className="users-table__actions"
-                  aria-label={`Acciones para ${user.name}`}
-                >
-                  <MoreVertical size={18} />
-                </button>
+                <div className="users-table__actions-wrapper">
+                  <button
+                    type="button"
+                    className="users-table__actions"
+                    aria-label={`Opciones de ${user.name}`}
+                    onClick={() =>
+                      setOpenMenuId(openMenuId === user.id ? null : user.id)
+                    }
+                  >
+                    <MoreVertical size={18} />
+                  </button>
+
+                  {openMenuId === user.id && (
+                    <div className="users-table__dropdown">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setOpenMenuId(null);
+                          navigate(`/usuarios/${user.id}`);
+                        }}
+                      >
+                        <Eye size={16} />
+                        Detalle
+                      </button>
+                    </div>
+                  )}
+                </div>
               </td>
             </tr>
           ))}

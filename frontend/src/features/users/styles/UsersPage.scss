@@ -238,6 +238,41 @@
     color: $color-text-light;
     font-size: 13px;
   }
+  &__actions-wrapper {
+  position: relative;
+}
+
+&__dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  z-index: 20;
+  min-width: 130px;
+  padding: 5px;
+  background: $color-surface;
+  border: 1px solid $color-border;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+
+  button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 9px 10px;
+    border: none;
+    border-radius: 5px;
+    background: transparent;
+    color: $color-heading;
+    font-size: 12px;
+    cursor: pointer;
+
+    &:hover {
+      background: $color-background;
+    }
+  }
+}
+
 }
 
 @media (max-width: 1100px) {
