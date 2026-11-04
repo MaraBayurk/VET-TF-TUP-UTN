@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { PawPrint, Plus } from "lucide-react";
+import { useNavigate, useParams } from "react-router-dom";
 
 import type { ChangeEvent, FormEvent } from "react";
 
@@ -44,9 +44,40 @@ const specialties = [
 
 function CreateUserPage() {
   const navigate = useNavigate();
+  const { id } = useParams();
 
-  const [form, setForm] = useState<CreateUserForm>(initialForm);
+  const isEditing = Boolean(id);
 
+  const existingUsers: Record<number, CreateUserForm> = {
+    1: {
+      nombre: "María",
+      apellido: "González",
+      documento: "12345678",
+      telefono: "3812345678",
+      email: "maria.gonzalez@email.com",
+      password: "",
+      rol: "Cliente",
+      direccion: "San Miguel de Tucumán",
+      matricula: "",
+      especialidad: "",
+    },
+    2: {
+      nombre: "Pedro",
+      apellido: "Ramírez",
+      documento: "23456789",
+      telefono: "3812345678",
+      email: "pedro.ramirez@email.com",
+      password: "",
+      rol: "Veterinario",
+      direccion: "",
+      matricula: "MP 4587",
+      especialidad: "Clínica médica",
+    },
+  };
+
+  const [form, setForm] = useState<CreateUserForm>(() =>
+    id ? (existingUsers[Number(id)] ?? initialForm) : initialForm,
+  );
   const handleChange = (
     event: ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
@@ -71,12 +102,20 @@ function CreateUserPage() {
   };
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
+    event.preventDefault();
 
-    // Alta provisoria: todavía no conectado al backend.
-    console.log("Usuario a crear:", form);
+    if (isEditing) {
+      console.log("Usuario a actualizar:", {
+        id,
+        ...form,
+      });
 
-    alert("Formulario validado. El alta se conectará al backend.");
+      alert("Formulario validado. La edición se conectará al backend.");
+    } else {
+      console.log("Usuario a crear:", form);
+
+      alert("Formulario validado. El alta se conectará al backend.");
+    }
 
     navigate("/usuarios");
   };
@@ -85,9 +124,11 @@ function CreateUserPage() {
     <section className="create-user">
       <header className="create-user__heading">
         <div>
-          <h1>Crear nuevo usuario</h1>
+          <h1>{isEditing ? "Editar usuario" : "Crear nuevo usuario"}</h1>{" "}
           <p>
-            Modificá los datos de acceso y completá la información del perfil.
+            {isEditing
+              ? "Modificá los datos personales y la información del perfil."
+              : "Modificá los datos de acceso y completá la información del perfil."}
           </p>
         </div>
 
@@ -174,9 +215,13 @@ function CreateUserPage() {
               type="password"
               value={form.password}
               onChange={handleChange}
-              placeholder="Ingresá una contraseña"
+              placeholder={
+                isEditing
+                  ? "Dejar vacío para mantener la contraseña actual"
+                  : "Ingresá una contraseña"
+              }
               minLength={8}
-              required
+              required={!isEditing}
             />
           </div>
 
@@ -255,8 +300,7 @@ function CreateUserPage() {
           </button>
 
           <button type="submit" className="create-user__submit">
-            Crear usuario
-            <span>→</span>
+            {isEditing ? "Guardar cambios" : "Crear usuario"} <span>→</span>
           </button>
         </div>
       </form>

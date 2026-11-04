@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { MoreVertical, Eye } from "lucide-react";
+import { MoreVertical, Eye, Pencil } from "lucide-react";
 
 export interface UserItem {
   id: number;
@@ -104,6 +104,16 @@ function UsersTable({ users }: UsersTableProps) {
                       >
                         <Eye size={16} />
                         Detalle
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setOpenMenuId(null);
+                          navigate(`/usuarios/${user.id}/editar`);
+                        }}
+                      >
+                        <Pencil size={16} />
+                        Editar
                       </button>
                     </div>
                   )}
