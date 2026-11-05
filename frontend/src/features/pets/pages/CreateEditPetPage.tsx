@@ -12,6 +12,7 @@ import {
 
 import type { PetItem } from "../../../types/pet";
 import "../styles/CreateEditPetPage.scss";
+import { validatePetForm } from "../utils/validatePetForm";
 
 interface Client {
   id_cliente: number;
@@ -309,38 +310,14 @@ function CreateEditPetPage() {
     setSelectedClient(client);
     setClientError("");
   };
-
   const validatePet = () => {
-    const newErrors: Partial<PetFormData> = {};
-
-    if (!formData.nombre.trim()) {
-      newErrors.nombre = "Ingresá el nombre de la mascota.";
-    }
-
-    if (!formData.especie) {
-      newErrors.especie = "Seleccioná una especie.";
-    }
-
-    if (!formData.sexo) {
-      newErrors.sexo = "Seleccioná el sexo.";
-    }
-
-    if (formData.fecha_nacimiento) {
-      const birthDate = new Date(`${formData.fecha_nacimiento}T00:00:00`);
-
-      const today = new Date();
-      today.setHours(23, 59, 59, 999);
-
-      if (birthDate > today) {
-        newErrors.fecha_nacimiento =
-          "La fecha de nacimiento no puede ser futura.";
-      }
-    }
+    const newErrors = validatePetForm(formData);
 
     setErrors(newErrors);
 
     return Object.keys(newErrors).length === 0;
   };
+
   const handleNext = () => {
     console.log("➡️ SE EJECUTÓ handleNext. Paso actual:", step);
 
