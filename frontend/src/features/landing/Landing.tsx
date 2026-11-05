@@ -2,36 +2,14 @@
 import { Link } from "react-router-dom";
 import {
   ArrowRight,
-  CalendarDays,
   Heart,
   PawPrint,
-  Stethoscope,
   Users,
 } from "lucide-react";
 
 import LandingHeader from "./components/LandingHeader";
+import { services } from "./data/services";
 import "./landing.scss";
-
-const services = [
-  {
-    title: "Consultas veterinarias",
-    description:
-      "Atención profesional para controlar la salud y el bienestar de tus mascotas.",
-    icon: Stethoscope,
-  },
-  {
-    title: "Vacunación",
-    description:
-      "Planes de vacunación y prevención para acompañarlos en cada etapa.",
-    icon: Heart,
-  },
-  {
-    title: "Turnos",
-    description:
-      "Organizá las visitas al veterinario de manera sencilla y rápida.",
-    icon: CalendarDays,
-  },
-];
 
 function Landing() {
   return (
@@ -87,7 +65,10 @@ function Landing() {
             const Icon = service.icon;
 
             return (
-              <article className="landing-service-card" key={service.title}>
+              <article
+                className="landing-service-card"
+                key={service.title}
+              >
                 <div className="landing-service-icon">
                   <Icon size={30} />
                 </div>
@@ -133,7 +114,9 @@ function Landing() {
           <strong>VET</strong>
         </div>
         <p>Gestión Veterinaria Integral</p>
-        <p>© {new Date().getFullYear()} VET. Todos los derechos reservados.</p>
+        <p>
+          © {new Date().getFullYear()} VET. Todos los derechos reservados.
+        </p>
       </footer>
     </main>
   );
