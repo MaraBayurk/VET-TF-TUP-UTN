@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 
 import PetsTable from "../components/PetsTable";
-import type { PetItem } from "../types/pet";
+import type { PetItem } from "../../../types/pet";
 import "../styles/PetsPage.scss";
 
 const initialPets: PetItem[] = [

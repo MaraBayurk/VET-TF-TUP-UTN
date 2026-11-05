@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -8,8 +7,14 @@ import {
   UserRoundX,
 } from "lucide-react";
 
+import { CURRENT_USER_ROLE } from "../../../types/roles";
+import {
+  canEditPet,
+  canDeactivatePet,
+} from "../../../utils/petPermissions";
+
 import ConfirmModal from "../../../components/commons/ConfirmModal/ConfirmModal";
-import type { PetItem } from "../types/pet";
+import type { PetItem } from "../../../types/pet";
 
 interface PetsTableProps {
   pets: PetItem[];
@@ -84,8 +89,18 @@ function PetsTable({ pets, onDeactivate }: PetsTableProps) {
 
           <tbody>
             {pets.map((pet) => {
-              const ownerName =
-                `${pet.cliente.nombre} ${pet.cliente.apellido}`;
+              const ownerName = `${pet.cliente.nombre} ${pet.cliente.apellido}`;
+
+              // Validar acciones según rol y estado de la mascota
+              const showEditAction = canEditPet(
+                pet,
+                CURRENT_USER_ROLE
+              );
+
+              const showDeactivateAction = canDeactivatePet(
+                pet,
+                CURRENT_USER_ROLE
+              );
 
               return (
                 <tr key={pet.id_mascota}>
@@ -102,7 +117,9 @@ function PetsTable({ pets, onDeactivate }: PetsTableProps) {
 
                   <td>
                     {pet.fecha_nacimiento
-                      ? new Date(`${pet.fecha_nacimiento}T00:00:00`).toLocaleDateString("es-AR")
+                      ? new Date(
+                          `${pet.fecha_nacimiento}T00:00:00`
+                        ).toLocaleDateString("es-AR")
                       : "—"}
                   </td>
 
@@ -138,29 +155,38 @@ function PetsTable({ pets, onDeactivate }: PetsTableProps) {
 
                       {openMenuId === pet.id_mascota && (
                         <div className="pets-table__dropdown">
+                          {/* Ver perfil siempre está disponible */}
                           <button
                             type="button"
                             onClick={() => {
                               setOpenMenuId(null);
-                              navigate(`/mascotas/${pet.id_mascota}`);
+                              navigate(
+                                `/mascotas/${pet.id_mascota}`
+                              );
                             }}
                           >
                             <Eye size={16} />
                             Ver perfil
                           </button>
 
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setOpenMenuId(null);
-                              navigate(`/mascotas/${pet.id_mascota}/editar`);
-                            }}
-                          >
-                            <Pencil size={16} />
-                            Editar
-                          </button>
+                          {/* Editar solo si tiene permisos y está activa */}
+                          {showEditAction && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setOpenMenuId(null);
+                                navigate(
+                                  `/mascotas/${pet.id_mascota}/editar`
+                                );
+                              }}
+                            >
+                              <Pencil size={16} />
+                              Editar
+                            </button>
+                          )}
 
-                          {pet.activo && (
+                          {/* Dar de baja solo si tiene permisos y está activa */}
+                          {showDeactivateAction && (
                             <button
                               type="button"
                               className="pets-table__delete-action"

@@ -10,7 +10,7 @@ import {
   UserRound,
 } from "lucide-react";
 
-import type { PetItem } from "../types/pet";
+import type { PetItem } from "../../../types/pet";
 import "../styles/CreateEditPetPage.scss";
 
 interface Client {
@@ -96,6 +96,125 @@ const mockPets: PetItem[] = [
       nombre: "María",
       apellido: "González",
       numero_documento: "12.345.678",
+    },
+  },
+  {
+    id_mascota: 2,
+    id_cliente: 2,
+    nombre: "Simba",
+    especie: "Felina",
+    raza: "Europea",
+    fecha_nacimiento: "2022-07-05",
+    sexo: "Macho",
+    observaciones: null,
+    activo: true,
+    cliente: {
+      id_usuario: 2,
+      nombre: "Pedro",
+      apellido: "Ramírez",
+      numero_documento: "23.456.789",
+    },
+  },
+  {
+    id_mascota: 3,
+    id_cliente: 3,
+    nombre: "Nala",
+    especie: "Canina",
+    raza: "Labrador",
+    fecha_nacimiento: "2022-11-18",
+    sexo: "Hembra",
+    observaciones: "Control periódico",
+    activo: true,
+    cliente: {
+      id_usuario: 3,
+      nombre: "Lucía",
+      apellido: "Fernández",
+      numero_documento: "34.567.890",
+    },
+  },
+  {
+    id_mascota: 4,
+    id_cliente: 4,
+    nombre: "Mía",
+    especie: "Felina",
+    raza: "Siamés",
+    fecha_nacimiento: "2024-01-20",
+    sexo: "Hembra",
+    observaciones: null,
+    activo: true,
+    cliente: {
+      id_usuario: 4,
+      nombre: "Sofía",
+      apellido: "Vera",
+      numero_documento: "11.222.333",
+    },
+  },
+  {
+    id_mascota: 5,
+    id_cliente: 5,
+    nombre: "Rocky",
+    especie: "Canina",
+    raza: "Mestizo",
+    fecha_nacimiento: "2020-09-10",
+    sexo: "Macho",
+    observaciones: null,
+    activo: true,
+    cliente: {
+      id_usuario: 5,
+      nombre: "Carlos",
+      apellido: "Méndez",
+      numero_documento: "55.667.788",
+    },
+  },
+  {
+    id_mascota: 6,
+    id_cliente: 6,
+    nombre: "Kira",
+    especie: "Felina",
+    raza: "Maine Coon",
+    fecha_nacimiento: "2021-05-22",
+    sexo: "Hembra",
+    observaciones: null,
+    activo: true,
+    cliente: {
+      id_usuario: 6,
+      nombre: "Ana",
+      apellido: "Torres",
+      numero_documento: "44.556.677",
+    },
+  },
+  {
+    id_mascota: 7,
+    id_cliente: 7,
+    nombre: "Toby",
+    especie: "Canina",
+    raza: "Bulldog Francés",
+    fecha_nacimiento: "2023-02-14",
+    sexo: "Macho",
+    observaciones: null,
+    activo: false,
+    cliente: {
+      id_usuario: 7,
+      nombre: "Juan",
+      apellido: "Pérez",
+      numero_documento: "33.445.566",
+    },
+  },
+  {
+    id_mascota: 8,
+    id_cliente: 8,
+    nombre: "Olivia",
+    especie: "Felina",
+    raza: "Persa",
+    fecha_nacimiento: "2024-06-30",
+    sexo: "Hembra",
+    observaciones: null,
+    activo: true,
+    cliente: {
+      id_usuario: 8,
+      nombre: "Valentina",
+      apellido: "Ruiz",
+      numero_documento: "66.778.899",
     },
   },
 ];
@@ -258,9 +377,16 @@ function CreateEditPetPage() {
       },
     };
 
-    console.log("Mascota creada (mock):", petData);
+    console.log(
+      isEditing ? "Mascota actualizada (mock):" : "Mascota creada (mock):",
+      petData,
+    );
 
-    window.alert("La mascota se registró correctamente (simulación).");
+    window.alert(
+      isEditing
+        ? "Los datos de la mascota se actualizaron correctamente (simulación)."
+        : "La mascota se registró correctamente (simulación).",
+    );
 
     navigate("/mascotas");
   };
@@ -612,6 +738,7 @@ function CreateEditPetPage() {
                 type="button"
                 className="pet-form__cancel"
                 onClick={() => setStep(step - 1)}
+                disabled={isEditing}
               >
                 <ArrowLeft size={16} />
                 Volver
@@ -634,7 +761,7 @@ function CreateEditPetPage() {
                 onClick={handleSubmit}
               >
                 <Check size={16} />
-                Confirmar registro
+                {isEditing ? "Guardar cambios" : "Confirmar registro"}
               </button>
             )}
           </footer>
