@@ -100,7 +100,7 @@ function UsersPage() {
         <div>
           <h1>Usuarios</h1>
           <p>
-            Administrá las cuentas, roles y perfiles del equipo de Di Salvo
+            Administrá las cuentas, roles y perfiles del equipo de VET
             Veterinaria.
           </p>
         </div>
