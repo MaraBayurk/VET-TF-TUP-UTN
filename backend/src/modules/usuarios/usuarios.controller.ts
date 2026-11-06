@@ -1,13 +1,14 @@
 import { Request, Response } from 'express';
-import { UsuariosRepository } from './usuarios.repository';
 import { CrearUsuarioDTO, ActualizarPerfilDTO } from './usuarios.dto';
 // Ajusta las rutas de estas importaciones si las tienes en carpetas distintas
 import { encriptarPassword } from '../../utils/password.util'; 
 import { validarDatosRequeridos } from '../../utils/validator.util';
 
+import { usuariosRepository } from './usuarios.dependencies';
+
 export const obtenerUsuarios = async (req: Request, res: Response): Promise<void> => {
     try {
-        const usuarios = await UsuariosRepository.obtenerTodos();
+        const usuarios = await usuariosRepository.obtenerTodos();
         res.status(200).json({ status: 'success', data: usuarios });
     } catch (error) {
         console.error('Error al obtener usuarios:', error);
@@ -17,7 +18,7 @@ export const obtenerUsuarios = async (req: Request, res: Response): Promise<void
 
 export const obtenerUsuarioPorId = async (req: Request, res: Response): Promise<void> => {
     try {
-        const usuario = await UsuariosRepository.obtenerPorId(req.params.id as string);
+        const usuario = await usuariosRepository.obtenerPorId(req.params.id as string);
         if (!usuario) {
             res.status(404).json({ status: 'error', message: 'Usuario no encontrado o inactivo' });
             return;
@@ -44,7 +45,7 @@ export const crearUsuario = async (req: Request, res: Response): Promise<void> =
             direccion, matricula, id_especialidad
         };
 
-        const id_usuario = await UsuariosRepository.crear(nuevoUsuario);
+        const id_usuario = await usuariosRepository.crear(nuevoUsuario);
 
         res.status(201).json({
             status: 'success',
@@ -69,7 +70,7 @@ export const crearUsuario = async (req: Request, res: Response): Promise<void> =
 
 export const eliminarUsuario = async (req: Request, res: Response): Promise<void> => {
     try {
-        const fueEliminado = await UsuariosRepository.eliminarLogicamente(req.params.id as string);
+        const fueEliminado = await usuariosRepository.eliminarLogicamente(req.params.id as string);
 
         if (!fueEliminado) {
             res.status(404).json({ status: 'error', message: 'Usuario no encontrado o ya se encontraba inactivo' });
@@ -99,7 +100,7 @@ export const actualizarMiPerfil = async (req: Request, res: Response): Promise<v
             return;
         }
 
-        await UsuariosRepository.actualizarPerfil(idUsuario, idRol, datos);
+        await usuariosRepository.actualizarPerfil(idUsuario, idRol, datos);
 
         res.status(200).json({ 
             status: 'success', 

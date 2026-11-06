@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { crearHorario } from './horarios.controller';
 import { verificarToken, verificarRol } from '../../middlewares/auth.middleware';
+import { ROLES } from "../../constants/roles";
 
 const router = Router();
 
@@ -47,6 +48,6 @@ const router = Router();
  *       500:
  *         description: Error interno del servidor.
  */
-router.post('/', verificarToken, verificarRol([1]), crearHorario);
+router.post('/', verificarToken, verificarRol([ROLES.ADMINISTRADOR]), crearHorario);
 
 export default router;

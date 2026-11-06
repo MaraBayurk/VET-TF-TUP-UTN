@@ -7,6 +7,7 @@ import {
     actualizarMiPerfil 
 } from './usuarios.controller';
 import { verificarToken, verificarRol } from '../../middlewares/auth.middleware';
+import { ROLES } from "../../constants/roles";
 
 const router = Router();
 
@@ -22,9 +23,9 @@ router.put('/perfil', actualizarMiPerfil);
 // ==========================================
 // RUTAS ADMINISTRATIVAS (Solo id_rol: 1)
 // ==========================================
-router.get('/', verificarRol([1]), obtenerUsuarios);
-router.get('/:id', verificarRol([1]), obtenerUsuarioPorId);
-router.post('/', verificarRol([1]), crearUsuario);
-router.delete('/:id', verificarRol([1]), eliminarUsuario);
+router.get('/', verificarRol([ROLES.ADMINISTRADOR]), obtenerUsuarios);
+router.get('/:id', verificarRol([ROLES.ADMINISTRADOR]), obtenerUsuarioPorId);
+router.post('/', verificarRol([ROLES.ADMINISTRADOR]), crearUsuario);
+router.delete('/:id', verificarRol([ROLES.ADMINISTRADOR]), eliminarUsuario);
 
 export default router;
