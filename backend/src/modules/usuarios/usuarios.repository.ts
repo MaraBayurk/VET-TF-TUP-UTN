@@ -1,13 +1,13 @@
 import pool from '../../config/db';
 import { CrearUsuarioDTO, ActualizarPerfilDTO } from './usuarios.dto';
+import { IUsuariosRepository } from './usuarios.repository.interface';
 
-export class UsuariosRepository {
-    
+export class UsuariosRepository implements IUsuariosRepository {
     // ==========================================
     // MÉTODOS DE LECTURA Y BAJA LÓGICA
     // ==========================================
 
-    static async obtenerTodos(): Promise<any[]> {
+     async obtenerTodos(): Promise<any[]> {
         const [rows] = await pool.query(`
             SELECT id_usuario, nombre, apellido, numero_documento, email, telefono, id_rol, activo, fecha_creacion 
             FROM Usuario 
@@ -16,7 +16,7 @@ export class UsuariosRepository {
         return rows as any[];
     }
 
-    static async obtenerPorId(id: string): Promise<any> {
+     async obtenerPorId(id: string): Promise<any> {
         const [rows]: any = await pool.query(`
             SELECT id_usuario, nombre, apellido, numero_documento, email, telefono, id_rol, activo, fecha_creacion 
             FROM Usuario 
@@ -27,7 +27,7 @@ export class UsuariosRepository {
     }
 
     // Cumple con RN-01: Baja lógica
-    static async eliminarLogicamente(id: string): Promise<boolean> {
+     async eliminarLogicamente(id: string): Promise<boolean> {
         const [result]: any = await pool.query(`
             UPDATE Usuario SET activo = 0 WHERE id_usuario = ?
         `, [id]);
@@ -39,13 +39,13 @@ export class UsuariosRepository {
     // EXTRACT METHOD (Funciones auxiliares privadas)
     // ==========================================
     
-    private static async insertarCliente(connection: any, idUsuario: number, direccion?: string): Promise<void> {
+    private async insertarCliente(connection: any, idUsuario: number, direccion?: string): Promise<void> {
         await connection.query(`
             INSERT INTO Cliente (id_usuario, direccion) VALUES (?, ?)
         `, [idUsuario, direccion || null]);
     }
 
-    private static async insertarVeterinario(connection: any, idUsuario: number, matricula?: string, idEspecialidad?: number): Promise<void> {
+    private async insertarVeterinario(connection: any, idUsuario: number, matricula?: string, idEspecialidad?: number): Promise<void> {
         if (!matricula || !idEspecialidad) {
             throw new Error('MISSING_VET_DATA');
         }
@@ -58,7 +58,7 @@ export class UsuariosRepository {
     // MÉTODO PRINCIPAL DE CREACIÓN CON TRANSACCIÓN
     // ==========================================
     
-    static async crear(usuario: CrearUsuarioDTO): Promise<number> {
+     async crear(usuario: CrearUsuarioDTO): Promise<number> {
         const connection = await pool.getConnection(); 
         
         try {
@@ -101,7 +101,7 @@ export class UsuariosRepository {
     // ACTUALIZACIÓN DE PERFIL DEL USUARIO
     // ==========================================
 
-    static async actualizarPerfil(idUsuario: number, idRol: number, datos: ActualizarPerfilDTO): Promise<void> {
+     async actualizarPerfil(idUsuario: number, idRol: number, datos: ActualizarPerfilDTO): Promise<void> {
         const connection = await pool.getConnection();
 
         try {
