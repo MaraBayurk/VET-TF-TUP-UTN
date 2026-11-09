@@ -1,7 +1,8 @@
-
 import { Link } from "react-router-dom";
-import { Menu, PawPrint, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { useState } from "react";
+
+import logo from "../../../assets/logo.png";
 
 function LandingHeader() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -11,7 +12,12 @@ function LandingHeader() {
   return (
     <header className="landing-header">
       <Link to="/" className="landing-logo" onClick={closeMenu}>
-        <PawPrint size={30} />
+        <img
+          src={logo}
+          alt="VET - Gestión Veterinaria Integral"
+          className="landing-logo-image"
+        />
+
         <span>
           <strong>VET</strong>
           <small>Gestión Veterinaria Integral</small>
@@ -38,6 +44,7 @@ function LandingHeader() {
           <Link to="/login" className="landing-login" onClick={closeMenu}>
             Iniciar sesión
           </Link>
+
           <Link to="/registro" className="landing-register" onClick={closeMenu}>
             Registrarse
           </Link>
@@ -48,4 +55,3 @@ function LandingHeader() {
 }
 
 export default LandingHeader;
-
