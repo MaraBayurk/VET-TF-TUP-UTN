@@ -24,6 +24,7 @@
     text-decoration: none;
   }
 
+  // Encabezado
   &-header {
     position: sticky;
     top: 0;
@@ -83,6 +84,7 @@
     gap: 12px;
   }
 
+  // Botones
   &-login,
   &-register,
   &-button,
@@ -131,6 +133,7 @@
     cursor: pointer;
   }
 
+  // Portada principal
   &-hero {
     position: relative;
     display: flex;
@@ -216,6 +219,7 @@
     }
   }
 
+  // Servicios
   &-services {
     padding: 90px 8%;
     background: #ffffff;
@@ -294,6 +298,7 @@
     border-radius: 18px;
   }
 
+  // Sobre VET
   &-about {
     display: flex;
     align-items: center;
@@ -330,6 +335,7 @@
     border-radius: 50%;
   }
 
+  // Contacto
   &-contact {
     padding: 85px 20px;
     text-align: center;
@@ -348,6 +354,7 @@
     }
   }
 
+  // Pie de página
   &-footer {
     padding: 35px 20px;
     text-align: center;
@@ -369,6 +376,7 @@
     font-size: 20px;
   }
 
+  // Adaptación para tablets
   @media (max-width: 900px) {
     &-header {
       padding: 16px 5%;
@@ -394,6 +402,7 @@
     }
   }
 
+  // Adaptación para celulares
   @media (max-width: 680px) {
     &-header {
       flex-wrap: wrap;
@@ -473,6 +482,7 @@
     }
   }
 
+  // Respeta la preferencia de movimiento reducido
   @media (prefers-reduced-motion: reduce) {
     *,
     *::before,
@@ -481,6 +491,152 @@
       transition-duration: 0.01ms !important;
       animation-duration: 0.01ms !important;
     }
+  }
+}
+
+
+/* ========================================
+   CATEGORÍAS Y ESPECIALIDADES VETERINARIAS
+======================================== */
+
+.landing-categories {
+  padding: 90px 8%;
+  background: #f8fbfa;
+}
+
+.landing-categories .landing-section-heading {
+  max-width: 700px;
+  margin: 0 auto 48px;
+  text-align: center;
+}
+
+.landing-categories .landing-section-heading h2 {
+  color: #315f5b;
+  margin-bottom: 16px;
+}
+
+.landing-categories .landing-section-heading p {
+  color: #718985;
+  line-height: 1.7;
+}
+
+.landing-categories-grid {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 24px;
+}
+
+.landing-category-card {
+  min-height: 220px;
+  padding: 28px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 14px;
+
+  background: #ffffff;
+  border: 1px solid #e2efeb;
+  border-radius: 20px;
+
+  box-shadow: 0 5px 18px rgba(49, 95, 91, 0.06);
+
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease,
+    border-color 0.3s ease;
+}
+
+.landing-category-card:hover {
+  transform: translateY(-7px);
+  border-color: #a9d9d0;
+  box-shadow: 0 12px 28px rgba(49, 95, 91, 0.13);
+}
+
+.landing-category-icon {
+  width: 58px;
+  height: 58px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: #34736c;
+  background: #e2f3ef;
+  border-radius: 17px;
+
+  transition:
+    transform 0.3s ease,
+    background 0.3s ease;
+}
+
+.landing-category-card:hover .landing-category-icon {
+  transform: scale(1.08) rotate(-4deg);
+  background: #ccebe4;
+}
+
+.landing-category-card h3 {
+  margin: 0;
+  color: #315f5b;
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.landing-category-card p {
+  margin: 0;
+  color: #718985;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* TABLETS */
+
+@media (max-width: 1024px) {
+  .landing-categories-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+  }
+
+  .landing-categories {
+    padding: 75px 6%;
+  }
+}
+
+/* CELULARES */
+
+@media (max-width: 600px) {
+  .landing-categories {
+    padding: 60px 20px;
+  }
+
+  .landing-categories .landing-section-heading {
+    margin-bottom: 32px;
+  }
+
+  .landing-categories-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .landing-category-card {
+    min-height: auto;
+    padding: 24px;
+  }
+}
+
+/* ACCESIBILIDAD: REDUCIR ANIMACIONES */
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-category-card,
+  .landing-category-icon {
+    transition: none;
+  }
+
+  .landing-category-card:hover,
+  .landing-category-card:hover .landing-category-icon {
+    transform: none;
   }
 }
 

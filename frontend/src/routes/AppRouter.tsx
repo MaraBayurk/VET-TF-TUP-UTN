@@ -3,7 +3,7 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 
 import AuthPage from "../features/auth/pages/AuthPage";
 import RegisterPage from "../features/auth/pages/RegisterPage";
-import Landing from "../features/landing/Landing";
+import Landing from "../features/landing/pages/landing";
 import HomePage from "../features/dashboard/pages/HomePage";
 import MainLayout from "../components/layouts/MainLayout";
 import UsersPage from "../features/users/pages/UsersPage";

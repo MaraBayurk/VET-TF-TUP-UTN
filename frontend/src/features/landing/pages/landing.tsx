@@ -7,15 +7,18 @@ import {
   Users,
 } from "lucide-react";
 
-import LandingHeader from "./components/LandingHeader";
-import { services } from "./data/services";
-import "./landing.scss";
+import LandingHeader from "../components/LandingHeader";
+import CategoryCard from "../components/CategoryCard";
+import { services } from "../data/services";
+import { categories } from "../data/categories";
+import "../styles/landing.scss";
 
 function Landing() {
   return (
     <main className="landing">
       <LandingHeader />
 
+      {/* Sección principal */}
       <section className="landing-hero" id="inicio">
         <div className="landing-hero-content">
           <span className="landing-label">
@@ -50,10 +53,12 @@ function Landing() {
         </div>
       </section>
 
+      {/* Servicios veterinarios */}
       <section className="landing-services" id="servicios">
         <div className="landing-section-heading">
           <span className="landing-label">Nuestros servicios</span>
           <h2>Todo para cuidar mejor de ellos</h2>
+
           <p>
             Encontrá en un mismo lugar las herramientas para organizar
             y acompañar su atención veterinaria.
@@ -81,10 +86,42 @@ function Landing() {
         </div>
       </section>
 
+      {/* Categorías y especialidades veterinarias */}
+      <section className="landing-categories" id="categorias">
+        <div className="landing-section-heading">
+          <span className="landing-label">
+            Nuestras especialidades
+          </span>
+
+          <h2>Atención veterinaria para cada necesidad</h2>
+
+          <p>
+            Conocé las distintas áreas de atención pensadas para
+            acompañar la salud y el bienestar de tus mascotas.
+          </p>
+        </div>
+
+        <div className="landing-categories-grid">
+          {categories.map((category) => (
+            <CategoryCard
+              key={category.title}
+              title={category.title}
+              description={category.description}
+              icon={category.icon}
+            />
+          ))}
+        </div>
+      </section>
+
+      {/* Sobre VET */}
       <section className="landing-about" id="nosotros">
         <div>
           <span className="landing-label">Sobre VET</span>
-          <h2>Una gestión más simple para un cuidado integral</h2>
+
+          <h2>
+            Una gestión más simple para un cuidado integral
+          </h2>
+
           <p>
             VET es un sistema pensado para centralizar la información
             veterinaria y facilitar la organización de las actividades
@@ -97,23 +134,34 @@ function Landing() {
         </div>
       </section>
 
+      {/* Contacto */}
       <section className="landing-contact" id="contacto">
-        <span className="landing-label">Estamos para acompañarte</span>
-        <h2>Comenzá a organizar el cuidado de tus mascotas</h2>
+        <span className="landing-label">
+          Estamos para acompañarte
+        </span>
+
+        <h2>
+          Comenzá a organizar el cuidado de tus mascotas
+        </h2>
+
         <p>
           Accedé al sistema y conocé las funcionalidades de VET.
         </p>
+
         <Link to="/login" className="landing-button">
           Conocé nuestro sistema <ArrowRight size={18} />
         </Link>
       </section>
 
+      {/* Pie de página */}
       <footer className="landing-footer">
         <div className="landing-footer-brand">
           <PawPrint size={24} />
           <strong>VET</strong>
         </div>
+
         <p>Gestión Veterinaria Integral</p>
+
         <p>
           © {new Date().getFullYear()} VET. Todos los derechos reservados.
         </p>
