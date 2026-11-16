@@ -407,14 +407,6 @@ export const obtenerHorariosDisponibles = async (
       idsEstados,
     );
 
-    // LOGS TEMPORALES PARA DEPURAR
-    console.log("DEBUG disponibilidad:", {
-      idsEstados,
-      turnosOcupados,
-      fecha: fecha.fecha,
-      idVeterinario,
-    });
-
     const ocupados = turnosOcupados.map((turno) => {
       const inicio = convertirHoraAMinutos(turno.hora_inicio);
 
@@ -480,3 +472,310 @@ export const obtenerHorariosDisponibles = async (
     });
   }
 };
+
+
+export const obtenerMisTurnos = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    const idUsuario = req.usuario?.id_usuario;
+
+    if (!idUsuario) {
+      res.status(401).json({
+        status: "error",
+        message: "No se pudo identificar al usuario autenticado."
+      });
+      return;
+    }
+
+    const idCliente =
+      await turnosRepository.obtenerClientePorUsuarioObligatorio(idUsuario);
+
+    if (!idCliente) {
+      res.status(404).json({
+        status: "error",
+        message: "No se encontró un perfil de cliente activo."
+      });
+      return;
+    }
+
+    const turnos = await turnosRepository.listarTurnosCliente(idCliente);
+
+    res.status(200).json({
+      status: "success",
+      message: "Próximos turnos obtenidos exitosamente.",
+      data: turnos
+    });
+  } catch (error) {
+    console.error("Error al consultar los turnos del cliente:", error);
+
+    res.status(500).json({
+      status: "error",
+      message: "Error interno al consultar los turnos."
+    });
+  }
+};
+
+export const obtenerAgendaVeterinario = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    const idUsuario = req.usuario?.id_usuario;
+
+    if (!idUsuario) {
+      res.status(401).json({
+        status: "error",
+        message: "No se pudo identificar al usuario autenticado."
+      });
+      return;
+    }
+
+    const idVeterinario =
+      await turnosRepository.obtenerVeterinarioPorUsuario(idUsuario);
+
+    if (!idVeterinario) {
+      res.status(404).json({
+        status: "error",
+        message: "No se encontró un perfil de veterinario activo."
+      });
+      return;
+    }
+
+    const turnos =
+      await turnosRepository.listarTurnosVeterinario(idVeterinario);
+
+    res.status(200).json({
+      status: "success",
+      message: "Agenda del veterinario obtenida exitosamente.",
+      data: turnos
+    });
+  } catch (error) {
+    console.error("Error al consultar la agenda del veterinario:", error);
+
+    res.status(500).json({
+      status: "error",
+      message: "Error interno al consultar la agenda."
+    });
+  }
+};
+
+export const obtenerTodosLosTurnos = async (
+  _req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    const turnos = await turnosRepository.listarTodosLosTurnos();
+
+    res.status(200).json({
+      status: "success",
+      message: "Turnos obtenidos exitosamente.",
+      data: turnos
+    });
+  } catch (error) {
+    console.error("Error al consultar todos los turnos:", error);
+
+    res.status(500).json({
+      status: "error",
+      message: "Error interno al consultar los turnos."
+    });
+  }
+};
+
+export const cancelarMiTurno = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    const idUsuario = req.usuario?.id_usuario;
+    const idTurno = Number(req.params.id);
+
+    if (!idUsuario) {
+      res.status(401).json({
+        status: "error",
+        message: "No se pudo identificar al usuario autenticado."
+      });
+      return;
+    }
+
+    if (!Number.isInteger(idTurno) || idTurno <= 0) {
+      res.status(400).json({
+        status: "error",
+        message: "El identificador del turno no es válido."
+      });
+      return;
+    }
+
+    const idCliente =
+      await turnosRepository.obtenerClientePorUsuarioObligatorio(idUsuario);
+
+    if (!idCliente) {
+      res.status(404).json({
+        status: "error",
+        message: "No se encontró un perfil de cliente activo."
+      });
+      return;
+    }
+
+    const turno = await turnosRepository.obtenerTurnoParaGestion(idTurno);
+
+    if (!turno) {
+      res.status(404).json({
+        status: "error",
+        message: "El turno solicitado no existe."
+      });
+      return;
+    }
+
+    if (Number(turno.id_cliente) !== idCliente) {
+      res.status(403).json({
+        status: "error",
+        message: "No puede cancelar turnos de otros clientes."
+      });
+      return;
+    }
+
+    const estadoActual = String(turno.estado).toUpperCase();
+
+    if (!["PENDIENTE", "APROBADO"].includes(estadoActual)) {
+      res.status(409).json({
+        status: "error",
+        message: "Solo se pueden cancelar turnos pendientes o aprobados."
+      });
+      return;
+    }
+
+    if (new Date(turno.fecha_hora).getTime() <= Date.now()) {
+      res.status(400).json({
+        status: "error",
+        message: "No se pueden cancelar turnos que ya comenzaron o pasaron."
+      });
+      return;
+    }
+
+    const idCancelado =
+      await turnosRepository.obtenerEstadoPorNombre("CANCELADO");
+
+    if (!idCancelado) {
+      res.status(500).json({
+        status: "error",
+        message: "No se encontró el estado CANCELADO en el catálogo."
+      });
+      return;
+    }
+
+    await turnosRepository.actualizarEstadoTurno(idTurno, idCancelado);
+
+    res.status(200).json({
+      status: "success",
+      message: "Turno cancelado exitosamente.",
+      data: {
+        id_turno: idTurno,
+        estado: "CANCELADO"
+      }
+    });
+  } catch (error) {
+    console.error("Error al cancelar el turno:", error);
+
+    res.status(500).json({
+      status: "error",
+      message: "Error interno al cancelar el turno."
+    });
+  }
+};
+
+export const actualizarEstadoTurno = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    const idTurno = Number(req.params.id);
+    const { estado } = req.body;
+
+    if (!Number.isInteger(idTurno) || idTurno <= 0) {
+      res.status(400).json({
+        status: "error",
+        message: "El identificador del turno no es válido."
+      });
+      return;
+    }
+
+    if (typeof estado !== "string" || !estado.trim()) {
+      res.status(400).json({
+        status: "error",
+        message: "Debe indicar el nuevo estado del turno."
+      });
+      return;
+    }
+
+    const nuevoEstado = estado.trim().toUpperCase();
+    const estadosPermitidos = ["APROBADO", "CANCELADO", "COMPLETADO"];
+
+    if (!estadosPermitidos.includes(nuevoEstado)) {
+      res.status(400).json({
+        status: "error",
+        message: "El estado indicado no es válido para esta operación."
+      });
+      return;
+    }
+
+    const turno = await turnosRepository.obtenerTurnoParaGestion(idTurno);
+
+    if (!turno) {
+      res.status(404).json({
+        status: "error",
+        message: "El turno solicitado no existe."
+      });
+      return;
+    }
+
+    const estadoActual = String(turno.estado).toUpperCase();
+
+    const transicionesPermitidas: Record<string, string[]> = {
+      PENDIENTE: ["APROBADO", "CANCELADO", "COMPLETADO"],
+      APROBADO: ["CANCELADO", "COMPLETADO"],
+      CANCELADO: [],
+      COMPLETADO: []
+    };
+
+    if (!transicionesPermitidas[estadoActual]?.includes(nuevoEstado)) {
+      res.status(409).json({
+        status: "error",
+        message: `No se permite cambiar el estado de ${estadoActual} a ${nuevoEstado}.`
+      });
+      return;
+    }
+
+    const idNuevoEstado =
+      await turnosRepository.obtenerEstadoPorNombre(nuevoEstado);
+
+    if (!idNuevoEstado) {
+      res.status(500).json({
+        status: "error",
+        message: `No se encontró el estado ${nuevoEstado} en el catálogo.`
+      });
+      return;
+    }
+
+    await turnosRepository.actualizarEstadoTurno(idTurno, idNuevoEstado);
+
+    res.status(200).json({
+      status: "success",
+      message: "Estado del turno actualizado exitosamente.",
+      data: {
+        id_turno: idTurno,
+        estado_anterior: estadoActual,
+        estado_nuevo: nuevoEstado
+      }
+    });
+  } catch (error) {
+    console.error("Error al actualizar el estado del turno:", error);
+
+    res.status(500).json({
+      status: "error",
+      message: "Error interno al actualizar el estado del turno."
+    });
+  }
+};
+

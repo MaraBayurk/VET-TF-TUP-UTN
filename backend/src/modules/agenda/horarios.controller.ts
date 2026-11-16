@@ -1,12 +1,68 @@
 
-import { Response } from 'express';
-import { Request } from 'express';
+import { Request, Response } from 'express';
 import horariosRepository from './horarios.repository';
 
 const validarHora = (hora: unknown): hora is string => {
     if (typeof hora !== 'string') return false;
 
     return /^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/.test(hora);
+};
+
+export const listarHorarios = async (
+    req: Request,
+    res: Response
+): Promise<void> => {
+    try {
+        const { id_veterinario, dia_semana } = req.query;
+
+        const filtros: {
+            idVeterinario?: number;
+            diaSemana?: number;
+        } = {};
+
+        if (id_veterinario !== undefined) {
+            const idVeterinario = Number(id_veterinario);
+
+            if (!Number.isInteger(idVeterinario) || idVeterinario <= 0) {
+                res.status(400).json({
+                    status: 'error',
+                    message: 'El ID del veterinario debe ser un número entero positivo.'
+                });
+                return;
+            }
+
+            filtros.idVeterinario = idVeterinario;
+        }
+
+        if (dia_semana !== undefined) {
+            const diaSemana = Number(dia_semana);
+
+            if (!Number.isInteger(diaSemana) || diaSemana < 1 || diaSemana > 7) {
+                res.status(400).json({
+                    status: 'error',
+                    message: 'El día de la semana debe estar entre 1 (lunes) y 7 (domingo).'
+                });
+                return;
+            }
+
+            filtros.diaSemana = diaSemana;
+        }
+
+        const horarios = await horariosRepository.listarHorarios(filtros);
+
+        res.status(200).json({
+            status: 'success',
+            message: 'Horarios de atención obtenidos exitosamente.',
+            data: horarios
+        });
+    } catch (error) {
+        console.error('Error al consultar horarios:', error);
+
+        res.status(500).json({
+            status: 'error',
+            message: 'Error interno al consultar los horarios de atención.'
+        });
+    }
 };
 
 export const crearHorario = async (
@@ -83,13 +139,10 @@ export const crearHorario = async (
                 diaSemana
             );
 
-        const inicioNuevo = hora_inicio;
-        const finNuevo = hora_fin;
-
         const haySuperposicion = horariosExistentes.some(horario => {
             return (
-                inicioNuevo < horario.hora_fin &&
-                finNuevo > horario.hora_inicio
+                hora_inicio < horario.hora_fin &&
+                hora_fin > horario.hora_inicio
             );
         });
 

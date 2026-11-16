@@ -319,8 +319,6 @@ function CreateEditPetPage() {
   };
 
   const handleNext = () => {
-    console.log("➡️ SE EJECUTÓ handleNext. Paso actual:", step);
-
     if (step === 1) {
       if (!selectedClient) {
         setClientError("Seleccioná un cliente para continuar.");
@@ -333,7 +331,6 @@ function CreateEditPetPage() {
 
     if (step === 2) {
       if (validatePet()) {
-        console.log("➡️ Cambiando al paso 3");
         setStep(3);
       }
     }
@@ -353,11 +350,6 @@ function CreateEditPetPage() {
         numero_documento: selectedClient.numero_documento,
       },
     };
-
-    console.log(
-      isEditing ? "Mascota actualizada (mock):" : "Mascota creada (mock):",
-      petData,
-    );
 
     window.alert(
       isEditing

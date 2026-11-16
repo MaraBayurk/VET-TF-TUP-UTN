@@ -2,7 +2,12 @@
 import { Router } from 'express';
 import {
     solicitarTurno,
-    obtenerHorariosDisponibles
+    obtenerHorariosDisponibles,
+    obtenerMisTurnos,
+    obtenerAgendaVeterinario,
+    obtenerTodosLosTurnos,
+    cancelarMiTurno,
+    actualizarEstadoTurno
 } from './turnos.controller';
 import {
     verificarToken,
@@ -11,10 +16,42 @@ import {
 
 const router = Router();
 
-const rolesAgenda = verificarRolPorNombre([
+const soloCliente = verificarRolPorNombre(['Cliente']);
+const soloVeterinario = verificarRolPorNombre(['Veterinario']);
+const soloAdministrador = verificarRolPorNombre(['Administrador']);
+
+const rolesSolicitud = verificarRolPorNombre([
     'Administrador',
     'Cliente'
 ]);
+
+/**
+ * @swagger
+ * /api/turnos/mis-turnos:
+ *   get:
+ *     summary: Consultar próximos turnos del cliente autenticado
+ *     tags: [Agenda]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Turnos obtenidos correctamente.
+ */
+router.get('/mis-turnos', verificarToken, soloCliente, obtenerMisTurnos);
+
+/**
+ * @swagger
+ * /api/turnos/agenda:
+ *   get:
+ *     summary: Consultar agenda del veterinario autenticado
+ *     tags: [Agenda]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Agenda obtenida correctamente.
+ */
+router.get('/agenda', verificarToken, soloVeterinario, obtenerAgendaVeterinario);
 
 /**
  * @swagger
@@ -36,7 +73,6 @@ const rolesAgenda = verificarRolPorNombre([
  *         schema:
  *           type: string
  *           format: date
- *           example: "2026-11-23"
  *     responses:
  *       200:
  *         description: Horarios disponibles consultados correctamente.
@@ -52,9 +88,23 @@ const rolesAgenda = verificarRolPorNombre([
 router.get(
     '/disponibles',
     verificarToken,
-    rolesAgenda,
+    rolesSolicitud,
     obtenerHorariosDisponibles
 );
+
+/**
+ * @swagger
+ * /api/turnos:
+ *   get:
+ *     summary: Consultar todos los turnos
+ *     tags: [Agenda]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Turnos obtenidos correctamente.
+ */
+router.get('/', verificarToken, soloAdministrador, obtenerTodosLosTurnos);
 
 /**
  * @swagger
@@ -70,17 +120,18 @@ router.get(
  *         application/json:
  *           schema:
  *             type: object
+ *             required:
+ *               - id_mascota
+ *               - id_veterinario
+ *               - fecha_hora
  *             properties:
  *               id_mascota:
  *                 type: integer
- *                 example: 1
  *               id_veterinario:
  *                 type: integer
- *                 example: 1
  *               fecha_hora:
  *                 type: string
  *                 format: date-time
- *                 example: "2026-11-23T09:30:00-03:00"
  *               motivo:
  *                 type: string
  *               observaciones:
@@ -88,20 +139,81 @@ router.get(
  *     responses:
  *       201:
  *         description: Turno solicitado exitosamente.
- *       400:
- *         description: Datos inválidos.
- *       401:
- *         description: No autorizado.
- *       403:
- *         description: Sin permisos.
- *       500:
- *         description: Error interno.
  */
-router.post(
-    '/',
+router.post('/', verificarToken, rolesSolicitud, solicitarTurno);
+
+/**
+ * @swagger
+ * /api/turnos/{id}/cancelar:
+ *   patch:
+ *     summary: Cancelar un turno propio
+ *     tags: [Agenda]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Turno cancelado correctamente.
+ *       403:
+ *         description: El turno no pertenece al cliente.
+ *       404:
+ *         description: Turno inexistente.
+ *       409:
+ *         description: El turno no puede cancelarse.
+ */
+router.patch(
+    '/:id/cancelar',
     verificarToken,
-    rolesAgenda,
-    solicitarTurno
+    soloCliente,
+    cancelarMiTurno
+);
+
+/**
+ * @swagger
+ * /api/turnos/{id}/estado:
+ *   patch:
+ *     summary: Actualizar el estado de un turno
+ *     tags: [Agenda]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - estado
+ *             properties:
+ *               estado:
+ *                 type: string
+ *                 enum: [APROBADO, CANCELADO, COMPLETADO]
+ *     responses:
+ *       200:
+ *         description: Estado actualizado correctamente.
+ *       400:
+ *         description: Estado inválido.
+ *       404:
+ *         description: Turno inexistente.
+ *       409:
+ *         description: Transición no permitida.
+ */
+router.patch(
+    '/:id/estado',
+    verificarToken,
+    soloAdministrador,
+    actualizarEstadoTurno
 );
 
 export default router;

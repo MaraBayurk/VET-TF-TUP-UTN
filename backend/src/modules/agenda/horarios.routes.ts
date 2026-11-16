@@ -1,9 +1,9 @@
 
 import { Router } from 'express';
 import {
-    solicitarTurno,
-    obtenerHorariosDisponibles
-} from './turnos.controller';
+    crearHorario,
+    listarHorarios
+} from './horarios.controller';
 import {
     verificarToken,
     verificarRolPorNombre
@@ -11,64 +11,48 @@ import {
 
 const router = Router();
 
-const rolesSolicitud = verificarRolPorNombre([
-    'Administrador',
-    'Cliente'
-]);
-
-const rolesConsultaDisponibilidad = verificarRolPorNombre([
-    'Administrador',
-    'Cliente'
-]);
+const soloAdministrador = verificarRolPorNombre(['Administrador']);
 
 /**
  * @swagger
- * /api/turnos/disponibles:
+ * /api/horarios:
  *   get:
- *     summary: Consultar horarios disponibles de un veterinario
+ *     summary: Consultar horarios de atención
  *     tags: [Agenda]
  *     security:
  *       - bearerAuth: []
  *     parameters:
  *       - in: query
  *         name: id_veterinario
- *         required: true
+ *         required: false
  *         schema:
  *           type: integer
- *         example: 1
  *       - in: query
- *         name: fecha
- *         required: true
+ *         name: dia_semana
+ *         required: false
  *         schema:
- *           type: string
- *           format: date
- *         example: "2026-11-23"
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 7
  *     responses:
  *       200:
- *         description: Horarios disponibles obtenidos correctamente.
+ *         description: Horarios obtenidos correctamente.
  *       400:
- *         description: Parámetros inválidos.
+ *         description: Filtros inválidos.
  *       401:
  *         description: Usuario no autenticado.
  *       403:
  *         description: Rol sin permisos.
- *       404:
- *         description: Veterinario inexistente.
  *       500:
  *         description: Error interno.
  */
-router.get(
-    '/disponibles',
-    verificarToken,
-    rolesConsultaDisponibilidad,
-    obtenerHorariosDisponibles
-);
+router.get('/', verificarToken, soloAdministrador, listarHorarios);
 
 /**
  * @swagger
- * /api/turnos:
+ * /api/horarios:
  *   post:
- *     summary: Solicitar un nuevo turno médico
+ *     summary: Registrar un horario de atención para un veterinario
  *     tags: [Agenda]
  *     security:
  *       - bearerAuth: []
@@ -79,45 +63,42 @@ router.get(
  *           schema:
  *             type: object
  *             required:
- *               - id_mascota
  *               - id_veterinario
- *               - fecha_hora
+ *               - dia_semana
+ *               - hora_inicio
+ *               - hora_fin
  *             properties:
- *               id_mascota:
- *                 type: integer
- *                 example: 1
  *               id_veterinario:
  *                 type: integer
  *                 example: 1
- *               fecha_hora:
+ *               dia_semana:
+ *                 type: integer
+ *                 example: 1
+ *               hora_inicio:
  *                 type: string
- *                 format: date-time
- *                 example: "2026-11-23T09:30:00-03:00"
- *               motivo:
+ *                 example: "09:00:00"
+ *               hora_fin:
  *                 type: string
- *                 example: "Consulta general"
- *               observaciones:
- *                 type: string
- *                 example: "Control de rutina"
+ *                 example: "12:00:00"
+ *               intervalo_minutos:
+ *                 type: integer
+ *                 example: 30
  *     responses:
  *       201:
- *         description: Turno solicitado exitosamente.
+ *         description: Horario registrado exitosamente.
  *       400:
  *         description: Datos inválidos.
  *       401:
  *         description: Usuario no autenticado.
  *       403:
- *         description: No tiene permisos o la mascota no le pertenece.
+ *         description: Rol sin permisos.
+ *       404:
+ *         description: Veterinario inexistente o inactivo.
  *       409:
- *         description: Horario ocupado.
+ *         description: Franja horaria superpuesta.
  *       500:
  *         description: Error interno.
  */
-router.post(
-    '/',
-    verificarToken,
-    rolesSolicitud,
-    solicitarTurno
-);
+router.post('/', verificarToken, soloAdministrador, crearHorario);
 
 export default router;

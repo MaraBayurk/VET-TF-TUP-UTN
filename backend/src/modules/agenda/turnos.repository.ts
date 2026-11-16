@@ -27,6 +27,17 @@ export interface TurnoOcupado extends RowDataPacket {
     intervalo_minutos: number;
 }
 
+
+export interface TurnoGestion extends RowDataPacket {
+  id_turno: number;
+  id_mascota: number;
+  id_cliente: number;
+  id_veterinario: number;
+  fecha_hora: string;
+  estado: string;
+}
+
+
 class TurnosRepository {
   async obtenerMascotaActiva(idMascota: number): Promise<MascotaTurno | null> {
     const [rows] = await pool.query<MascotaTurno[]>(
@@ -211,6 +222,160 @@ class TurnosRepository {
     const [anio, mes, dia] = fecha.split("-").map(Number);
     return new Date(Date.UTC(anio, mes - 1, dia)).getUTCDay() || 7;
   }
+
+
+  async obtenerClientePorUsuarioObligatorio(
+    idUsuario: number
+  ): Promise<number | null> {
+    const [rows] = await pool.query<RowDataPacket[]>(
+      `SELECT c.id_cliente
+       FROM Cliente c
+       INNER JOIN Usuario u ON u.id_usuario = c.id_usuario
+       WHERE c.id_usuario = ? AND u.activo = 1
+       LIMIT 1`,
+      [idUsuario]
+    );
+
+    return rows.length ? Number(rows[0].id_cliente) : null;
+  }
+
+  async obtenerVeterinarioPorUsuario(
+    idUsuario: number
+  ): Promise<number | null> {
+    const [rows] = await pool.query<RowDataPacket[]>(
+      `SELECT v.id_veterinario
+       FROM Veterinario v
+       INNER JOIN Usuario u ON u.id_usuario = v.id_usuario
+       WHERE v.id_usuario = ? AND u.activo = 1
+       LIMIT 1`,
+      [idUsuario]
+    );
+
+    return rows.length ? Number(rows[0].id_veterinario) : null;
+  }
+
+  async listarTurnosCliente(idCliente: number): Promise<RowDataPacket[]> {
+    const [rows] = await pool.query<RowDataPacket[]>(
+      `SELECT
+         t.id_turno,
+         t.fecha_hora,
+         t.motivo,
+         t.observaciones,
+         m.id_mascota,
+         m.nombre AS nombre_mascota,
+         v.id_veterinario,
+         uv.nombre AS nombre_veterinario,
+         uv.apellido AS apellido_veterinario,
+         e.nombre AS estado
+       FROM Turno t
+       INNER JOIN Mascota m ON m.id_mascota = t.id_mascota
+       INNER JOIN Veterinario v ON v.id_veterinario = t.id_veterinario
+       INNER JOIN Usuario uv ON uv.id_usuario = v.id_usuario
+       INNER JOIN EstadoTurno e ON e.id_estado_turno = t.id_estado_turno
+       WHERE m.id_cliente = ?
+         AND t.fecha_hora >= NOW()
+         AND UPPER(e.nombre) IN ('PENDIENTE', 'APROBADO')
+       ORDER BY t.fecha_hora ASC`,
+      [idCliente]
+    );
+
+    return rows;
+  }
+
+  async listarTurnosVeterinario(
+    idVeterinario: number
+  ): Promise<RowDataPacket[]> {
+    const [rows] = await pool.query<RowDataPacket[]>(
+      `SELECT
+         t.id_turno,
+         t.fecha_hora,
+         t.motivo,
+         t.observaciones,
+         m.id_mascota,
+         m.nombre AS nombre_mascota,
+         c.id_cliente,
+         uc.nombre AS nombre_cliente,
+         uc.apellido AS apellido_cliente,
+         e.nombre AS estado
+       FROM Turno t
+       INNER JOIN Mascota m ON m.id_mascota = t.id_mascota
+       INNER JOIN Cliente c ON c.id_cliente = m.id_cliente
+       INNER JOIN Usuario uc ON uc.id_usuario = c.id_usuario
+       INNER JOIN EstadoTurno e ON e.id_estado_turno = t.id_estado_turno
+       WHERE t.id_veterinario = ?
+       ORDER BY t.fecha_hora ASC`,
+      [idVeterinario]
+    );
+
+    return rows;
+  }
+
+  async listarTodosLosTurnos(): Promise<RowDataPacket[]> {
+    const [rows] = await pool.query<RowDataPacket[]>(
+      `SELECT
+         t.id_turno,
+         t.fecha_hora,
+         t.motivo,
+         t.observaciones,
+         m.id_mascota,
+         m.nombre AS nombre_mascota,
+         c.id_cliente,
+         uc.nombre AS nombre_cliente,
+         uc.apellido AS apellido_cliente,
+         v.id_veterinario,
+         uv.nombre AS nombre_veterinario,
+         uv.apellido AS apellido_veterinario,
+         e.id_estado_turno,
+         e.nombre AS estado
+       FROM Turno t
+       INNER JOIN Mascota m ON m.id_mascota = t.id_mascota
+       INNER JOIN Cliente c ON c.id_cliente = m.id_cliente
+       INNER JOIN Usuario uc ON uc.id_usuario = c.id_usuario
+       INNER JOIN Veterinario v ON v.id_veterinario = t.id_veterinario
+       INNER JOIN Usuario uv ON uv.id_usuario = v.id_usuario
+       INNER JOIN EstadoTurno e ON e.id_estado_turno = t.id_estado_turno
+       ORDER BY t.fecha_hora ASC`
+    );
+
+    return rows;
+  }
+
+  async obtenerTurnoParaGestion(
+    idTurno: number
+  ): Promise<TurnoGestion | null> {
+    const [rows] = await pool.query<TurnoGestion[]>(
+      `SELECT
+         t.id_turno,
+         t.id_mascota,
+         m.id_cliente,
+         t.id_veterinario,
+         t.fecha_hora,
+         e.nombre AS estado
+       FROM Turno t
+       INNER JOIN Mascota m ON m.id_mascota = t.id_mascota
+       INNER JOIN EstadoTurno e ON e.id_estado_turno = t.id_estado_turno
+       WHERE t.id_turno = ?
+       LIMIT 1`,
+      [idTurno]
+    );
+
+    return rows[0] ?? null;
+  }
+
+  async actualizarEstadoTurno(
+    idTurno: number,
+    idEstado: number
+  ): Promise<boolean> {
+    const [result] = await pool.execute<ResultSetHeader>(
+      `UPDATE Turno
+       SET id_estado_turno = ?
+       WHERE id_turno = ?`,
+      [idEstado, idTurno]
+    );
+
+    return result.affectedRows > 0;
+  }
+
 }
 
 export default new TurnosRepository();

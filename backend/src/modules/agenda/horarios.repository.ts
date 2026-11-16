@@ -8,6 +8,16 @@ export interface HorarioExistente extends RowDataPacket {
     hora_fin: string;
 }
 
+export interface HorarioAtencion extends RowDataPacket {
+    id_horario: number;
+    id_veterinario: number;
+    dia_semana: number;
+    hora_inicio: string;
+    hora_fin: string;
+    intervalo_minutos: number;
+    activo: number;
+}
+
 class HorariosRepository {
     async obtenerVeterinarioActivo(idVeterinario: number): Promise<boolean> {
         const [rows] = await pool.query<RowDataPacket[]>(
@@ -34,6 +44,45 @@ class HorariosRepository {
                AND dia_semana = ?
                AND activo = 1`,
             [idVeterinario, diaSemana]
+        );
+
+        return rows;
+    }
+
+    async listarHorarios(filtros: {
+        idVeterinario?: number;
+        diaSemana?: number;
+    }): Promise<HorarioAtencion[]> {
+        let sql = `
+            SELECT
+                id_horario,
+                id_veterinario,
+                dia_semana,
+                TIME_FORMAT(hora_inicio, '%H:%i:%s') AS hora_inicio,
+                TIME_FORMAT(hora_fin, '%H:%i:%s') AS hora_fin,
+                intervalo_minutos,
+                activo
+            FROM HorarioAtencion
+            WHERE activo = 1
+        `;
+
+        const parametros: number[] = [];
+
+        if (filtros.idVeterinario !== undefined) {
+            sql += ' AND id_veterinario = ?';
+            parametros.push(filtros.idVeterinario);
+        }
+
+        if (filtros.diaSemana !== undefined) {
+            sql += ' AND dia_semana = ?';
+            parametros.push(filtros.diaSemana);
+        }
+
+        sql += ' ORDER BY id_veterinario, dia_semana, hora_inicio';
+
+        const [rows] = await pool.query<HorarioAtencion[]>(
+            sql,
+            parametros
         );
 
         return rows;
