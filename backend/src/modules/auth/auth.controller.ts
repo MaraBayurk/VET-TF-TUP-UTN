@@ -1,5 +1,7 @@
 
 import { Request, Response } from 'express';
+import { AuthRequest } from '../../middlewares/auth.middleware';
+
 import pool from '../../config/db';
 import bcrypt from 'bcrypt';
 import jwt, { SignOptions } from 'jsonwebtoken';
@@ -207,6 +209,85 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 
     } catch (error) {
         console.error('Error en el endpoint de login:', error);
+
+        res.status(500).json({
+            status: 'error',
+            message: 'Error interno del servidor'
+        });
+    }
+};
+
+
+// ==========================================
+// CONSULTAR USUARIO AUTENTICADO
+// ==========================================
+
+export const me = async (
+    req: AuthRequest,
+    res: Response
+): Promise<void> => {
+    try {
+        const usuario = req.usuario;
+
+        if (!usuario) {
+            res.status(401).json({
+                status: 'error',
+                message: 'Usuario no autenticado'
+            });
+            return;
+        }
+
+        const perfil = await authRepository.obtenerPerfilPorId(
+            usuario.id_usuario
+        );
+
+        if (!perfil) {
+            res.status(401).json({
+                status: 'error',
+                message: 'La sesión no es válida o el usuario se encuentra inactivo'
+            });
+            return;
+        }
+
+        res.status(200).json({
+            status: 'success',
+            data: perfil
+        });
+
+    } catch (error) {
+        console.error('Error al consultar el usuario autenticado:', error);
+
+        res.status(500).json({
+            status: 'error',
+            message: 'Error interno del servidor'
+        });
+    }
+};
+
+// ==========================================
+// CERRAR SESIÓN
+// ==========================================
+
+export const logout = async (
+    req: AuthRequest,
+    res: Response
+): Promise<void> => {
+    try {
+        if (!req.usuario) {
+            res.status(401).json({
+                status: 'error',
+                message: 'Usuario no autenticado'
+            });
+            return;
+        }
+
+        res.status(200).json({
+            status: 'success',
+            message: 'Sesión cerrada correctamente. Elimine el token almacenado en el cliente.'
+        });
+
+    } catch (error) {
+        console.error('Error al cerrar sesión:', error);
 
         res.status(500).json({
             status: 'error',

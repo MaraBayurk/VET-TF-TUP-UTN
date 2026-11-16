@@ -70,6 +70,28 @@ export class AuthRepository {
       connection.release();
     }
   }
+
+async obtenerPerfilPorId(idUsuario: number): Promise<any | null> {
+    const [rows]: any = await pool.query(
+        `SELECT
+            u.id_usuario,
+            u.nombre,
+            u.apellido,
+            u.email,
+            u.telefono,
+            u.id_rol,
+            r.nombre AS rol
+         FROM Usuario u
+         INNER JOIN Rol r ON r.id_rol = u.id_rol
+         WHERE u.id_usuario = ?
+         AND u.activo = 1
+         LIMIT 1`,
+        [idUsuario]
+    );
+
+    return rows.length > 0 ? rows[0] : null;
+}
+
 }
 
 export const authRepository = new AuthRepository();

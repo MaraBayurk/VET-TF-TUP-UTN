@@ -1,6 +1,6 @@
 
 import { Router, Response } from 'express';
-import { login, register } from './auth.controller';
+import { login, register, me, logout } from './auth.controller';
 import {
     verificarToken,
     verificarRol,
@@ -89,6 +89,44 @@ router.post('/register', register);
  *         description: Error interno del servidor.
  */
 router.post('/login', login);
+
+
+/**
+ * @swagger
+ * /api/auth/me:
+ *   get:
+ *     summary: Obtener los datos del usuario autenticado
+ *     tags: [Auth]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Datos del usuario autenticado.
+ *       401:
+ *         description: Token inválido, expirado o usuario inactivo.
+ *       500:
+ *         description: Error interno del servidor.
+ */
+router.get('/me', verificarToken, me);
+
+/**
+ * @swagger
+ * /api/auth/logout:
+ *   post:
+ *     summary: Cerrar la sesión del usuario autenticado
+ *     tags: [Auth]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Sesión cerrada correctamente.
+ *       401:
+ *         description: Usuario no autenticado.
+ *       500:
+ *         description: Error interno del servidor.
+ */
+router.post('/logout', verificarToken, logout);
+
 
 /**
  * @swagger
