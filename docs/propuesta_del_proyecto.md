@@ -49,7 +49,7 @@ En el análisis de competencias nos encontramos dos escenarios:
 ## 3. Propuesta de solución
 
 Se propone desarrollar una plataforma web integral para la gestión de una veterinaria, destinada a centralizar la información administrativa y clínica de sus pacientes y facilitar la interacción con sus clientes. El sistema contará con diferentes roles de usuario y permitirá gestionar clientes, mascotas, profesionales, turnos, atenciones y vacunas.
-Nuestra propuesta de valor y mayor fortaleza es la comunicación bidireccional. Que la plataforma sea web responsive y que el dueño tenga su propio portal para ver la información. Es decir, los clientes de la veterinaria al loguearse en la página pueden realizar diferentes acciones relacionadas con la gestión de la salud de su mascota. 
+Nuestra propuesta de valor y mayor fortaleza es la comunicación bidireccional. Que la plataforma sea web Desktop First y que el dueño tenga su propio portal para ver la información. Es decir, los clientes de la veterinaria al loguearse en la página pueden realizar diferentes acciones relacionadas con la gestión de la salud de su mascota. 
 
 La propuesta busca aportar valor mediante:
 * Centralización de la información.

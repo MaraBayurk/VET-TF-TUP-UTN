@@ -2,7 +2,7 @@
 
 ## Descripción
 
-El sistema utilizará una base de datos relacional **MariaDB (vía XAMPP)** para almacenar y gestionar la información correspondiente a la clínica veterinaria.
+El sistema utilizará una base de datos relacional **MySQL**, alojada en **Aiven Cloud**, para almacenar y gestionar la información correspondiente a la clínica veterinaria.
 
 La base de datos permitirá mantener la integridad y consistencia de la información mediante relaciones entre las distintas entidades del sistema.
 
@@ -15,7 +15,7 @@ El modelo contempla las principales entidades necesarias para la gestión de la 
 A continuación se detalla la estructura física de la base de datos actualizada, reflejando fielmente las definiciones del diagrama entidad-relación y las restricciones del script SQL final.
 
 ### Tabla: Rol
-10
+
 Almacena los perfiles de acceso definidos para el sistema.
 
 | Campo | Tipo de dato | Restricciones | Descripción |
@@ -188,4 +188,4 @@ Registro detallado de los productos biológicos administrados a un paciente. Per
 
 ## Persistencia
 
-La información será almacenada en **MariaDB (vía XAMPP)**, utilizando relaciones entre las entidades mediante claves primarias y claves foráneas. Se contemplará la integridad referencial y la normalización de los datos.
+La información será almacenada en **MySQL mediante Aiven Cloud**, utilizando relaciones entre las entidades mediante claves primarias y claves foráneas. Se contemplará la integridad referencial y la normalización de los datos.

@@ -5,7 +5,7 @@ import "../styles/register-form.scss";
 function RegisterForm() {
   const [nombre, setNombre] = useState("");
   const [apellido, setApellido] = useState("");
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
@@ -23,7 +23,7 @@ function RegisterForm() {
     if (
       !nombre.trim() ||
       !apellido.trim() ||
-      !username.trim() ||
+      !email.trim() ||
       !password ||
       !confirmPassword
     ) {
@@ -77,16 +77,16 @@ function RegisterForm() {
       </div>
 
       <div className="register-form__field">
-        <label htmlFor="register-username">
-          Usuario <span className="required">*</span>
+        <label htmlFor="register-email">
+          Email <span className="required">*</span>
         </label>
         <input
-          id="register-username"
+          id="register-email"
           type="text"
-          placeholder="Elegí un usuario"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          autoComplete="username"
+          placeholder="Elegí un email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          autoComplete="email"
           required
         />
       </div>
