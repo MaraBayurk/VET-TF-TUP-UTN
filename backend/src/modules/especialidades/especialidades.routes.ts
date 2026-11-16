@@ -7,12 +7,13 @@ import {
     eliminarEspecialidad
 } from './especialidades.controller';
 import { verificarToken, verificarRol } from '../../middlewares/auth.middleware';
+import { ROLES } from "../../constants/roles";
 
 const router = Router();
 
 // Blindaje de seguridad: Token obligatorio y solo Rol 1 (Administrador)
 router.use(verificarToken);
-router.use(verificarRol([1]));
+router.use(verificarRol([ROLES.ADMINISTRADOR]));
 
 router.get('/', obtenerEspecialidades);
 router.get('/:id', obtenerEspecialidadPorId);

@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { login } from './auth.controller';
 import { verificarToken, verificarRol, AuthRequest } from '../../middlewares/auth.middleware';
 import { Response } from 'express';
+import { ROLES } from "../../constants/roles";
 
 const router = Router();
 
@@ -51,7 +52,7 @@ router.post('/login', login);
  *       403:
  *         description: Prohibido, el usuario no tiene los permisos necesarios.
  */
-router.get('/perfil-admin', verificarToken, verificarRol([1]), (req: AuthRequest, res: Response) => {
+router.get('/perfil-admin', verificarToken, verificarRol([ROLES.ADMINISTRADOR]), (req: AuthRequest, res: Response) => {
     res.status(200).json({
         status: 'success',
         message: '¡Bienvenido administrador! Tienes acceso a esta ruta protegida.',
