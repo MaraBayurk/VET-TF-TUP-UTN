@@ -2,6 +2,7 @@ import express, { Application } from 'express';
 import 'dotenv/config';
 import { setupSwagger } from './src/config/swagger';
 import morgan from 'morgan';
+import cors from 'cors';
 
 // Importación de módulos de rutas
 import authRoutes from './src/modules/auth/auth.routes';
@@ -17,6 +18,9 @@ const app: Application = express();
 // MIDDLEWARES GLOBALES
 app.use(express.json());
 app.use(morgan('dev'));
+app.use(cors({
+    origin: process.env.FRONTEND_URL || 'http://localhost:5173'
+}));
 
 // <-- 2. Ejecutá Swagger ANTES de tus rutas
 setupSwagger(app);
@@ -28,12 +32,5 @@ app.use('/api/especialidades', especialidadesRoutes);
 app.use('/api/mascotas', mascotasRoutes);
 app.use('/api/horarios', horariosRoutes);
 app.use('/api/turnos', turnosRoutes);
-
-// INICIALIZACIÓN DEL SERVIDOR
-const PORT = process.env.PORT || 3000;
-
-app.listen(PORT, () => {
-    console.log(`Servidor corriendo en http://localhost:${PORT}`);
-});
 
 export default app;
