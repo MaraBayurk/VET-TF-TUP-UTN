@@ -7,7 +7,7 @@ import {
 import {
     verificarToken,
     verificarRolPorNombre
-} from '../../middlewares/auth.middleware';
+} from '../../../middlewares/auth.middleware';
 
 const router = Router();
 

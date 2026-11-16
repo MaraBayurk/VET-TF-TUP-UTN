@@ -1,5 +1,5 @@
 import { Response } from "express";
-import { AuthRequest } from "../../middlewares/auth.middleware";
+import { AuthRequest } from "../../../middlewares/auth.middleware";
 import turnosRepository from "./turnos.repository";
 
 const ZONA_HORARIA = "America/Argentina/Tucuman";

@@ -1,5 +1,5 @@
 
-import pool from "../../config/db";
+import pool from "../../../config/db";
 import { ResultSetHeader, RowDataPacket } from "mysql2";
 
 export interface MascotaTurno extends RowDataPacket {
