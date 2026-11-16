@@ -1,0 +1,75 @@
+import pool from "../../config/db";
+import { RegistroClienteDTO } from "./auth.dto";
+
+export interface RegistroClienteDTO {
+  nombre: string;
+  apellido: string;
+  numero_documento: string;
+  email: string;
+  password_hash: string;
+  telefono?: string;
+}
+
+export class AuthRepository {
+  async registrarCliente(
+    datos: Omit<RegistroClienteDTO, "password"> & { password_hash: string },
+  ): Promise<number> {
+    const connection = await pool.getConnection();
+
+    try {
+      await connection.beginTransaction();
+
+      // 1. Obtener dinámicamente el ID del rol Cliente
+      const [roles]: any = await connection.query(
+        `SELECT id_rol FROM Rol WHERE LOWER(nombre) = LOWER(?) LIMIT 1`,
+        ["Cliente"],
+      );
+
+      if (roles.length === 0) {
+        throw new Error("CLIENT_ROLE_NOT_FOUND");
+      }
+
+      const idRolCliente = roles[0].id_rol;
+
+      // 2. Crear el usuario
+      const [resultadoUsuario]: any = await connection.query(
+        `INSERT INTO Usuario
+                    (nombre, apellido, numero_documento, email, password_hash, telefono, id_rol)
+                 VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        [
+          datos.nombre,
+          datos.apellido,
+          datos.numero_documento,
+          datos.email,
+          datos.password_hash,
+          datos.telefono || null,
+          idRolCliente,
+        ],
+      );
+
+      const idUsuario = resultadoUsuario.insertId;
+
+      // 3. Crear el perfil de Cliente asociado
+      await connection.query(`INSERT INTO Cliente (id_usuario) VALUES (?)`, [
+        idUsuario,
+      ]);
+
+      // 4. Confirmar ambas operaciones
+      await connection.commit();
+
+      return idUsuario;
+    } catch (error: any) {
+      await connection.rollback();
+
+      if (error.code === "ER_DUP_ENTRY") {
+        throw new Error("DUPLICATE_ENTRY");
+      }
+
+      throw error;
+    } finally {
+      connection.release();
+    }
+  }
+}
+
+export const authRepository = new AuthRepository();
