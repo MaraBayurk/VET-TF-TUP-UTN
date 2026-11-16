@@ -18,7 +18,6 @@ const validarFechaConsulta = (
   diaSemana: number;
 } | null => {
   if (typeof fecha !== "string") return null;
-
   if (!/^\d{4}-\d{2}-\d{2}$/.test(fecha)) return null;
 
   const [anio, mes, dia] = fecha.split("-").map(Number);
@@ -60,39 +59,35 @@ const obtenerFechaLocal = (fecha: Date): FechaLocal => {
   const minute = valor("minute");
   const second = valor("second");
 
-  const fechaUtc = new Date(
+  const fechaUTC = new Date(
     Date.UTC(Number(year), Number(month) - 1, Number(day)),
   );
-
-  // MySQL: 1 = lunes ... 7 = domingo
-  const diaSemana = fechaUtc.getUTCDay() || 7;
 
   return {
     fecha: `${year}-${month}-${day}`,
     hora: `${hour}:${minute}:${second}`,
-    diaSemana,
+    diaSemana: fechaUTC.getUTCDay() || 7,
     fechaHora: `${year}-${month}-${day} ${hour}:${minute}:${second}`,
   };
 };
 
 const convertirFechaSolicitud = (valor: unknown): FechaLocal | null => {
-  if (typeof valor !== "string" || !valor.trim()) {
-    return null;
-  }
+  if (typeof valor !== "string") return null;
 
-  // Exigimos fecha ISO con zona horaria explícita.
-  const tieneZonaHoraria =
-    /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2})?(Z|[+-]\d{2}:\d{2})$/;
+  const formatoISO =
+    /^(\d{4}-\d{2}-\d{2})T((?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d)?)(Z|[+-](?:0\d|1[0-3]):[0-5]\d|[+-]14:00)$/;
 
-  if (!tieneZonaHoraria.test(valor)) {
-    return null;
-  }
+  const coincidencia = valor.match(formatoISO);
+
+  if (!coincidencia) return null;
+
+  const fechaTexto = coincidencia[1];
+
+  if (!validarFechaConsulta(fechaTexto)) return null;
 
   const fecha = new Date(valor);
 
-  if (Number.isNaN(fecha.getTime())) {
-    return null;
-  }
+  if (Number.isNaN(fecha.getTime())) return null;
 
   return obtenerFechaLocal(fecha);
 };
@@ -102,9 +97,17 @@ const convertirHoraAMinutos = (hora: string): number => {
   return horas * 60 + minutos + segundos / 60;
 };
 
-const sumarMinutos = (hora: string, minutos: number): number => {
-  return convertirHoraAMinutos(hora) + minutos;
+const sumarMinutosFechaHora = (fechaHora: string, minutos: number): string => {
+  const fecha = new Date(`${fechaHora.replace(" ", "T")}Z`);
+
+  fecha.setUTCMinutes(fecha.getUTCMinutes() + minutos);
+
+  return fecha.toISOString().slice(0, 19).replace("T", " ");
 };
+
+// ------------------------------------------------------
+// SOLICITAR TURNO
+// ------------------------------------------------------
 
 export const solicitarTurno = async (
   req: AuthRequest,
@@ -146,18 +149,39 @@ export const solicitarTurno = async (
       return;
     }
 
+    if (
+      motivo !== null &&
+      (typeof motivo !== "string" || motivo.length > 500)
+    ) {
+      res.status(400).json({
+        status: "error",
+        message: "El motivo debe ser un texto de hasta 500 caracteres.",
+      });
+      return;
+    }
+
+    if (observaciones !== null && typeof observaciones !== "string") {
+      res.status(400).json({
+        status: "error",
+        message: "Las observaciones deben ser un texto válido.",
+      });
+      return;
+    }
+
     const fechaLocal = convertirFechaSolicitud(fecha_hora);
 
     if (!fechaLocal) {
       res.status(400).json({
         status: "error",
         message:
-          "La fecha debe estar en formato ISO 8601 e incluir zona horaria.",
+          "La fecha y hora deben tener un formato ISO válido e incluir zona horaria.",
       });
       return;
     }
 
-    if (new Date(String(fecha_hora)).getTime() <= Date.now()) {
+    const ahora = obtenerFechaLocal(new Date());
+
+    if (fechaLocal.fechaHora <= ahora.fechaHora) {
       res.status(400).json({
         status: "error",
         message: "No se pueden solicitar turnos en fechas u horarios pasados.",
@@ -165,6 +189,29 @@ export const solicitarTurno = async (
       return;
     }
 
+    // Verificar el rol del usuario que solicita el turno.
+    const rolUsuario =
+      await turnosRepository.obtenerRolPorUsuario(idUsuarioCreador);
+
+    if (!rolUsuario) {
+      res.status(401).json({
+        status: "error",
+        message: "El usuario no existe o se encuentra inactivo.",
+      });
+      return;
+    }
+
+    const rolNormalizado = rolUsuario.toLowerCase();
+
+    if (!["cliente", "administrador"].includes(rolNormalizado)) {
+      res.status(403).json({
+        status: "error",
+        message: "No tiene permisos para solicitar turnos.",
+      });
+      return;
+    }
+
+    // Verificar que la mascota exista y esté activa.
     const mascota = await turnosRepository.obtenerMascotaActiva(idMascota);
 
     if (!mascota) {
@@ -191,21 +238,31 @@ export const solicitarTurno = async (
       return;
     }
 
-    const idClienteUsuario =
-      await turnosRepository.obtenerClientePorUsuario(idUsuarioCreador);
+    // Un cliente solamente puede solicitar turnos para sus propias mascotas.
+    if (rolNormalizado === "cliente") {
+      const idClienteUsuario =
+        await turnosRepository.obtenerClientePorUsuarioObligatorio(
+          idUsuarioCreador,
+        );
 
-    // Si el usuario tiene perfil de Cliente, debe ser dueño de la mascota.
-    if (
-      idClienteUsuario !== null &&
-      idClienteUsuario !== Number(mascota.id_cliente)
-    ) {
-      res.status(403).json({
-        status: "error",
-        message: "No puede solicitar turnos para mascotas de otro cliente.",
-      });
-      return;
+      if (!idClienteUsuario) {
+        res.status(403).json({
+          status: "error",
+          message: "El usuario no tiene un perfil de cliente activo.",
+        });
+        return;
+      }
+
+      if (idClienteUsuario !== Number(mascota.id_cliente)) {
+        res.status(403).json({
+          status: "error",
+          message: "No puede solicitar turnos para mascotas de otro cliente.",
+        });
+        return;
+      }
     }
 
+    // Verificar que el veterinario exista y esté activo.
     const veterinario =
       await turnosRepository.obtenerVeterinarioActivo(idVeterinario);
 
@@ -225,6 +282,7 @@ export const solicitarTurno = async (
       return;
     }
 
+    // Consultar los horarios configurados para ese veterinario y día.
     const horarios = await turnosRepository.obtenerHorariosActivos(
       idVeterinario,
       fechaLocal.diaSemana,
@@ -240,6 +298,7 @@ export const solicitarTurno = async (
 
     const minutosSolicitud = convertirHoraAMinutos(fechaLocal.hora);
 
+    // Comprobar que el horario solicitado corresponda a un bloque válido.
     const horarioValido = horarios.find((horario) => {
       const inicio = convertirHoraAMinutos(horario.hora_inicio);
       const fin = convertirHoraAMinutos(horario.hora_fin);
@@ -260,39 +319,16 @@ export const solicitarTurno = async (
       res.status(400).json({
         status: "error",
         message:
-          "El horario solicitado no corresponde a un bloque disponible de atención.",
+          "El horario solicitado no corresponde a un bloque de atención válido.",
       });
       return;
     }
 
     const duracion = Number(horarioValido.intervalo_minutos);
-    const minutosFin = sumarMinutos(fechaLocal.hora, duracion);
 
-    const fechaFin = new Date(`${fechaLocal.fecha}T00:00:00Z`);
+    const fechaHasta = sumarMinutosFechaHora(fechaLocal.fechaHora, duracion);
 
-    const horasFin = Math.floor(minutosFin / 60);
-    const minutosFinResto = minutosFin % 60;
-
-    fechaFin.setUTCHours(horasFin, minutosFinResto, 0, 0);
-
-    const fechaHasta = `${fechaFin.toISOString().slice(0, 10)} ${fechaFin
-      .toISOString()
-      .slice(11, 19)}`;
-
-    const turnosOcupados = await turnosRepository.obtenerTurnosOcupados(
-      idVeterinario,
-      fechaLocal.fechaHora,
-      fechaHasta,
-    );
-
-    if (turnosOcupados.length > 0) {
-      res.status(409).json({
-        status: "error",
-        message: "El horario solicitado ya está ocupado.",
-      });
-      return;
-    }
-
+    // Obtener el identificador del estado desde la base de datos.
     const idEstadoPendiente =
       await turnosRepository.obtenerEstadoPorNombre("PENDIENTE");
 
@@ -304,15 +340,26 @@ export const solicitarTurno = async (
       return;
     }
 
-    const idTurno = await turnosRepository.crearTurno({
+    // La verificación de disponibilidad y la inserción se realizan
+    // dentro de una transacción para evitar reservas simultáneas.
+    const idTurno = await turnosRepository.crearTurnoSiDisponible({
       idMascota,
       idVeterinario,
       idUsuarioCreador,
       idEstadoTurno: idEstadoPendiente,
-      fechaHora: fechaLocal.fechaHora,
+      fechaDesde: fechaLocal.fechaHora,
+      fechaHasta,
       motivo,
       observaciones,
     });
+
+    if (idTurno === null) {
+      res.status(409).json({
+        status: "error",
+        message: "El horario solicitado ya está ocupado.",
+      });
+      return;
+    }
 
     res.status(201).json({
       status: "success",
@@ -338,6 +385,10 @@ export const solicitarTurno = async (
   }
 };
 
+// ------------------------------------------------------
+// OBTENER HORARIOS DISPONIBLES
+// ------------------------------------------------------
+
 export const obtenerHorariosDisponibles = async (
   req: AuthRequest,
   res: Response,
@@ -358,6 +409,16 @@ export const obtenerHorariosDisponibles = async (
       res.status(400).json({
         status: "error",
         message: "La fecha debe tener formato YYYY-MM-DD y ser válida.",
+      });
+      return;
+    }
+
+    const ahora = obtenerFechaLocal(new Date());
+
+    if (fecha.fecha < ahora.fecha) {
+      res.status(400).json({
+        status: "error",
+        message: "No se puede consultar disponibilidad para fechas pasadas.",
       });
       return;
     }
@@ -416,9 +477,7 @@ export const obtenerHorariosDisponibles = async (
       };
     });
 
-    const ahora = obtenerFechaLocal(new Date());
     const esHoy = ahora.fecha === fecha.fecha;
-
     const horariosDisponibles: string[] = [];
 
     for (const horario of horarios) {
@@ -473,10 +532,13 @@ export const obtenerHorariosDisponibles = async (
   }
 };
 
+// ------------------------------------------------------
+// OBTENER MIS TURNOS (CLIENTE)
+// ------------------------------------------------------
 
 export const obtenerMisTurnos = async (
   req: AuthRequest,
-  res: Response
+  res: Response,
 ): Promise<void> => {
   try {
     const idUsuario = req.usuario?.id_usuario;
@@ -484,7 +546,7 @@ export const obtenerMisTurnos = async (
     if (!idUsuario) {
       res.status(401).json({
         status: "error",
-        message: "No se pudo identificar al usuario autenticado."
+        message: "No se pudo identificar al usuario autenticado.",
       });
       return;
     }
@@ -495,31 +557,40 @@ export const obtenerMisTurnos = async (
     if (!idCliente) {
       res.status(404).json({
         status: "error",
-        message: "No se encontró un perfil de cliente activo."
+        message: "No se encontró un perfil de cliente activo.",
       });
       return;
     }
 
-    const turnos = await turnosRepository.listarTurnosCliente(idCliente);
+    const ahora = obtenerFechaLocal(new Date());
+
+    const turnos = await turnosRepository.listarTurnosCliente(
+      idCliente,
+      ahora.fechaHora,
+    );
 
     res.status(200).json({
       status: "success",
       message: "Próximos turnos obtenidos exitosamente.",
-      data: turnos
+      data: turnos,
     });
   } catch (error) {
     console.error("Error al consultar los turnos del cliente:", error);
 
     res.status(500).json({
       status: "error",
-      message: "Error interno al consultar los turnos."
+      message: "Error interno al consultar los turnos.",
     });
   }
 };
 
+// ------------------------------------------------------
+// OBTENER AGENDA DEL VETERINARIO
+// ------------------------------------------------------
+
 export const obtenerAgendaVeterinario = async (
   req: AuthRequest,
-  res: Response
+  res: Response,
 ): Promise<void> => {
   try {
     const idUsuario = req.usuario?.id_usuario;
@@ -527,7 +598,7 @@ export const obtenerAgendaVeterinario = async (
     if (!idUsuario) {
       res.status(401).json({
         status: "error",
-        message: "No se pudo identificar al usuario autenticado."
+        message: "No se pudo identificar al usuario autenticado.",
       });
       return;
     }
@@ -538,7 +609,7 @@ export const obtenerAgendaVeterinario = async (
     if (!idVeterinario) {
       res.status(404).json({
         status: "error",
-        message: "No se encontró un perfil de veterinario activo."
+        message: "No se encontró un perfil de veterinario activo.",
       });
       return;
     }
@@ -549,21 +620,25 @@ export const obtenerAgendaVeterinario = async (
     res.status(200).json({
       status: "success",
       message: "Agenda del veterinario obtenida exitosamente.",
-      data: turnos
+      data: turnos,
     });
   } catch (error) {
     console.error("Error al consultar la agenda del veterinario:", error);
 
     res.status(500).json({
       status: "error",
-      message: "Error interno al consultar la agenda."
+      message: "Error interno al consultar la agenda.",
     });
   }
 };
 
+// ------------------------------------------------------
+// OBTENER TODOS LOS TURNOS (ADMINISTRADOR)
+// ------------------------------------------------------
+
 export const obtenerTodosLosTurnos = async (
   _req: AuthRequest,
-  res: Response
+  res: Response,
 ): Promise<void> => {
   try {
     const turnos = await turnosRepository.listarTodosLosTurnos();
@@ -571,21 +646,25 @@ export const obtenerTodosLosTurnos = async (
     res.status(200).json({
       status: "success",
       message: "Turnos obtenidos exitosamente.",
-      data: turnos
+      data: turnos,
     });
   } catch (error) {
     console.error("Error al consultar todos los turnos:", error);
 
     res.status(500).json({
       status: "error",
-      message: "Error interno al consultar los turnos."
+      message: "Error interno al consultar los turnos.",
     });
   }
 };
 
+// ------------------------------------------------------
+// CANCELAR TURNO (CLIENTE)
+// ------------------------------------------------------
+
 export const cancelarMiTurno = async (
   req: AuthRequest,
-  res: Response
+  res: Response,
 ): Promise<void> => {
   try {
     const idUsuario = req.usuario?.id_usuario;
@@ -594,7 +673,7 @@ export const cancelarMiTurno = async (
     if (!idUsuario) {
       res.status(401).json({
         status: "error",
-        message: "No se pudo identificar al usuario autenticado."
+        message: "No se pudo identificar al usuario autenticado.",
       });
       return;
     }
@@ -602,7 +681,7 @@ export const cancelarMiTurno = async (
     if (!Number.isInteger(idTurno) || idTurno <= 0) {
       res.status(400).json({
         status: "error",
-        message: "El identificador del turno no es válido."
+        message: "El identificador del turno no es válido.",
       });
       return;
     }
@@ -613,7 +692,7 @@ export const cancelarMiTurno = async (
     if (!idCliente) {
       res.status(404).json({
         status: "error",
-        message: "No se encontró un perfil de cliente activo."
+        message: "No se encontró un perfil de cliente activo.",
       });
       return;
     }
@@ -623,7 +702,7 @@ export const cancelarMiTurno = async (
     if (!turno) {
       res.status(404).json({
         status: "error",
-        message: "El turno solicitado no existe."
+        message: "El turno solicitado no existe.",
       });
       return;
     }
@@ -631,7 +710,7 @@ export const cancelarMiTurno = async (
     if (Number(turno.id_cliente) !== idCliente) {
       res.status(403).json({
         status: "error",
-        message: "No puede cancelar turnos de otros clientes."
+        message: "No puede cancelar turnos de otros clientes.",
       });
       return;
     }
@@ -641,15 +720,17 @@ export const cancelarMiTurno = async (
     if (!["PENDIENTE", "APROBADO"].includes(estadoActual)) {
       res.status(409).json({
         status: "error",
-        message: "Solo se pueden cancelar turnos pendientes o aprobados."
+        message: "Solo se pueden cancelar turnos pendientes o aprobados.",
       });
       return;
     }
 
-    if (new Date(turno.fecha_hora).getTime() <= Date.now()) {
+    const ahora = obtenerFechaLocal(new Date());
+
+    if (turno.fecha_hora <= ahora.fechaHora) {
       res.status(400).json({
         status: "error",
-        message: "No se pueden cancelar turnos que ya comenzaron o pasaron."
+        message: "No se pueden cancelar turnos que ya comenzaron o pasaron.",
       });
       return;
     }
@@ -660,7 +741,7 @@ export const cancelarMiTurno = async (
     if (!idCancelado) {
       res.status(500).json({
         status: "error",
-        message: "No se encontró el estado CANCELADO en el catálogo."
+        message: "No se encontró el estado CANCELADO en el catálogo.",
       });
       return;
     }
@@ -672,22 +753,26 @@ export const cancelarMiTurno = async (
       message: "Turno cancelado exitosamente.",
       data: {
         id_turno: idTurno,
-        estado: "CANCELADO"
-      }
+        estado: "CANCELADO",
+      },
     });
   } catch (error) {
     console.error("Error al cancelar el turno:", error);
 
     res.status(500).json({
       status: "error",
-      message: "Error interno al cancelar el turno."
+      message: "Error interno al cancelar el turno.",
     });
   }
 };
 
+// ------------------------------------------------------
+// ACTUALIZAR ESTADO DEL TURNO (ADMINISTRADOR)
+// ------------------------------------------------------
+
 export const actualizarEstadoTurno = async (
   req: AuthRequest,
-  res: Response
+  res: Response,
 ): Promise<void> => {
   try {
     const idTurno = Number(req.params.id);
@@ -696,7 +781,7 @@ export const actualizarEstadoTurno = async (
     if (!Number.isInteger(idTurno) || idTurno <= 0) {
       res.status(400).json({
         status: "error",
-        message: "El identificador del turno no es válido."
+        message: "El identificador del turno no es válido.",
       });
       return;
     }
@@ -704,7 +789,7 @@ export const actualizarEstadoTurno = async (
     if (typeof estado !== "string" || !estado.trim()) {
       res.status(400).json({
         status: "error",
-        message: "Debe indicar el nuevo estado del turno."
+        message: "Debe indicar el nuevo estado del turno.",
       });
       return;
     }
@@ -715,7 +800,7 @@ export const actualizarEstadoTurno = async (
     if (!estadosPermitidos.includes(nuevoEstado)) {
       res.status(400).json({
         status: "error",
-        message: "El estado indicado no es válido para esta operación."
+        message: "El estado indicado no es válido para esta operación.",
       });
       return;
     }
@@ -725,7 +810,7 @@ export const actualizarEstadoTurno = async (
     if (!turno) {
       res.status(404).json({
         status: "error",
-        message: "El turno solicitado no existe."
+        message: "El turno solicitado no existe.",
       });
       return;
     }
@@ -736,13 +821,13 @@ export const actualizarEstadoTurno = async (
       PENDIENTE: ["APROBADO", "CANCELADO", "COMPLETADO"],
       APROBADO: ["CANCELADO", "COMPLETADO"],
       CANCELADO: [],
-      COMPLETADO: []
+      COMPLETADO: [],
     };
 
     if (!transicionesPermitidas[estadoActual]?.includes(nuevoEstado)) {
       res.status(409).json({
         status: "error",
-        message: `No se permite cambiar el estado de ${estadoActual} a ${nuevoEstado}.`
+        message: `No se permite cambiar el estado de ${estadoActual} a ${nuevoEstado}.`,
       });
       return;
     }
@@ -753,7 +838,7 @@ export const actualizarEstadoTurno = async (
     if (!idNuevoEstado) {
       res.status(500).json({
         status: "error",
-        message: `No se encontró el estado ${nuevoEstado} en el catálogo.`
+        message: `No se encontró el estado ${nuevoEstado} en el catálogo.`,
       });
       return;
     }
@@ -766,16 +851,15 @@ export const actualizarEstadoTurno = async (
       data: {
         id_turno: idTurno,
         estado_anterior: estadoActual,
-        estado_nuevo: nuevoEstado
-      }
+        estado_nuevo: nuevoEstado,
+      },
     });
   } catch (error) {
     console.error("Error al actualizar el estado del turno:", error);
 
     res.status(500).json({
       status: "error",
-      message: "Error interno al actualizar el estado del turno."
+      message: "Error interno al actualizar el estado del turno.",
     });
   }
 };
-
