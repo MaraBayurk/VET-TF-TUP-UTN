@@ -1,15 +1,6 @@
 import pool from "../../config/db";
 import { RegistroClienteDTO } from "./auth.dto";
 
-export interface RegistroClienteDTO {
-  nombre: string;
-  apellido: string;
-  numero_documento: string;
-  email: string;
-  password_hash: string;
-  telefono?: string;
-}
-
 export class AuthRepository {
   async registrarCliente(
     datos: Omit<RegistroClienteDTO, "password"> & { password_hash: string },
