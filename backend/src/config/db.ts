@@ -1,25 +1,33 @@
-import mysql from 'mysql2/promise';
-import dotenv from 'dotenv';
+import mysql from "mysql2/promise";
+import dotenv from "dotenv";
 
-// Cargar variables de entorno desde el archivo .env
+// Cargar variables de entorno
 dotenv.config();
 
-// Crear un "pool" de conexiones en lugar de una conexión única.
-// Esto es una buena práctica de arquitectura porque gestiona múltiples 
-// peticiones concurrentes de manera eficiente sin saturar a MariaDB.
+// Determinar si se debe utilizar SSL
+const useSSL = process.env.DB_SSL === "true";
+
+// Crear pool de conexiones
 const pool = mysql.createPool({
-    host: process.env.DB_HOST || 'localhost',
-    user: process.env.DB_USER || 'root',
-    password: process.env.DB_PASSWORD || '',
-    database: process.env.DB_NAME || 'veterinariaDB',
-    port: Number(process.env.DB_PORT) || 3306,
-    waitForConnections: true,
-    connectionLimit: 10,
-    queueLimit: 0,
-// Agrega esta propiedad obligatoria para Aiven
+  host: process.env.DB_HOST || "localhost",
+  user: process.env.DB_USER || "root",
+  password: process.env.DB_PASSWORD || "",
+  database: process.env.DB_NAME || "veterinariaDB",
+  port: Number(process.env.DB_PORT) || 3306,
+
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0,
+
+  // Configuración de fechas y horarios de Argentina
+  timezone: "-03:00",
+  dateStrings: true,
+
+  ...(useSSL && {
     ssl: {
-        rejectUnauthorized: false
-    }
+      rejectUnauthorized: false,
+    },
+  }),
 });
 
 export default pool;

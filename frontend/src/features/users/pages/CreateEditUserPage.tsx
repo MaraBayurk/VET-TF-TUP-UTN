@@ -105,15 +105,8 @@ function CreateUserPage() {
     event.preventDefault();
 
     if (isEditing) {
-      console.log("Usuario a actualizar:", {
-        id,
-        ...form,
-      });
-
       alert("Formulario validado. La edición se conectará al backend.");
     } else {
-      console.log("Usuario a crear:", form);
-
       alert("Formulario validado. El alta se conectará al backend.");
     }
 
