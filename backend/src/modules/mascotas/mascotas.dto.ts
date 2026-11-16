@@ -1,18 +1,19 @@
+
 export interface CrearMascotaDTO {
     id_cliente: number;
     nombre: string;
     especie: string;
-    raza?: string;
-    fecha_nacimiento?: string; // Formato YYYY-MM-DD
+    raza?: string | null;
+    fecha_nacimiento?: string | null;
     sexo: string;
-    observaciones?: string;
+    observaciones?: string | null;
 }
 
 export interface ActualizarMascotaDTO {
     nombre?: string;
     especie?: string;
-    raza?: string;
-    fecha_nacimiento?: string;
+    raza?: string | null;
+    fecha_nacimiento?: string | null;
     sexo?: string;
-    observaciones?: string;
+    observaciones?: string | null;
 }
