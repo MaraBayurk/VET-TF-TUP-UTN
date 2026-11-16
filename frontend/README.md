@@ -31,7 +31,7 @@ frontend/
 │   │   ├── agenda/
 │   │   ├── auth/
 │   │   ├── catalogs/
-│   │   ├── clinic/
+│   │   ├── clinical/
 │   │   ├── dashboard/
 │   │   ├── landing/
 │   │   ├── pets/

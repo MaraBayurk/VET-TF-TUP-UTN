@@ -2,7 +2,7 @@ import { useState, type FormEvent } from "react";
 import "../styles/login-form.scss";
 
 function LoginForm() {
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
@@ -11,8 +11,8 @@ function LoginForm() {
     event.preventDefault();
     setError("");
 
-    if (!username.trim() || !password) {
-      setError("Completá tu usuario y contraseña.");
+    if (!email.trim() || !password) {
+      setError("Completá tu email y contraseña.");
       return;
     }
 
@@ -25,12 +25,12 @@ function LoginForm() {
         <label htmlFor="username">Usuario</label>
 
         <input
-          id="username"
+          id="email"
           type="text"
-          placeholder="Ingresá tu usuario"
-          value={username}
-          onChange={(event) => setUsername(event.target.value)}
-          autoComplete="username"
+          placeholder="Ingresá tu email"
+          value={email}
+          onChange={(event) => setEmail(event.target.value)}
+          autoComplete="email"
         />
       </div>
 
