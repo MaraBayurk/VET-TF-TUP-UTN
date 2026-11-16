@@ -1,4 +1,3 @@
-
 import { Link } from "react-router-dom";
 import {
   ArrowRight,
@@ -11,6 +10,10 @@ import LandingHeader from "../components/LandingHeader";
 import CategoryCard from "../components/CategoryCard";
 import { services } from "../data/services";
 import { categories } from "../data/categories";
+
+import heroImage from "../../../assets/img.1.png";
+import aboutImage from "../../../assets/img.2.png";
+
 import "../styles/landing.scss";
 
 function Landing() {
@@ -47,9 +50,15 @@ function Landing() {
           </div>
         </div>
 
-        <div className="landing-hero-decoration" aria-hidden="true">
-          <PawPrint size={150} />
-          <Heart size={42} />
+        <div className="landing-hero-image">
+          <img
+            src={heroImage}
+            alt="Perro y gato, protagonistas del cuidado veterinario"
+          />
+          <div className="landing-hero-decoration" aria-hidden="true">
+            <PawPrint size={42} />
+            <Heart size={28} />
+          </div>
         </div>
       </section>
 
@@ -115,7 +124,7 @@ function Landing() {
 
       {/* Sobre VET */}
       <section className="landing-about" id="nosotros">
-        <div>
+        <div className="landing-about-content">
           <span className="landing-label">Sobre VET</span>
 
           <h2>
@@ -129,8 +138,14 @@ function Landing() {
           </p>
         </div>
 
-        <div className="landing-about-icon">
-          <Users size={64} />
+        <div className="landing-about-image">
+          <img
+            src={aboutImage}
+            alt="Un gato y un perro descansando juntos"
+          />
+          <div className="landing-about-icon" aria-hidden="true">
+            <Users size={42} />
+          </div>
         </div>
       </section>
 
@@ -171,4 +186,3 @@ function Landing() {
 }
 
 export default Landing;
-
