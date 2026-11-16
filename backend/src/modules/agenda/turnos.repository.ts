@@ -1,32 +1,36 @@
-
-import pool from '../../config/db';
-import { ResultSetHeader, RowDataPacket } from 'mysql2';
+import pool from "../../config/db";
+import { ResultSetHeader, RowDataPacket } from "mysql2";
 
 export interface MascotaTurno extends RowDataPacket {
-    id_mascota: number;
-    id_cliente: number;
-    cliente_activo: number;
-    mascota_activa: number;
+  id_mascota: number;
+  id_cliente: number;
+  cliente_activo: number;
+  mascota_activa: number;
 }
 
 export interface VeterinarioTurno extends RowDataPacket {
-    id_veterinario: number;
-    id_usuario: number;
-    usuario_activo: number;
+  id_veterinario: number;
+  id_usuario: number;
+  usuario_activo: number;
 }
 
 export interface HorarioTurno extends RowDataPacket {
-    id_horario: number;
-    dia_semana: number;
+  id_horario: number;
+  dia_semana: number;
+  hora_inicio: string;
+  hora_fin: string;
+  intervalo_minutos: number;
+}
+
+export interface TurnoOcupado extends RowDataPacket {
     hora_inicio: string;
-    hora_fin: string;
     intervalo_minutos: number;
 }
 
 class TurnosRepository {
-    async obtenerMascotaActiva(idMascota: number): Promise<MascotaTurno | null> {
-        const [rows] = await pool.query<MascotaTurno[]>(
-            `SELECT
+  async obtenerMascotaActiva(idMascota: number): Promise<MascotaTurno | null> {
+    const [rows] = await pool.query<MascotaTurno[]>(
+      `SELECT
                 m.id_mascota,
                 m.id_cliente,
                 m.activo AS mascota_activa,
@@ -36,29 +40,31 @@ class TurnosRepository {
              INNER JOIN Usuario u ON u.id_usuario = c.id_usuario
              WHERE m.id_mascota = ?
              LIMIT 1`,
-            [idMascota]
-        );
+      [idMascota],
+    );
 
-        return rows[0] ?? null;
-    }
+    return rows[0] ?? null;
+  }
 
-    async obtenerClientePorUsuario(idUsuario: number): Promise<number | null> {
-        const [rows] = await pool.query<RowDataPacket[]>(
-            `SELECT c.id_cliente
+  async obtenerClientePorUsuario(idUsuario: number): Promise<number | null> {
+    const [rows] = await pool.query<RowDataPacket[]>(
+      `SELECT c.id_cliente
              FROM Cliente c
              INNER JOIN Usuario u ON u.id_usuario = c.id_usuario
              WHERE c.id_usuario = ?
                AND u.activo = 1
              LIMIT 1`,
-            [idUsuario]
-        );
+      [idUsuario],
+    );
 
-        return rows.length ? Number(rows[0].id_cliente) : null;
-    }
+    return rows.length ? Number(rows[0].id_cliente) : null;
+  }
 
-    async obtenerVeterinarioActivo(idVeterinario: number): Promise<VeterinarioTurno | null> {
-        const [rows] = await pool.query<VeterinarioTurno[]>(
-            `SELECT
+  async obtenerVeterinarioActivo(
+    idVeterinario: number,
+  ): Promise<VeterinarioTurno | null> {
+    const [rows] = await pool.query<VeterinarioTurno[]>(
+      `SELECT
                 v.id_veterinario,
                 v.id_usuario,
                 u.activo AS usuario_activo
@@ -66,30 +72,30 @@ class TurnosRepository {
              INNER JOIN Usuario u ON u.id_usuario = v.id_usuario
              WHERE v.id_veterinario = ?
              LIMIT 1`,
-            [idVeterinario]
-        );
+      [idVeterinario],
+    );
 
-        return rows[0] ?? null;
-    }
+    return rows[0] ?? null;
+  }
 
-    async obtenerEstadoPorNombre(nombre: string): Promise<number | null> {
-        const [rows] = await pool.query<RowDataPacket[]>(
-            `SELECT id_estado_turno
+  async obtenerEstadoPorNombre(nombre: string): Promise<number | null> {
+    const [rows] = await pool.query<RowDataPacket[]>(
+      `SELECT id_estado_turno
              FROM EstadoTurno
              WHERE UPPER(nombre) = UPPER(?)
              LIMIT 1`,
-            [nombre]
-        );
+      [nombre],
+    );
 
-        return rows.length ? Number(rows[0].id_estado_turno) : null;
-    }
+    return rows.length ? Number(rows[0].id_estado_turno) : null;
+  }
 
-    async obtenerHorariosActivos(
-        idVeterinario: number,
-        diaSemana: number
-    ): Promise<HorarioTurno[]> {
-        const [rows] = await pool.query<HorarioTurno[]>(
-            `SELECT
+  async obtenerHorariosActivos(
+    idVeterinario: number,
+    diaSemana: number,
+  ): Promise<HorarioTurno[]> {
+    const [rows] = await pool.query<HorarioTurno[]>(
+      `SELECT
                 id_horario,
                 dia_semana,
                 hora_inicio,
@@ -100,19 +106,19 @@ class TurnosRepository {
                AND dia_semana = ?
                AND activo = 1
              ORDER BY hora_inicio ASC`,
-            [idVeterinario, diaSemana]
-        );
+      [idVeterinario, diaSemana],
+    );
 
-        return rows;
-    }
+    return rows;
+  }
 
-    async obtenerTurnosOcupados(
-        idVeterinario: number,
-        fechaDesde: string,
-        fechaHasta: string
-    ): Promise<RowDataPacket[]> {
-        const [rows] = await pool.query<RowDataPacket[]>(
-            `SELECT t.fecha_hora, h.nombre AS estado
+  async obtenerTurnosOcupados(
+    idVeterinario: number,
+    fechaDesde: string,
+    fechaHasta: string,
+  ): Promise<RowDataPacket[]> {
+    const [rows] = await pool.query<RowDataPacket[]>(
+      `SELECT t.fecha_hora, h.nombre AS estado
              FROM Turno t
              INNER JOIN EstadoTurno h
                 ON h.id_estado_turno = t.id_estado_turno
@@ -121,23 +127,23 @@ class TurnosRepository {
                AND t.fecha_hora < ?
                AND UPPER(h.nombre) IN ('PENDIENTE', 'APROBADO')
              ORDER BY t.fecha_hora ASC`,
-            [idVeterinario, fechaDesde, fechaHasta]
-        );
+      [idVeterinario, fechaDesde, fechaHasta],
+    );
 
-        return rows;
-    }
+    return rows;
+  }
 
-    async crearTurno(datos: {
-        idMascota: number;
-        idVeterinario: number;
-        idUsuarioCreador: number;
-        idEstadoTurno: number;
-        fechaHora: string;
-        motivo: string | null;
-        observaciones: string | null;
-    }): Promise<number> {
-        const [result] = await pool.execute<ResultSetHeader>(
-            `INSERT INTO Turno (
+  async crearTurno(datos: {
+    idMascota: number;
+    idVeterinario: number;
+    idUsuarioCreador: number;
+    idEstadoTurno: number;
+    fechaHora: string;
+    motivo: string | null;
+    observaciones: string | null;
+  }): Promise<number> {
+    const [result] = await pool.execute<ResultSetHeader>(
+      `INSERT INTO Turno (
                 id_mascota,
                 id_veterinario,
                 id_usuario_creador,
@@ -147,19 +153,64 @@ class TurnosRepository {
                 observaciones
             )
             VALUES (?, ?, ?, ?, ?, ?, ?)`,
-            [
-                datos.idMascota,
-                datos.idVeterinario,
-                datos.idUsuarioCreador,
-                datos.idEstadoTurno,
-                datos.fechaHora,
-                datos.motivo,
-                datos.observaciones
-            ]
-        );
+      [
+        datos.idMascota,
+        datos.idVeterinario,
+        datos.idUsuarioCreador,
+        datos.idEstadoTurno,
+        datos.fechaHora,
+        datos.motivo,
+        datos.observaciones,
+      ],
+    );
 
-        return result.insertId;
-    }
+    return result.insertId;
+  }
+
+  async obtenerIdsEstadosOcupantes(): Promise<number[]> {
+    const [rows] = await pool.query<RowDataPacket[]>(
+      `SELECT id_estado_turno
+         FROM EstadoTurno
+         WHERE UPPER(nombre) IN (?, ?)`,
+      ["PENDIENTE", "APROBADO"],
+    );
+
+    return rows.map((row) => Number(row.id_estado_turno));
+  }
+
+  async obtenerTurnosDelDia(
+    idVeterinario: number,
+    fecha: string,
+    idsEstados: number[],
+  ): Promise<TurnoOcupado[]> {
+    if (idsEstados.length === 0) return [];
+
+    const placeholders = idsEstados.map(() => "?").join(", ");
+
+    const [rows] = await pool.query<TurnoOcupado[]>(
+      `SELECT
+         DATE_FORMAT(t.fecha_hora, '%H:%i:%s') AS hora_inicio,
+         COALESCE(h.intervalo_minutos, 30) AS intervalo_minutos
+         FROM Turno t
+         LEFT JOIN HorarioAtencion h
+            ON h.id_veterinario = t.id_veterinario
+            AND h.dia_semana = ?
+            AND TIME(t.fecha_hora) >= h.hora_inicio
+            AND TIME(t.fecha_hora) < h.hora_fin
+         WHERE t.id_veterinario = ?
+           AND DATE(t.fecha_hora) = ?
+           AND t.id_estado_turno IN (${placeholders})
+         ORDER BY t.fecha_hora ASC`,
+      [this.obtenerDiaSemana(fecha), idVeterinario, fecha, ...idsEstados],
+    );
+
+    return rows;
+  }
+
+  private obtenerDiaSemana(fecha: string): number {
+    const [anio, mes, dia] = fecha.split("-").map(Number);
+    return new Date(Date.UTC(anio, mes - 1, dia)).getUTCDay() || 7;
+  }
 }
 
 export default new TurnosRepository();

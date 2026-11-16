@@ -1,9 +1,60 @@
+
 import { Router } from 'express';
-import { solicitarTurno } from './turnos.controller';
-import { verificarToken, verificarRol } from '../../middlewares/auth.middleware';
-import { ROLES } from "../../constants/roles";
+import {
+    solicitarTurno,
+    obtenerHorariosDisponibles
+} from './turnos.controller';
+import {
+    verificarToken,
+    verificarRolPorNombre
+} from '../../middlewares/auth.middleware';
 
 const router = Router();
+
+const rolesAgenda = verificarRolPorNombre([
+    'Administrador',
+    'Cliente'
+]);
+
+/**
+ * @swagger
+ * /api/turnos/disponibles:
+ *   get:
+ *     summary: Consultar horarios disponibles de un veterinario
+ *     tags: [Agenda]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: id_veterinario
+ *         required: true
+ *         schema:
+ *           type: integer
+ *       - in: query
+ *         name: fecha
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: date
+ *           example: "2026-11-23"
+ *     responses:
+ *       200:
+ *         description: Horarios disponibles consultados correctamente.
+ *       400:
+ *         description: Parámetros inválidos.
+ *       401:
+ *         description: No autorizado.
+ *       403:
+ *         description: Sin permisos.
+ *       404:
+ *         description: Veterinario no encontrado.
+ */
+router.get(
+    '/disponibles',
+    verificarToken,
+    rolesAgenda,
+    obtenerHorariosDisponibles
+);
 
 /**
  * @swagger
@@ -29,25 +80,28 @@ const router = Router();
  *               fecha_hora:
  *                 type: string
  *                 format: date-time
- *                 example: "2026-11-15T14:30:00Z"
+ *                 example: "2026-11-23T09:30:00-03:00"
  *               motivo:
  *                 type: string
- *                 example: "Consulta general anual"
  *               observaciones:
  *                 type: string
- *                 example: "El paciente presenta leve cojera en pata delantera derecha"
  *     responses:
  *       201:
- *         description: Turno médico solicitado exitosamente.
+ *         description: Turno solicitado exitosamente.
  *       400:
- *         description: Datos incompletos o inválidos en la solicitud.
+ *         description: Datos inválidos.
  *       401:
- *         description: No autorizado, token faltante o inválido.
+ *         description: No autorizado.
  *       403:
- *         description: Prohibido, el usuario carece de los privilegios requeridos.
+ *         description: Sin permisos.
  *       500:
- *         description: Error interno del servidor.
+ *         description: Error interno.
  */
-router.post('/', verificarToken, verificarRol([ROLES.ADMINISTRADOR, ROLES.CLIENTE]), solicitarTurno);
+router.post(
+    '/',
+    verificarToken,
+    rolesAgenda,
+    solicitarTurno
+);
 
 export default router;

@@ -1,15 +1,74 @@
+
 import { Router } from 'express';
-import { crearHorario } from './horarios.controller';
-import { verificarToken, verificarRol } from '../../middlewares/auth.middleware';
-import { ROLES } from "../../constants/roles";
+import {
+    solicitarTurno,
+    obtenerHorariosDisponibles
+} from './turnos.controller';
+import {
+    verificarToken,
+    verificarRolPorNombre
+} from '../../middlewares/auth.middleware';
 
 const router = Router();
 
+const rolesSolicitud = verificarRolPorNombre([
+    'Administrador',
+    'Cliente'
+]);
+
+const rolesConsultaDisponibilidad = verificarRolPorNombre([
+    'Administrador',
+    'Cliente'
+]);
+
 /**
  * @swagger
- * /api/horarios:
+ * /api/turnos/disponibles:
+ *   get:
+ *     summary: Consultar horarios disponibles de un veterinario
+ *     tags: [Agenda]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: id_veterinario
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         example: 1
+ *       - in: query
+ *         name: fecha
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: date
+ *         example: "2026-11-23"
+ *     responses:
+ *       200:
+ *         description: Horarios disponibles obtenidos correctamente.
+ *       400:
+ *         description: Parámetros inválidos.
+ *       401:
+ *         description: Usuario no autenticado.
+ *       403:
+ *         description: Rol sin permisos.
+ *       404:
+ *         description: Veterinario inexistente.
+ *       500:
+ *         description: Error interno.
+ */
+router.get(
+    '/disponibles',
+    verificarToken,
+    rolesConsultaDisponibilidad,
+    obtenerHorariosDisponibles
+);
+
+/**
+ * @swagger
+ * /api/turnos:
  *   post:
- *     summary: Registrar un nuevo horario de atención para un veterinario
+ *     summary: Solicitar un nuevo turno médico
  *     tags: [Agenda]
  *     security:
  *       - bearerAuth: []
@@ -19,35 +78,46 @@ const router = Router();
  *         application/json:
  *           schema:
  *             type: object
+ *             required:
+ *               - id_mascota
+ *               - id_veterinario
+ *               - fecha_hora
  *             properties:
+ *               id_mascota:
+ *                 type: integer
+ *                 example: 1
  *               id_veterinario:
  *                 type: integer
- *                 example: 2
- *               dia_semana:
- *                 type: integer
- *                 description: 1=Lunes, 7=Domingo
  *                 example: 1
- *               hora_inicio:
+ *               fecha_hora:
  *                 type: string
- *                 example: "09:00:00"
- *               hora_fin:
+ *                 format: date-time
+ *                 example: "2026-11-23T09:30:00-03:00"
+ *               motivo:
  *                 type: string
- *                 example: "13:00:00"
- *               intervalo_minutos:
- *                 type: integer
- *                 example: 30
+ *                 example: "Consulta general"
+ *               observaciones:
+ *                 type: string
+ *                 example: "Control de rutina"
  *     responses:
  *       201:
- *         description: Horario de atención registrado exitosamente.
+ *         description: Turno solicitado exitosamente.
  *       400:
- *         description: Datos incompletos o inválidos en la solicitud.
+ *         description: Datos inválidos.
  *       401:
- *         description: No autorizado, token faltante o inválido.
+ *         description: Usuario no autenticado.
  *       403:
- *         description: Prohibido, el usuario no tiene los permisos necesarios (Solo Administrador).
+ *         description: No tiene permisos o la mascota no le pertenece.
+ *       409:
+ *         description: Horario ocupado.
  *       500:
- *         description: Error interno del servidor.
+ *         description: Error interno.
  */
-router.post('/', verificarToken, verificarRol([ROLES.ADMINISTRADOR]), crearHorario);
+router.post(
+    '/',
+    verificarToken,
+    rolesSolicitud,
+    solicitarTurno
+);
 
 export default router;
