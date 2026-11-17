@@ -22,7 +22,7 @@ function LoginForm() {
   return (
     <form className="login-form" onSubmit={handleSubmit}>
       <div className="login-form__field">
-        <label htmlFor="username">Usuario</label>
+        <label htmlFor="username">Email</label>
 
         <input
           id="email"
