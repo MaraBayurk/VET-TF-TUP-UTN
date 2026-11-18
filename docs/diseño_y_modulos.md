@@ -48,7 +48,7 @@ Definen la arquitectura, tecnologías y atributos de calidad del sistema.
   - Tercera Forma Normal (3FN - Sin Dependencias Transitivas): Ningún atributo no clave depende de otro atributo no clave. Esto se evidencia en la extracción de catálogos y descripciones (ej. en la tabla Turno se guarda id_estado_turno en lugar del texto, y el Veterinario depende exclusivamente de id_especialidad).
   - Adicionalmente, respecto al mapeo estructural del diagrama UML, las enumeraciones (Rol, EstadoTurno, TipoAtencion) fueron implementadas físicamente como Tablas Catálogo paramétricas con claves TINYINT. Se descartó el tipo nativo ENUM de MySQL para garantizar la escalabilidad, permitiendo agregar nuevos estados en el futuro como registros (DML) sin necesidad de alterar la estructura física (DDL).
 
-- **Diseño Orientado a Escritorio (Desktop First)** Para el alcance de este MVP, la plataforma web priorizará su correcta visualización, usabilidad y navegabilidad en resoluciones de pantalla de computadoras de escritorio y notebooks (resolución mínima de 1024px). Tanto el portal público (Landing Page y autogestión de clientes) como el sistema de backoffice (perfiles de administradores y veterinarios) deben adaptarse dinámicamente y ser completamente operativos desde computadoras de escritorio.
+- **Diseño con prioridad desktop y soporte responsive:** Para este MVP, se priorizarán la visualización y la usabilidad en computadoras de escritorio y notebooks. La plataforma también deberá adaptarse a tablets y celulares y permitir realizar las gestiones principales desde esos dispositivos, en especial la consulta y solicitud de turnos. El portal público y la autogestión de clientes deberán ser operativos en móviles, teniendo en cuenta que el relevamiento indica que muchos clientes solicitan turnos desde el celular.
 
 - **Respaldo de Información (Backups Automatizados):** Para garantizar la integridad y el resguardo de la información clínica y operativa, el sistema debe ejecutar una política de copias de seguridad automatizadas de la base de datos relacional. Para el alcance de este MVP, se establecerá un backup completo diario (frecuencia de 24 horas) ejecutado en horario nocturno, conservando un histórico de retención de al menos 7 días para permitir la recuperación ante fallos críticos.
 
@@ -199,7 +199,7 @@ Como usuario visitante, quiero acceder a la página de inicio pública de la vet
 - El sistema debe mostrar una interfaz pública accesible sin necesidad de autenticación.
 - La página debe incluir información institucional básica (logo, dirección, servicios y vías de contacto).
 - La interfaz debe contar con botones de acceso claros ("Llamados a la acción") que redirijan a los flujos de "Iniciar Sesión" y "Registrarse".
-- El diseño de la interfaz estará optimizado principalmente para su uso desde computadoras (Desktop First), garantizando que toda la información y los formularios sean legibles en monitores estándar.
+- La interfaz priorizará el uso desde computadoras, y deberá adaptarse a tablets y celulares con formularios y acciones principales legibles y operables en pantallas móviles.
 
 ## 5.1 Módulo 1: Autenticación y Seguridad
 
