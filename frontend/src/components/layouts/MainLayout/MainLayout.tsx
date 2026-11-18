@@ -8,15 +8,31 @@ import {
 } from "lucide-react";
 
 import Navbar from "../../Navbar/Navbar";
+import { logout } from "../../../features/auth/services/authService";
+import { getAuthUser } from "../../../features/auth/services/authStorage";
 import "./MainLayout.scss";
 
 function MainLayout() {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [user] = useState(getAuthUser);
   const navigate = useNavigate();
+  const fullName = user ? `${user.nombre} ${user.apellido}` : "Usuario";
+  const initials = user
+    ? `${user.nombre.charAt(0)}${user.apellido.charAt(0)}`.toUpperCase()
+    : "U";
+  const role = user?.rol
+    ? user.rol.charAt(0).toLocaleUpperCase("es") + user.rol.slice(1)
+    : "";
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     setIsUserMenuOpen(false);
-    navigate("/login");
+    try {
+      await logout();
+    } catch {
+      // La sesión local se limpia aunque el servidor no responda.
+    } finally {
+      navigate("/login", { replace: true });
+    }
   };
 
   return (
@@ -52,11 +68,11 @@ function MainLayout() {
                 aria-expanded={isUserMenuOpen}
                 aria-haspopup="true"
               >
-                <div className="main-layout__avatar">U</div>
+                <div className="main-layout__avatar">{initials}</div>
 
                 <div className="main-layout__user-info">
-                  <strong>Usuario</strong>
-                  <span>Administrador</span>
+                  <strong>{fullName}</strong>
+                  {role && <span>{role}</span>}
                 </div>
 
                 <ChevronDown

@@ -1,4 +1,6 @@
 import { useState, type FormEvent } from "react";
+import { useNavigate } from "react-router-dom";
+import { login } from "../services/authService";
 import "../styles/login-form.scss";
 
 function LoginForm() {
@@ -6,8 +8,10 @@ function LoginForm() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const navigate = useNavigate();
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError("");
 
@@ -16,21 +20,30 @@ function LoginForm() {
       return;
     }
 
-    setError("La autenticación todavía no está conectada.");
+    setIsSubmitting(true);
+    try {
+      await login({ email: email.trim(), password });
+      navigate("/inicio", { replace: true });
+    } catch (submitError) {
+      setError(submitError instanceof Error ? submitError.message : "No se pudo iniciar sesión.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
     <form className="login-form" onSubmit={handleSubmit}>
       <div className="login-form__field">
-        <label htmlFor="username">Email</label>
+        <label htmlFor="email">Email</label>
 
         <input
           id="email"
-          type="text"
+          type="email"
           placeholder="Ingresá tu email"
           value={email}
           onChange={(event) => setEmail(event.target.value)}
           autoComplete="email"
+          required
         />
       </div>
 
@@ -65,8 +78,8 @@ function LoginForm() {
         </p>
       )}
 
-      <button className="login-form__submit" type="submit">
-        Iniciar sesión
+      <button className="login-form__submit" type="submit" disabled={isSubmitting}>
+        {isSubmitting ? "Ingresando..." : "Iniciar sesión"}
         <span aria-hidden="true">→</span>
       </button>
     </form>
