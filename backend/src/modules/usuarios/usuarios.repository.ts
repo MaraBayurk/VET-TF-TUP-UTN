@@ -69,6 +69,14 @@ export class UsuariosRepository implements IUsuariosRepository {
         return rows as any[];
     }
 
+    private async validarEspecialidadActiva(connection: any, idEspecialidad: number): Promise<void> {
+        const [rows]: any = await connection.query(
+            'SELECT id_especialidad FROM Especialidad WHERE id_especialidad = ? AND activo = 1 LIMIT 1',
+            [idEspecialidad]
+        );
+        if (!rows.length) throw new Error('SPECIALTY_NOT_FOUND');
+    }
+
     async actualizar(id: string, usuario: ActualizarUsuarioDTO): Promise<boolean> {
         const connection = await pool.getConnection();
         try {
@@ -81,13 +89,16 @@ export class UsuariosRepository implements IUsuariosRepository {
             if (!nuevoRol || !['administrador', 'veterinario'].includes(nuevoRol)) throw new Error('ROLE_NOT_SUPPORTED');
             const rolAnterior = String(actualRows[0].rol).toLowerCase();
             if (rolAnterior !== nuevoRol) throw new Error('ROLE_CHANGE_NOT_SUPPORTED');
+            if (nuevoRol === 'veterinario') {
+                if (!usuario.matricula || !usuario.id_especialidad) throw new Error('MISSING_VET_DATA');
+                await this.validarEspecialidadActiva(connection, usuario.id_especialidad);
+            }
 
             await connection.query(`UPDATE Usuario SET nombre = ?, apellido = ?, numero_documento = ?, email = ?, telefono = ?, id_rol = ?${usuario.password_hash ? ', password_hash = ?' : ''} WHERE id_usuario = ?`,
                 usuario.password_hash
                     ? [usuario.nombre, usuario.apellido, usuario.numero_documento, usuario.email, usuario.telefono || null, usuario.id_rol, usuario.password_hash, id]
                     : [usuario.nombre, usuario.apellido, usuario.numero_documento, usuario.email, usuario.telefono || null, usuario.id_rol, id]);
             if (nuevoRol === 'veterinario') {
-                if (!usuario.matricula || !usuario.id_especialidad) throw new Error('MISSING_VET_DATA');
                 await connection.query('UPDATE Veterinario SET matricula = ?, id_especialidad = ? WHERE id_usuario = ?', [usuario.matricula, usuario.id_especialidad, id]);
             }
             await connection.commit();
@@ -113,6 +124,7 @@ export class UsuariosRepository implements IUsuariosRepository {
         if (!matricula || !idEspecialidad) {
             throw new Error('MISSING_VET_DATA');
         }
+        await this.validarEspecialidadActiva(connection, idEspecialidad);
         await connection.query(`
             INSERT INTO Veterinario (id_usuario, matricula, id_especialidad) VALUES (?, ?, ?)
         `, [idUsuario, matricula, idEspecialidad]);

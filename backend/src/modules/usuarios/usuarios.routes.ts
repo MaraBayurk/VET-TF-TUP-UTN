@@ -114,7 +114,7 @@ router.get('/:id', verificarRolPorNombre(['Administrador']), obtenerUsuarioPorId
  * /api/usuarios:
  *   post:
  *     summary: Crear un usuario
- *     description: Permite al administrador crear usuarios clientes, veterinarios o administradores.
+ *     description: Permite al Administrador crear cuentas de Administrador o Veterinario. Las cuentas de Cliente se crean mediante /api/clientes o el registro público.
  *     tags: [Usuarios]
  *     security:
  *       - bearerAuth: []
@@ -155,17 +155,13 @@ router.get('/:id', verificarRolPorNombre(['Administrador']), obtenerUsuarioPorId
  *               id_rol:
  *                 type: integer
  *                 description: Identificador del rol registrado en la tabla Rol.
- *               direccion:
- *                 type: string
- *                 description: Dato adicional requerido para clientes
- *                 example: San Miguel de Tucumán
  *               matricula:
  *                 type: string
  *                 description: Dato requerido para veterinarios
  *                 example: VET-001
  *               id_especialidad:
  *                 type: integer
- *                 description: Especialidad del veterinario
+ *                 description: ID de una especialidad activa; obligatorio para el rol Veterinario.
  *                 example: 1
  *     responses:
  *       201:
@@ -175,7 +171,7 @@ router.get('/:id', verificarRolPorNombre(['Administrador']), obtenerUsuarioPorId
  *             schema:
  *               $ref: '#/components/schemas/ApiEnvelope'
  *       400:
- *         description: Faltan datos obligatorios, faltan datos del veterinario o el rol no existe o no está soportado
+ *         description: Datos incompletos, rol no admitido, datos veterinarios faltantes o especialidad inexistente/inactiva
  *         content:
  *           application/json:
  *             schema:

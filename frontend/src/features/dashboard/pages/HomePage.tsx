@@ -110,14 +110,14 @@ function HomePage() {
     </div>
     {error && <div className="dashboard__error" role="alert">{error}</div>}
     <div className="dashboard__stats">
-      <article className="dashboard__stat"><span className="dashboard__stat-icon dashboard__stat-icon--purple"><CalendarDays size={21} /></span><div><span>Turnos disponibles hoy</span><strong>{loading ? "—" : availableToday.length}</strong></div></article>
+      <article className="dashboard__stat"><span className="dashboard__stat-icon dashboard__stat-icon--purple"><CalendarDays size={21} /></span><div><span>Turnos de hoy</span><strong>{loading ? "—" : availableToday.length}</strong></div></article>
       <article className="dashboard__stat"><span className="dashboard__stat-icon dashboard__stat-icon--orange"><Clock3 size={21} /></span><div><span>Pendientes</span><strong>{loading ? "—" : availableToday.filter(turn => turn.estado.toLocaleLowerCase("es") === "pendiente").length}</strong></div></article>
       <article className="dashboard__stat"><span className="dashboard__stat-icon dashboard__stat-icon--green"><PawPrint size={21} /></span><div><span>Mascotas activas</span><strong>{loading ? "—" : activePets.length}</strong></div></article>
       <article className="dashboard__stat"><span className="dashboard__stat-icon dashboard__stat-icon--blue"><Users size={21} /></span><div><span>Clientes activos</span><strong>{loading ? "—" : activeClients}</strong></div></article>
     </div>
     <section className="dashboard__panel">
-      <div className="dashboard__panel-heading"><div><span className="dashboard__eyebrow">{formatLongDate()}</span><h2>Turnos disponibles hoy</h2><p>Se muestran turnos pendientes y confirmados; la gestión de reservas estará disponible más adelante.</p></div><span className="dashboard__count">{loading ? "…" : availableToday.length}</span></div>
-      {loading ? <p className="dashboard__empty" role="status">Cargando agenda…</p> : availableToday.length ? <AppointmentsTable appointments={availableToday} /> : <p className="dashboard__empty">No hay turnos disponibles para hoy.</p>}
+      <div className="dashboard__panel-heading"><div><span className="dashboard__eyebrow">{formatLongDate()}</span><h2>Turnos de hoy</h2><p>Turnos registrados en estado pendiente o aprobado.</p></div><span className="dashboard__count">{loading ? "…" : availableToday.length}</span></div>
+      {loading ? <p className="dashboard__empty" role="status">Cargando agenda…</p> : availableToday.length ? <AppointmentsTable appointments={availableToday} /> : <p className="dashboard__empty">No hay turnos registrados para hoy.</p>}
     </section>
   </section>;
 }

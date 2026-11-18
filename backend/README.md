@@ -175,7 +175,7 @@ Todas las rutas requieren un JWT válido y el rol **Administrador** o **Veterina
 | Método | Ruta | Operación |
 |---|---|---|
 | `GET` | `/api/clientes` | Lista clientes activos e inactivos con cantidad de mascotas activas y turnos. |
-| `GET` | `/api/clientes/:id` | Devuelve datos de contacto, mascotas y los últimos turnos del cliente. |
+| `GET` | `/api/clientes/:id` | Devuelve datos de contacto, mascotas y el historial completo de turnos del cliente. |
 | `POST` | `/api/clientes` | Crea la cuenta de usuario y su perfil Cliente en una transacción. Requiere nombre, apellido, documento, email y contraseña; teléfono y dirección son opcionales. |
 | `PUT` | `/api/clientes/:id` | Actualiza los datos de contacto y, opcionalmente, la contraseña. |
 | `DELETE` | `/api/clientes/:id` | Da de baja lógicamente la cuenta, conservando sus datos relacionados. |

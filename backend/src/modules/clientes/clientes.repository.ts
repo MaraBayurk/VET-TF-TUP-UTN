@@ -52,7 +52,7 @@ export class ClientesRepository {
       INNER JOIN EstadoTurno e ON e.id_estado_turno = t.id_estado_turno
       INNER JOIN Veterinario v ON v.id_veterinario = t.id_veterinario
       INNER JOIN Usuario uv ON uv.id_usuario = v.id_usuario
-      WHERE m.id_cliente = ? ORDER BY t.fecha_hora DESC LIMIT 10`, [id]);
+      WHERE m.id_cliente = ? ORDER BY t.fecha_hora DESC`, [id]);
     return { ...clientes[0], mascotas, turnos };
   }
 
