@@ -14,7 +14,10 @@ import { RegistroClienteDTO } from './auth.dto';
 // Busca un usuario activo por email
 const obtenerUsuarioPorEmail = async (email: string): Promise<any> => {
     const [rows]: any = await pool.query(
-        'SELECT * FROM Usuario WHERE email = ? AND activo = 1',
+        `SELECT u.*, r.nombre AS rol
+         FROM Usuario u
+         INNER JOIN Rol r ON r.id_rol = u.id_rol
+         WHERE u.email = ? AND u.activo = 1`,
         [email]
     );
 
@@ -201,7 +204,8 @@ export const login = async (req: Request, res: Response): Promise<void> => {
                     nombre: user.nombre,
                     apellido: user.apellido,
                     email: user.email,
-                    id_rol: user.id_rol
+                    id_rol: user.id_rol,
+                    rol: user.rol
                 },
                 token
             }
