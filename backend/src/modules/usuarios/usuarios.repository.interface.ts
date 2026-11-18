@@ -1,4 +1,4 @@
-import { CrearUsuarioDTO, ActualizarPerfilDTO } from './usuarios.dto';
+import { CrearUsuarioDTO, ActualizarPerfilDTO, ActualizarUsuarioDTO } from './usuarios.dto';
 
 export interface IUsuariosRepository {
     obtenerTodos(): Promise<any[]>;
@@ -9,9 +9,14 @@ export interface IUsuariosRepository {
 
     crear(usuario: CrearUsuarioDTO): Promise<number>;
 
+    actualizar(id: string, usuario: ActualizarUsuarioDTO): Promise<boolean>;
+
+    obtenerRoles(): Promise<any[]>;
+
+    obtenerEspecialidades(): Promise<any[]>;
+
     actualizarPerfil(
         idUsuario: number,
-        idRol: number,
         datos: ActualizarPerfilDTO
     ): Promise<void>;
 }

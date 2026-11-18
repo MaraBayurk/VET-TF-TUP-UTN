@@ -32,12 +32,28 @@ router.use(verificarRolPorNombre(['Administrador']));
  *     responses:
  *       200:
  *         description: Listado de especialidades obtenido correctamente.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  *       401:
  *         description: Token de autenticación faltante o inválido.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  *       403:
  *         description: El usuario no tiene permisos de administrador.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  *       500:
  *         description: Error interno del servidor.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  */
 router.get('/', obtenerEspecialidades);
 
@@ -58,14 +74,34 @@ router.get('/', obtenerEspecialidades);
  *     responses:
  *       200:
  *         description: Especialidad encontrada.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  *       401:
  *         description: Token de autenticación faltante o inválido.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  *       403:
  *         description: El usuario no tiene permisos de administrador.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  *       404:
  *         description: Especialidad no encontrada o inactiva.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  *       500:
  *         description: Error interno del servidor.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  */
 router.get('/:id', obtenerEspecialidadPorId);
 
@@ -94,16 +130,40 @@ router.get('/:id', obtenerEspecialidadPorId);
  *     responses:
  *       201:
  *         description: Especialidad creada exitosamente.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  *       400:
  *         description: El nombre de la especialidad es obligatorio.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  *       401:
  *         description: Token de autenticación faltante o inválido.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  *       403:
  *         description: El usuario no tiene permisos de administrador.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  *       409:
  *         description: Ya existe una especialidad con ese nombre.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  *       500:
  *         description: Error interno del servidor.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  */
 router.post('/', crearEspecialidad);
 
@@ -137,16 +197,40 @@ router.post('/', crearEspecialidad);
  *     responses:
  *       200:
  *         description: Especialidad actualizada exitosamente.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  *       401:
  *         description: Token de autenticación faltante o inválido.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  *       403:
  *         description: El usuario no tiene permisos de administrador.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  *       404:
  *         description: Especialidad no encontrada, inactiva o sin cambios.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  *       409:
  *         description: El nuevo nombre ya está en uso por otra especialidad.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  *       500:
  *         description: Error interno del servidor.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  */
 router.put('/:id', actualizarEspecialidad);
 
@@ -167,14 +251,34 @@ router.put('/:id', actualizarEspecialidad);
  *     responses:
  *       200:
  *         description: Especialidad dada de baja exitosamente.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  *       401:
  *         description: Token de autenticación faltante o inválido.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  *       403:
  *         description: El usuario no tiene permisos de administrador.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  *       404:
  *         description: Especialidad no encontrada o ya inactiva.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  *       500:
  *         description: Error interno del servidor.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  */
 router.delete('/:id', eliminarEspecialidad);
 

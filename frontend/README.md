@@ -23,6 +23,7 @@ frontend/
 │   ├── assets/
 │   ├── components/
 │   │   ├── commons/
+│   │   ├── auth/
 │   │   ├── layouts/
 │   │   └── Navbar/
 │   ├── core/
@@ -31,6 +32,7 @@ frontend/
 │   │   ├── agenda/
 │   │   ├── auth/
 │   │   ├── catalogs/
+│   │   ├── clients/
 │   │   ├── clinical/
 │   │   ├── dashboard/
 │   │   ├── landing/
@@ -60,8 +62,9 @@ La carpeta `features/` agrupa las funcionalidades principales del sistema:
 | `landing/` | Página de inicio y presentación de los servicios de la veterinaria. |
 | `auth/` | Inicio de sesión, registro y funcionalidades relacionadas con la autenticación. |
 | `dashboard/` | Pantalla principal del sistema. |
+| `clients/` | Listado, detalle, alta, edición y baja lógica de clientes; muestra mascotas y turnos relacionados. Disponible para Administradores y Veterinarios. |
 | `pets/` | Registro, consulta y actualización de los perfiles de las mascotas. |
-| `users/` | Gestión de usuarios, perfiles y datos personales. |
+| `users/` | Gestión de cuentas de Administrador y Veterinario. Solo Administradores acceden a este módulo. |
 | `agenda/` | Funcionalidades relacionadas con turnos y horarios. |
 | `catalogs/` | Estructura prevista para catálogos del sistema. |
 | `clinical/` | Estructura prevista para funcionalidades clínicas. |
@@ -75,6 +78,8 @@ La carpeta `components/` contiene los componentes visuales compartidos que puede
 ### Routes
 
 La carpeta `routes/` centraliza la configuración de navegación entre las diferentes páginas de la aplicación mediante React Router.
+
+El módulo Clientes utiliza `/clientes`, `/clientes/nuevo`, `/clientes/:id` y `/clientes/:id/editar`. El módulo Usuarios utiliza `/usuarios` y sus rutas de alta, detalle y edición. Las rutas se protegen por rol además del control que realiza el backend.
 
 ### Styles
 
@@ -104,8 +109,8 @@ Punto de entrada de la aplicación, responsable de iniciar el frontend y montar 
 
 La interfaz contempla tres perfiles de usuario:
 
-- **Administrador:** acceso a las herramientas de gestión del sistema.
-- **Veterinario:** acceso a las funcionalidades relacionadas con la atención veterinaria.
+- **Administrador:** acceso a las herramientas de gestión del sistema, incluyendo Usuarios y Clientes.
+- **Veterinario:** acceso a las funcionalidades clínicas y a la gestión de Clientes.
 - **Cliente:** acceso a sus mascotas y a los servicios de la veterinaria.
 
 La visualización y el acceso a las funcionalidades deben respetar los permisos definidos para cada rol, con las validaciones correspondientes en el backend.

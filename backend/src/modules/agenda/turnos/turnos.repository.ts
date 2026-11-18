@@ -33,8 +33,14 @@ export interface TurnoGestion extends RowDataPacket {
   id_mascota: number;
   id_cliente: number;
   id_veterinario: number;
+  id_estado_turno: number;
   fecha_hora: string;
   estado: string;
+}
+
+export interface EstadoTurnoCatalogo extends RowDataPacket {
+  id_estado_turno: number;
+  nombre: string;
 }
 
 class TurnosRepository {
@@ -102,6 +108,14 @@ class TurnosRepository {
     );
 
     return rows.length ? Number(rows[0].id_estado_turno) : null;
+  }
+
+  async listarEstadosTurno(): Promise<EstadoTurnoCatalogo[]> {
+    const [rows] = await pool.query<EstadoTurnoCatalogo[]>(
+      `SELECT id_estado_turno, nombre FROM EstadoTurno`,
+    );
+
+    return rows;
   }
 
   async obtenerHorariosActivos(
@@ -242,6 +256,10 @@ class TurnosRepository {
     idCliente: number,
     fechaActual: string,
   ): Promise<RowDataPacket[]> {
+    const idsEstados = await this.obtenerIdsEstadosOcupantes();
+    if (idsEstados.length === 0) return [];
+
+    const placeholders = idsEstados.map(() => "?").join(", ");
     const [rows] = await pool.query<RowDataPacket[]>(
       `SELECT
         t.id_turno,
@@ -261,9 +279,9 @@ class TurnosRepository {
        INNER JOIN EstadoTurno e ON e.id_estado_turno = t.id_estado_turno
        WHERE m.id_cliente = ?
          AND t.fecha_hora >= ?
-         AND UPPER(e.nombre) IN ('PENDIENTE', 'APROBADO')
+         AND t.id_estado_turno IN (${placeholders})
        ORDER BY t.fecha_hora ASC`,
-      [idCliente, fechaActual],
+      [idCliente, fechaActual, ...idsEstados],
     );
 
     return rows;
@@ -336,6 +354,7 @@ class TurnosRepository {
         t.id_mascota,
         m.id_cliente,
         t.id_veterinario,
+        t.id_estado_turno,
         DATE_FORMAT(t.fecha_hora, '%Y-%m-%d %H:%i:%s') AS fecha_hora,
         e.nombre AS estado
        FROM Turno t
@@ -410,12 +429,26 @@ class TurnosRepository {
         return null;
       }
 
+      const [estadosActivos] = await connection.query<RowDataPacket[]>(
+        `SELECT id_estado_turno
+         FROM EstadoTurno
+         WHERE UPPER(nombre) IN (?, ?)`,
+        ["PENDIENTE", "APROBADO"],
+      );
+      const idsEstadosActivos = estadosActivos.map((row) =>
+        Number(row.id_estado_turno),
+      );
+
+      if (idsEstadosActivos.length === 0) {
+        await connection.rollback();
+        return null;
+      }
+
       // Busca turnos que se superpongan con el intervalo solicitado.
+      const placeholdersEstados = idsEstadosActivos.map(() => "?").join(", ");
       const [turnos] = await connection.query<RowDataPacket[]>(
         `SELECT t.id_turno
          FROM Turno t
-         INNER JOIN EstadoTurno e
-           ON e.id_estado_turno = t.id_estado_turno
          LEFT JOIN HorarioAtencion h
            ON h.id_veterinario = t.id_veterinario
            AND h.dia_semana = WEEKDAY(t.fecha_hora) + 1
@@ -423,7 +456,7 @@ class TurnosRepository {
            AND TIME(t.fecha_hora) < h.hora_fin
            AND h.activo = 1
          WHERE t.id_veterinario = ?
-           AND UPPER(e.nombre) IN (?, ?)
+           AND t.id_estado_turno IN (${placeholdersEstados})
            AND t.fecha_hora < ?
            AND DATE_ADD(
              t.fecha_hora,
@@ -433,8 +466,7 @@ class TurnosRepository {
          FOR UPDATE`,
         [
           datos.idVeterinario,
-          "PENDIENTE",
-          "APROBADO",
+          ...idsEstadosActivos,
           datos.fechaHasta,
           datos.fechaDesde,
         ],

@@ -1,304 +1,70 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import type { ChangeEvent, FormEvent } from "react";
 import { PawPrint, Plus } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
-
-import type { ChangeEvent, FormEvent } from "react";
-
+import { createUser, getUser, getUserCatalogs, updateUser, type UserCatalogs, type UserPayload, type UserRecord } from "../services";
 import "../styles/CreateUserPage.scss";
 
-type UserRole = "Administrador" | "Veterinario" | "Cliente";
-
-interface CreateUserForm {
-  nombre: string;
-  apellido: string;
-  documento: string;
-  telefono: string;
-  email: string;
-  password: string;
-  rol: UserRole | "";
-  direccion: string;
-  matricula: string;
-  especialidad: string;
-}
-
-const initialForm: CreateUserForm = {
-  nombre: "",
-  apellido: "",
-  documento: "",
-  telefono: "",
-  email: "",
-  password: "",
-  rol: "",
-  direccion: "",
-  matricula: "",
-  especialidad: "",
-};
-
-const specialties = [
-  "Clínica médica",
-  "Cirugía",
-  "Cardiología",
-  "Dermatología",
-  "Diagnóstico por imagen",
-];
-
-function CreateUserPage() {
-  const navigate = useNavigate();
+const emptyForm = { nombre: "", apellido: "", numero_documento: "", telefono: "", email: "", password: "", id_rol: "", direccion: "", matricula: "", id_especialidad: "" };
+type FormState = typeof emptyForm;
+function CreateEditUserPage() {
   const { id } = useParams();
-
-  const isEditing = Boolean(id);
-
-  const existingUsers: Record<number, CreateUserForm> = {
-    1: {
-      nombre: "María",
-      apellido: "González",
-      documento: "12345678",
-      telefono: "3812345678",
-      email: "maria.gonzalez@email.com",
-      password: "",
-      rol: "Cliente",
-      direccion: "San Miguel de Tucumán",
-      matricula: "",
-      especialidad: "",
-    },
-    2: {
-      nombre: "Pedro",
-      apellido: "Ramírez",
-      documento: "23456789",
-      telefono: "3812345678",
-      email: "pedro.ramirez@email.com",
-      password: "",
-      rol: "Veterinario",
-      direccion: "",
-      matricula: "MP 4587",
-      especialidad: "Clínica médica",
-    },
+  const editing = Boolean(id);
+  const navigate = useNavigate();
+  const [form, setForm] = useState<FormState>(emptyForm);
+  const [catalogs, setCatalogs] = useState<UserCatalogs>({ roles: [], especialidades: [] });
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+  useEffect(() => {
+    let active = true;
+    Promise.all([getUserCatalogs(), editing ? getUser(id!) : Promise.resolve(null as UserRecord | null)])
+      .then(([available, user]) => {
+        if (!active) return;
+        setCatalogs(available);
+        if (user) setForm({
+          nombre: user.nombre, apellido: user.apellido, numero_documento: user.numero_documento,
+          telefono: user.telefono || "", email: user.email, password: "", id_rol: String(user.id_rol),
+          direccion: user.direccion || "", matricula: user.matricula || "", id_especialidad: user.id_especialidad ? String(user.id_especialidad) : "",
+        });
+      }).catch(e => { if (active) setError(e instanceof Error ? e.message : "No se pudo cargar el formulario"); })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+  }, [editing, id]);
+  const handleChange = (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setForm(previous => ({ ...previous, [event.target.name]: event.target.value }));
+  const isVet = catalogs.roles.find(role => String(role.id_rol) === form.id_rol)?.nombre.toLocaleLowerCase("es") === "veterinario";
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault(); setError(""); setSaving(true);
+    const payload: UserPayload = {
+      nombre: form.nombre.trim(), apellido: form.apellido.trim(), numero_documento: form.numero_documento.trim(),
+      email: form.email.trim(), telefono: form.telefono.trim() || undefined, id_rol: Number(form.id_rol),
+      ...(form.password ? { password: form.password } : {}),
+      ...(isVet ? { matricula: form.matricula.trim(), id_especialidad: Number(form.id_especialidad) } : {}),
+    };
+    try {
+      if (editing) await updateUser(id!, payload); else await createUser(payload);
+      navigate("/usuarios", { replace: true });
+    } catch (e) { setError(e instanceof Error ? e.message : "No se pudo guardar el usuario"); }
+    finally { setSaving(false); }
   };
-
-  const [form, setForm] = useState<CreateUserForm>(() =>
-    id ? (existingUsers[Number(id)] ?? initialForm) : initialForm,
-  );
-  const handleChange = (
-    event: ChangeEvent<HTMLInputElement | HTMLSelectElement>,
-  ) => {
-    const { name, value } = event.target;
-
-    setForm((previous) => ({
-      ...previous,
-      [name]: value,
-    }));
-  };
-
-  const handleRoleChange = (event: ChangeEvent<HTMLSelectElement>) => {
-    const role = event.target.value as UserRole | "";
-
-    setForm((previous) => ({
-      ...previous,
-      rol: role,
-      direccion: role === "Cliente" ? previous.direccion : "",
-      matricula: role === "Veterinario" ? previous.matricula : "",
-      especialidad: role === "Veterinario" ? previous.especialidad : "",
-    }));
-  };
-
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    if (isEditing) {
-      alert("Formulario validado. La edición se conectará al backend.");
-    } else {
-      alert("Formulario validado. El alta se conectará al backend.");
-    }
-
-    navigate("/usuarios");
-  };
-
-  return (
-    <section className="create-user">
-      <header className="create-user__heading">
-        <div>
-          <h1>{isEditing ? "Editar usuario" : "Crear nuevo usuario"}</h1>{" "}
-          <p>
-            {isEditing
-              ? "Modificá los datos personales y la información del perfil."
-              : "Modificá los datos de acceso y completá la información del perfil."}
-          </p>
-        </div>
-
-        <div className="create-user__heading-icons">
-          <PawPrint size={22} />
-          <Plus size={22} />
-        </div>
-      </header>
-
-      <form className="create-user__form" onSubmit={handleSubmit}>
-        <div className="create-user__form-heading">
-          <h2>Datos personales</h2>
-          <p>Completá los campos obligatorios para registrar la cuenta.</p>
-        </div>
-
-        <div className="create-user__grid">
-          <div className="create-user__field">
-            <label htmlFor="nombre">Nombre *</label>
-            <input
-              id="nombre"
-              name="nombre"
-              value={form.nombre}
-              onChange={handleChange}
-              placeholder="Ej. María"
-              required
-            />
-          </div>
-
-          <div className="create-user__field">
-            <label htmlFor="apellido">Apellido *</label>
-            <input
-              id="apellido"
-              name="apellido"
-              value={form.apellido}
-              onChange={handleChange}
-              placeholder="Ej. González"
-              required
-            />
-          </div>
-
-          <div className="create-user__field">
-            <label htmlFor="documento">Documento *</label>
-            <input
-              id="documento"
-              name="documento"
-              value={form.documento}
-              onChange={handleChange}
-              placeholder="Ej. 12345678"
-              inputMode="numeric"
-              required
-            />
-          </div>
-
-          <div className="create-user__field">
-            <label htmlFor="telefono">Teléfono</label>
-            <input
-              id="telefono"
-              name="telefono"
-              value={form.telefono}
-              onChange={handleChange}
-              placeholder="Ej. 381 123 4567"
-              type="tel"
-            />
-          </div>
-
-          <div className="create-user__field">
-            <label htmlFor="email">Email *</label>
-            <input
-              id="email"
-              name="email"
-              type="email"
-              value={form.email}
-              onChange={handleChange}
-              placeholder="Ej. usuario@email.com"
-              required
-            />
-          </div>
-
-          <div className="create-user__field">
-            <label htmlFor="password">Contraseña *</label>
-            <input
-              id="password"
-              name="password"
-              type="password"
-              value={form.password}
-              onChange={handleChange}
-              placeholder={
-                isEditing
-                  ? "Dejar vacío para mantener la contraseña actual"
-                  : "Ingresá una contraseña"
-              }
-              minLength={8}
-              required={!isEditing}
-            />
-          </div>
-
-          <div className="create-user__field create-user__field--full">
-            <label htmlFor="rol">Rol *</label>
-            <select
-              id="rol"
-              name="rol"
-              value={form.rol}
-              onChange={handleRoleChange}
-              required
-            >
-              <option value="">Seleccioná un rol</option>
-              <option value="Administrador">Administrador</option>
-              <option value="Veterinario">Veterinario</option>
-              <option value="Cliente">Cliente</option>
-            </select>
-          </div>
-
-          {form.rol === "Cliente" && (
-            <div className="create-user__field create-user__field--full">
-              <label htmlFor="direccion">Dirección</label>
-              <input
-                id="direccion"
-                name="direccion"
-                value={form.direccion}
-                onChange={handleChange}
-                placeholder="Ingresá la dirección"
-              />
-            </div>
-          )}
-
-          {form.rol === "Veterinario" && (
-            <>
-              <div className="create-user__field">
-                <label htmlFor="matricula">Matrícula profesional *</label>
-                <input
-                  id="matricula"
-                  name="matricula"
-                  value={form.matricula}
-                  onChange={handleChange}
-                  placeholder="Ej. MP 4587"
-                  required
-                />
-              </div>
-
-              <div className="create-user__field">
-                <label htmlFor="especialidad">Especialidad *</label>
-                <select
-                  id="especialidad"
-                  name="especialidad"
-                  value={form.especialidad}
-                  onChange={handleChange}
-                  required
-                >
-                  <option value="">Seleccioná una especialidad</option>
-
-                  {specialties.map((specialty) => (
-                    <option key={specialty} value={specialty}>
-                      {specialty}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </>
-          )}
-        </div>
-
-        <div className="create-user__actions">
-          <button
-            type="button"
-            className="create-user__cancel"
-            onClick={() => navigate("/usuarios")}
-          >
-            Cancelar
-          </button>
-
-          <button type="submit" className="create-user__submit">
-            {isEditing ? "Guardar cambios" : "Crear usuario"} <span>→</span>
-          </button>
-        </div>
-      </form>
-    </section>
-  );
+  if (loading) return <p role="status">Cargando formulario…</p>;
+  return <section className="create-user">
+    <header className="create-user__heading"><div><h1>{editing ? "Editar usuario" : "Crear nuevo usuario"}</h1><p>{editing ? "Actualizá los datos de la cuenta." : "Registrá un administrador o veterinario."}</p></div><div className="create-user__heading-icons"><PawPrint size={22} /><Plus size={22} /></div></header>
+    {error && <div role="alert" className="create-user__error">{error}</div>}
+    <form className="create-user__form" onSubmit={handleSubmit}>
+      <div className="create-user__form-heading"><h2>Datos personales</h2><p>Completá los campos obligatorios.</p></div>
+      <div className="create-user__grid">
+        <div className="create-user__field"><label htmlFor="nombre">Nombre *</label><input id="nombre" name="nombre" value={form.nombre} onChange={handleChange} required maxLength={100} /></div>
+        <div className="create-user__field"><label htmlFor="apellido">Apellido *</label><input id="apellido" name="apellido" value={form.apellido} onChange={handleChange} required maxLength={100} /></div>
+        <div className="create-user__field"><label htmlFor="numero_documento">Documento *</label><input id="numero_documento" name="numero_documento" value={form.numero_documento} onChange={handleChange} inputMode="numeric" required maxLength={20} /></div>
+        <div className="create-user__field"><label htmlFor="telefono">Teléfono</label><input id="telefono" name="telefono" type="tel" value={form.telefono} onChange={handleChange} maxLength={30} /></div>
+        <div className="create-user__field"><label htmlFor="email">Email *</label><input id="email" name="email" type="email" value={form.email} onChange={handleChange} required maxLength={150} /></div>
+        <div className="create-user__field"><label htmlFor="password">{editing ? "Nueva contraseña" : "Contraseña *"}</label><input id="password" name="password" type="password" value={form.password} onChange={handleChange} minLength={8} required={!editing} autoComplete="new-password" placeholder={editing ? "Dejar vacío para mantener la actual" : "Mínimo 8 caracteres"} /></div>
+        <div className="create-user__field create-user__field--full"><label htmlFor="id_rol">Rol *</label><select id="id_rol" name="id_rol" value={form.id_rol} onChange={handleChange} required disabled={editing}><option value="">Seleccioná un rol</option>{catalogs.roles.map(role => <option key={role.id_rol} value={role.id_rol}>{role.nombre}</option>)}</select>{editing && <small>El rol de una cuenta existente no se puede cambiar.</small>}</div>
+        {isVet && <><div className="create-user__field"><label htmlFor="matricula">Matrícula profesional *</label><input id="matricula" name="matricula" value={form.matricula} onChange={handleChange} required maxLength={50} /></div><div className="create-user__field"><label htmlFor="id_especialidad">Especialidad *</label><select id="id_especialidad" name="id_especialidad" value={form.id_especialidad} onChange={handleChange} required><option value="">Seleccioná una especialidad</option>{catalogs.especialidades.map(specialty => <option key={specialty.id_especialidad} value={specialty.id_especialidad}>{specialty.nombre}</option>)}</select></div></>}
+      </div>
+      <div className="create-user__actions"><button type="button" className="create-user__cancel" onClick={() => navigate("/usuarios")}>Cancelar</button><button type="submit" className="create-user__submit" disabled={saving || !form.id_rol}>{saving ? "Guardando…" : editing ? "Guardar cambios" : "Crear usuario"} <span>→</span></button></div>
+    </form>
+  </section>;
 }
-
-export default CreateUserPage;
+export default CreateEditUserPage;

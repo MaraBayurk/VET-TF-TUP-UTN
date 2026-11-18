@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import type { ChangeEvent, FormEvent } from "react";
+import type { ChangeEvent } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   ArrowLeft,
@@ -339,17 +339,6 @@ function CreateEditPetPage() {
     if (step !== 3 || !selectedClient) {
       return;
     }
-
-    const petData = {
-      ...formData,
-      id_cliente: selectedClient.id_cliente,
-      cliente: {
-        id_usuario: selectedClient.id_usuario,
-        nombre: selectedClient.nombre,
-        apellido: selectedClient.apellido,
-        numero_documento: selectedClient.numero_documento,
-      },
-    };
 
     window.alert(
       isEditing

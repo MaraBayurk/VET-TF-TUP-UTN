@@ -715,9 +715,15 @@ export const cancelarMiTurno = async (
       return;
     }
 
-    const estadoActual = String(turno.estado).toUpperCase();
+    const estados = await turnosRepository.listarEstadosTurno();
+    const idsPorNombre = new Map(
+      estados.map((estado) => [estado.nombre.toUpperCase(), Number(estado.id_estado_turno)]),
+    );
+    const idEstadosCancelables = ["PENDIENTE", "APROBADO"]
+      .map((nombre) => idsPorNombre.get(nombre))
+      .filter((id): id is number => id !== undefined);
 
-    if (!["PENDIENTE", "APROBADO"].includes(estadoActual)) {
+    if (!idEstadosCancelables.includes(Number(turno.id_estado_turno))) {
       res.status(409).json({
         status: "error",
         message: "Solo se pueden cancelar turnos pendientes o aprobados.",
@@ -735,10 +741,9 @@ export const cancelarMiTurno = async (
       return;
     }
 
-    const idCancelado =
-      await turnosRepository.obtenerEstadoPorNombre("CANCELADO");
+    const idCancelado = idsPorNombre.get("CANCELADO");
 
-    if (!idCancelado) {
+    if (idCancelado === undefined) {
       res.status(500).json({
         status: "error",
         message: "No se encontró el estado CANCELADO en el catálogo.",
@@ -753,7 +758,7 @@ export const cancelarMiTurno = async (
       message: "Turno cancelado exitosamente.",
       data: {
         id_turno: idTurno,
-        estado: "CANCELADO",
+        estado: estados.find((estado) => Number(estado.id_estado_turno) === idCancelado)?.nombre,
       },
     });
   } catch (error) {
@@ -776,7 +781,7 @@ export const actualizarEstadoTurno = async (
 ): Promise<void> => {
   try {
     const idTurno = Number(req.params.id);
-    const { estado } = req.body;
+    const idEstadoSolicitado = Number(req.body.id_estado_turno);
 
     if (!Number.isInteger(idTurno) || idTurno <= 0) {
       res.status(400).json({
@@ -786,21 +791,37 @@ export const actualizarEstadoTurno = async (
       return;
     }
 
-    if (typeof estado !== "string" || !estado.trim()) {
+    if (!Number.isInteger(idEstadoSolicitado) || idEstadoSolicitado <= 0) {
       res.status(400).json({
         status: "error",
-        message: "Debe indicar el nuevo estado del turno.",
+        message: "Debe indicar un id_estado_turno válido del catálogo.",
       });
       return;
     }
 
-    const nuevoEstado = estado.trim().toUpperCase();
-    const estadosPermitidos = ["APROBADO", "CANCELADO", "COMPLETADO"];
+    const estados = await turnosRepository.listarEstadosTurno();
+    const idsPorNombre = new Map(
+      estados.map((estado) => [estado.nombre.toUpperCase(), Number(estado.id_estado_turno)]),
+    );
+    const nombresPorId = new Map(
+      estados.map((estado) => [Number(estado.id_estado_turno), estado.nombre.toUpperCase()]),
+    );
+    const idsEstadosDestino = ["APROBADO", "CANCELADO", "COMPLETADO"]
+      .map((nombre) => idsPorNombre.get(nombre));
 
-    if (!estadosPermitidos.includes(nuevoEstado)) {
+    if (idsEstadosDestino.some((id) => id === undefined)) {
+      res.status(500).json({
+        status: "error",
+        message: "Faltan estados requeridos en el catálogo.",
+      });
+      return;
+    }
+
+    const nombreDestino = nombresPorId.get(idEstadoSolicitado);
+    if (!nombreDestino || !idsEstadosDestino.includes(idEstadoSolicitado)) {
       res.status(400).json({
         status: "error",
-        message: "El estado indicado no es válido para esta operación.",
+        message: "El id_estado_turno no corresponde a un estado habilitado para esta operación.",
       });
       return;
     }
@@ -815,7 +836,16 @@ export const actualizarEstadoTurno = async (
       return;
     }
 
-    const estadoActual = String(turno.estado).toUpperCase();
+    const idEstadoActual = Number(turno.id_estado_turno);
+    const estadoActual = nombresPorId.get(idEstadoActual);
+
+    if (!estadoActual) {
+      res.status(500).json({
+        status: "error",
+        message: "El estado actual del turno no existe en el catálogo.",
+      });
+      return;
+    }
 
     const transicionesPermitidas: Record<string, string[]> = {
       PENDIENTE: ["APROBADO", "CANCELADO", "COMPLETADO"],
@@ -824,26 +854,19 @@ export const actualizarEstadoTurno = async (
       COMPLETADO: [],
     };
 
-    if (!transicionesPermitidas[estadoActual]?.includes(nuevoEstado)) {
+    const idsTransicion = transicionesPermitidas[estadoActual]?.map(
+      (nombre) => idsPorNombre.get(nombre),
+    );
+
+    if (!idsTransicion?.includes(idEstadoSolicitado)) {
       res.status(409).json({
         status: "error",
-        message: `No se permite cambiar el estado de ${estadoActual} a ${nuevoEstado}.`,
+        message: `No se permite cambiar el estado de ${estadoActual} a ${nombreDestino}.`,
       });
       return;
     }
 
-    const idNuevoEstado =
-      await turnosRepository.obtenerEstadoPorNombre(nuevoEstado);
-
-    if (!idNuevoEstado) {
-      res.status(500).json({
-        status: "error",
-        message: `No se encontró el estado ${nuevoEstado} en el catálogo.`,
-      });
-      return;
-    }
-
-    await turnosRepository.actualizarEstadoTurno(idTurno, idNuevoEstado);
+    await turnosRepository.actualizarEstadoTurno(idTurno, idEstadoSolicitado);
 
     res.status(200).json({
       status: "success",
@@ -851,7 +874,7 @@ export const actualizarEstadoTurno = async (
       data: {
         id_turno: idTurno,
         estado_anterior: estadoActual,
-        estado_nuevo: nuevoEstado,
+        estado_nuevo: estados.find((estado) => Number(estado.id_estado_turno) === idEstadoSolicitado)?.nombre,
       },
     });
   } catch (error) {

@@ -10,7 +10,7 @@ La base de datos permitirá mantener la integridad y consistencia de la informac
 
 El modelo contempla las principales entidades necesarias para la gestión de la clínica veterinaria:
 
-## Diccionario de Datos: Esquema `veterinaria_db`
+## Diccionario de Datos: Esquema `veterinariaDB`
 
 A continuación se detalla la estructura física de la base de datos actualizada, reflejando fielmente las definiciones del diagrama entidad-relación y las restricciones del script SQL final.
 
@@ -38,7 +38,7 @@ Contiene los datos principales de registro e inicio de sesión para todas las pe
 | telefono | VARCHAR(30) | NULL | Número de teléfono del usuario. |
 | id_rol | TINYINT UNSIGNED | FK, NOT NULL | Relaciona al usuario con un nivel de acceso de la tabla Rol. |
 | fecha_creacion | DATETIME | NOT NULL, DEFAULT CURRENT_TIMESTAMP | Fecha y hora de creación del registro. |
-| fecha_actualizacion | DATETIME | NOT NULL, ON UPDATE CURRENT_TIMESTAMP | Fecha y hora de la última modificación del registro. |
+| fecha_actualizacion | DATETIME | NOT NULL, DEFAULT CURRENT_TIMESTAMP, ON UPDATE CURRENT_TIMESTAMP | Fecha y hora de la última modificación del registro. |
 | activo | TINYINT(1) | NOT NULL, DEFAULT 1 | Valor booleano para el manejo lógico de usuarios. |
 
 ### Tabla: Cliente
@@ -66,7 +66,7 @@ Guarda los perfiles biológicos de los pacientes veterinarios.
 | sexo | VARCHAR(20) | NOT NULL | Identificación del sexo biológico. |
 | observaciones | TEXT | NULL | Notas generales sobre la mascota. |
 | fecha_creacion | DATETIME | NOT NULL, DEFAULT CURRENT_TIMESTAMP | Fecha y hora de registro de la mascota. |
-| fecha_actualizacion | DATETIME | NOT NULL, ON UPDATE CURRENT_TIMESTAMP | Fecha y hora de la última modificación. |
+| fecha_actualizacion | DATETIME | NOT NULL, DEFAULT CURRENT_TIMESTAMP, ON UPDATE CURRENT_TIMESTAMP | Fecha y hora de la última modificación. |
 | activo | TINYINT(1) | NOT NULL, DEFAULT 1 | Valor lógico para gestionar altas y bajas. |
 
 ### Tabla: TipoAtencion
@@ -124,7 +124,7 @@ Registra las reservas de agenda en la clínica.
 | motivo | VARCHAR(500) | NULL | Descripción de la razón del turno. |
 | observaciones | TEXT | NULL | Apuntes adicionales sobre el turno. |
 | fecha_creacion | DATETIME | NOT NULL, DEFAULT CURRENT_TIMESTAMP | Fecha y hora en que se solicitó el turno. |
-| fecha_actualizacion | DATETIME | NOT NULL, ON UPDATE CURRENT_TIMESTAMP | Fecha y hora del último cambio o modificación. |
+| fecha_actualizacion | DATETIME | NOT NULL, DEFAULT CURRENT_TIMESTAMP, ON UPDATE CURRENT_TIMESTAMP | Fecha y hora del último cambio o modificación. |
 
 ### Tabla: AtencionClinica
 

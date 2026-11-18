@@ -1,19 +1,24 @@
-export type UserRole = "ADMINISTRADOR" | "VETERINARIO" | "CLIENTE";
 export interface LoginCredentials {
   email: string;
   password: string;
 }
 
 export interface AuthUser {
-  id: number;
+  id_usuario: number;
   email: string;
   nombre: string;
   apellido: string;
-  rol: UserRole;
+  id_rol: number;
+  rol: string;
 }
 export interface AuthResponse {
   token: string;
   user: AuthUser;
+}
+export interface ApiResponse<T> {
+  status: "success" | "error";
+  message?: string;
+  data?: T;
 }
 export interface RegisterData {
   nombre: string;
@@ -24,5 +29,5 @@ export interface RegisterData {
 }
 
 export interface RegisterResponse {
-  message: string;
+  id_usuario: number;
 }

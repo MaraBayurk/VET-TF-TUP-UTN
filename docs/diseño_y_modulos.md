@@ -12,7 +12,8 @@ Son las acciones específicas que el sistema debe permitir realizar a los usuari
 
 - **Gestión de Acceso:** El sistema debe permitir la autenticación de usuarios mediante correo electrónico y contraseña, redirigiendo a interfaces específicas según el rol (ADMINISTRADOR, VETERINARIO, CLIENTE).
 
-- **Gestión de Usuarios:** El sistema debe permitir al Administrador realizar el alta, búsqueda, actualización y baja lógica de los perfiles de clientes y personal médico.
+- **Gestión de Usuarios:** El sistema debe permitir al Administrador realizar el alta, búsqueda, actualización y baja lógica de las cuentas de Administrador y Veterinario. Las cuentas de Cliente se administran desde el módulo específico de Clientes.
+- **Gestión de Clientes:** El sistema debe permitir a Administradores y Veterinarios listar, buscar, consultar, crear, actualizar y dar de baja lógicamente clientes, conservando sus mascotas, turnos e historial relacionados.
 
 - **Gestión de Catálogos:** El sistema debe permitir al Administrador administrar (CRUD completo) las especialidades médicas para asignarlas a los veterinarios.
 
@@ -106,8 +107,16 @@ Son las restricciones lógicas y operativas propias del dominio de la clínica v
 
 ## 3.2 Módulo de Gestión de Usuarios y Perfiles
 
-- **ABML de Usuarios (Admin):** Interfaz y endpoints para que el Administrador pueda crear, buscar, actualizar y aplicar la baja lógica (soft delete) a cualquier cuenta del sistema (asignando roles y vinculando veterinarios a sus especialidades).
+- **ABML de Usuarios (Admin):** Interfaz y endpoints para que el Administrador gestione las cuentas de Administrador y Veterinario. El rol queda limitado a esos perfiles; la gestión de clientes se realiza exclusivamente desde el módulo de Clientes.
 - **Autogestión de Perfil:** Vista para que los clientes y veterinarios puedan visualizar y actualizar sus propios datos personales de contacto (teléfono, dirección, etc.).
+- **Control de acceso:** El frontend protege las rutas directas y oculta la entrada del sidebar para roles no autorizados; la API vuelve a comprobar el rol Administrador.
+
+## 3.2.1 Módulo de Gestión de Clientes
+
+- **Listado y búsqueda:** Presenta clientes activos e inactivos, con filtros por estado y búsqueda por nombre, documento, email o teléfono.
+- **Alta, edición y baja lógica:** Administradores y Veterinarios pueden gestionar los datos existentes en las tablas `Usuario` y `Cliente`. La baja modifica el estado de la cuenta, sin eliminar sus datos ni los registros relacionados.
+- **Detalle de cliente:** Muestra sus datos de contacto, mascotas asociadas y los últimos turnos registrados. El módulo utiliza las relaciones existentes y no requiere campos nuevos en la base de datos.
+- **Seguridad:** La interfaz y los endpoints requieren autenticación y rol Administrador o Veterinario.
 
 ## 3.3 Módulo de Gestión de Mascotas (Pacientes)
 
@@ -138,10 +147,14 @@ Son las restricciones lógicas y operativas propias del dominio de la clínica v
 
 | **Entidad**         | **Acción**               | **Administrador**                             | **Veterinario**                          | **Cliente**                         |
 | ------------------- | ------------------------ | --------------------------------------------- | ---------------------------------------- | ------------------------------------ |
-| Usuarios            | Crear                    | ✔ (Cualquier rol: Administrador, Veterinario, Cliente)        | X                                        | ✔ (Solo cuenta propia, rol Cliente) |
-|           | Consultar                | ✔ (Todos)                                     | ✔ (Solo propio)                          | ✔ (Solo propio)                     |
-|                     | Modificar                | ✔ (Todos)                                     | ✔ (Solo propio)                          | ✔ (Solo propio)                     |
-|                     | Baja lógica              | ✔ (Todos)                                     | X                                        | X                                   |
+| Usuarios            | Crear                    | ✔ (Cuentas Administrador/Veterinario)           | X                                        | X                                   |
+|                     | Consultar                | ✔ (Cuentas del equipo)                         | X                                        | X                                   |
+|                     | Modificar                | ✔ (Cuentas del equipo)                         | X                                        | X                                   |
+|                     | Baja lógica              | ✔ (Cuentas del equipo)                         | X                                        | X                                   |
+| Clientes            | Crear                    | ✔                                             | ✔                                        | X                                   |
+|                     | Consultar                | ✔ (Todos)                                     | ✔ (Todos)                               | X (Usa su portal personal)          |
+|                     | Modificar                | ✔                                             | ✔                                        | X (Usa su perfil personal)          |
+|                     | Baja lógica              | ✔                                             | ✔                                        | X                                   |
 | Mascotas            | Crear                    | ✔                                             | ✔                                        | ✔ (Propias)                         |
 |                     | Consultar                | ✔ (Todas)                                     | ✔ (Todas)                                | ✔ (Propias)                         |
 |                     | Modificar                | ✔                                             | ✔                                        | ✔ (Propias)                         |
@@ -215,14 +228,13 @@ Como usuario registrado (Administrador, Veterinario o Cliente), quiero iniciar s
 
 ### HU-VET-01-b: Alta centralizada de usuarios (Backoffice)
 
-Como Administrador, quiero poder registrar nuevas cuentas de usuario en el sistema y asignarles su rol correspondiente, para dar de alta al nuevo personal de la clínica (Veterinarios/Admins) o a clientes que se presentan presencialmente y no poseen cuenta web.
+Como Administrador, quiero registrar cuentas de Administrador y Veterinario, para habilitar al personal que trabaja en la clínica.
 
 #### Criterios de aceptación:
 
-- El formulario interno debe permitir al Administrador seleccionar el rol del nuevo usuario (id_rol mapeado a Administrador, Veterinario o Cliente).
-- Si el Administrador selecciona el rol Cliente, el sistema debe habilitar el flujo secundario para ejecutar el método crearMascota() y vincular al animal inmediatamente.
+- El formulario interno solo debe permitir asignar los roles Administrador y Veterinario.
 - Si el Administrador selecciona el rol Veterinario, el sistema debe requerir el ingreso de la matrícula y la vinculación a una Especialidad existente.
-- El registro de un Cliente no implica la creación automática de una mascota. Una vez creada su cuenta y perfil, el Cliente podrá registrar sus propias mascotas mediante la funcionalidad de alta de pacientes, definida en la HU-VET-04.
+- Las cuentas de Cliente se crean y administran desde la sección Clientes, no desde Usuarios.
 
 ### HU-VET-01-c: Registro público de Cliente y Mascota (Onboarding)
 
@@ -241,16 +253,31 @@ Como usuario visitante, quiero poder registrar una cuenta en el portal y cargar 
 
 ### HU-VET-02: Gestión Integral de Usuarios y Perfiles (ABML)
 
-Como Administrador, quiero registrar, consultar, actualizar y dar de baja lógicamente a los usuarios, para controlar los accesos y administrar los perfiles específicos de la clínica veterinaria.
+Como Administrador, quiero registrar, consultar, actualizar y dar de baja lógicamente las cuentas de Administrador y Veterinario, para controlar los accesos del personal de la clínica.
 Criterios de Aceptación:
 
 - Mapeo de Herencia (Alta de usuario): La creación de un perfil debe impactar en las tablas correspondientes aplicando la estrategia de herencia Class Table Inheritance:
   - Si el rol es ADMINISTRADOR, los datos se insertan únicamente en la tabla base Usuario.
-  - Si el rol es CLIENTE, el sistema debe generar el registro base en Usuario y su extensión vinculada en la tabla Cliente.
   - Si el rol es VETERINARIO, el sistema debe generar el registro base en Usuario y su extensión vinculada en la tabla Veterinario.
 - Asignación de Especialidad: Al crear o actualizar un perfil con rol VETERINARIO, es obligatorio proporcionar una especialidad médica válida, la cual se persiste exclusivamente a través del campo id_especialidad en la tabla Veterinario. Los usuarios con roles CLIENTE o ADMIN carecen por completo de esta relación.
-- Baja Lógica (Soft Delete): La acción de dar de baja a cualquier perfil debe modificar únicamente el atributo activo = false en la tabla base Usuario. Queda estrictamente prohibida la ejecución de eliminaciones físicas (SQL DELETE) para garantizar la trazabilidad histórica de los turnos y atenciones.
-- Visibilidad de Inactivos: Los usuarios dados de baja lógica no deben aparecer en los listados ni selectores habituales de la interfaz. Solo serán visibles si el Administrador activa un filtro explícito para consultar registros inactivos.
+- El módulo Usuarios solo permite gestionar perfiles de Administrador y Veterinario. Los perfiles Cliente se administran desde la sección Clientes.
+- Baja Lógica (Soft Delete): La acción de dar de baja a un perfil debe modificar el atributo activo = false en la tabla base Usuario. No se eliminan físicamente sus registros.
+- Visibilidad de Inactivos: Los usuarios dados de baja lógica no aparecen en el listado habitual del módulo Usuarios.
+- El rol de una cuenta existente no puede cambiarse desde la edición del módulo Usuarios.
+
+### HU-VET-02-b: Gestión de clientes
+
+Como Administrador o Veterinario, quiero listar, buscar, consultar, crear, editar y dar de baja clientes, para mantener actualizada la información de contacto y acceder a sus mascotas y turnos.
+
+#### Criterios de aceptación
+
+- La sección Clientes y sus endpoints requieren autenticación y rol Administrador o Veterinario.
+- El listado permite buscar por nombre, apellido, documento, email o teléfono y filtrar por estado.
+- El alta crea en una transacción la cuenta con rol Cliente en `Usuario` y su perfil en `Cliente`. Solicita nombre, apellido, documento, email y contraseña; teléfono y dirección son opcionales.
+- La edición modifica los datos personales y de contacto existentes. La contraseña solo cambia cuando se ingresa una nueva.
+- El detalle permite consultar los datos del cliente, sus mascotas y sus turnos recientes.
+- La baja es lógica: cambia el estado de la cuenta a inactivo y conserva la información, las mascotas, los turnos y el historial.
+- El módulo reutiliza los campos ya definidos en `Usuario` y `Cliente`; no incorpora fecha de nacimiento ni otros campos nuevos.
 
 ### HU-VET-03: Autogestión de Perfil Personal
 

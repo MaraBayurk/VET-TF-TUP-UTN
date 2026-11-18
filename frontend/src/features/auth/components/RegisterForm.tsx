@@ -1,4 +1,6 @@
 import { useState, type FormEvent } from "react";
+import { register } from "../services/authService";
+import { useNavigate } from "react-router-dom";
 import "../styles/register-form.scss";
 
 function RegisterForm() {
@@ -13,8 +15,10 @@ function RegisterForm() {
 
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const navigate = useNavigate();
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError("");
     setSuccess("");
@@ -41,7 +45,22 @@ function RegisterForm() {
       return;
     }
 
-    setSuccess("Los datos son válidos. El registro aún no está conectado.");
+    setIsSubmitting(true);
+    try {
+      await register({
+        nombre: nombre.trim(),
+        apellido: apellido.trim(),
+        numero_documento: numeroDocumento.trim(),
+        email: email.trim(),
+        password,
+      });
+      setSuccess("Tu cuenta se creó correctamente. Ya podés iniciar sesión.");
+      window.setTimeout(() => navigate("/login", { replace: true }), 1200);
+    } catch (submitError) {
+      setError(submitError instanceof Error ? submitError.message : "No se pudo completar el registro.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -96,7 +115,7 @@ function RegisterForm() {
         </label>
         <input
           id="register-email"
-          type="text"
+          type="email"
           placeholder="Elegí un email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
@@ -179,8 +198,8 @@ function RegisterForm() {
         </p>
       )}
 
-      <button className="register-form__submit" type="submit">
-        Crear cuenta <span aria-hidden="true">→</span>
+      <button className="register-form__submit" type="submit" disabled={isSubmitting}>
+        {isSubmitting ? "Creando cuenta..." : "Crear cuenta"} <span aria-hidden="true">→</span>
       </button>
     </form>
   );

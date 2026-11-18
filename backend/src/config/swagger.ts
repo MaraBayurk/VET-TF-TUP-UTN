@@ -17,6 +17,21 @@ const options: swaggerJSDoc.Options = {
             },
         ],
         components: {
+            schemas: {
+                ApiEnvelope: {
+                    type: 'object',
+                    required: ['status'],
+                    properties: {
+                        status: {
+                            type: 'string',
+                            enum: ['success', 'error'],
+                        },
+                        message: { type: 'string' },
+                        data: {},
+                    },
+                    description: 'Formato común de las respuestas de la API.',
+                },
+            },
             securitySchemes: {
                 bearerAuth: {
                     type: 'http',
