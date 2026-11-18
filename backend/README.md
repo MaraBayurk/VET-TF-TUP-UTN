@@ -36,8 +36,6 @@ backend/
 │   ├── config/
 │   │   ├── db.ts
 │   │   └── swagger.ts
-│   ├── constants/
-│   │   └── roles.ts
 │   ├── middlewares/
 │   │   └── auth.middleware.ts
 │   ├── modules/
@@ -98,7 +96,7 @@ La carpeta `config/` centraliza la configuración general de la aplicación.
 
 Contiene constantes compartidas por los distintos módulos.
 
-- **roles.ts:** centraliza los identificadores de roles utilizados en las verificaciones de permisos.
+- La autorización consulta los nombres de roles en la tabla `Rol`, sin depender de identificadores numéricos fijos.
 
 ### Middlewares
 
@@ -212,9 +210,7 @@ npm install
 
 ### Configuración de variables de entorno
 
-Crear un archivo `.env` en la raíz de `backend/` con los parámetros de conexión a MySQL y la configuración de autenticación.
-
-Las variables necesarias deben configurarse de acuerdo con los parámetros utilizados por la aplicación.
+Copiar `.env.example` como `.env` en la raíz de `backend/` y completar los parámetros de conexión a MySQL y la configuración de autenticación.
 
 ### Iniciar el servidor
 

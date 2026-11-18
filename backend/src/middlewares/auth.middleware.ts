@@ -54,34 +54,7 @@ export const verificarToken = (
     }
 };
 
-// Middleware existente: se conserva para los módulos que todavía lo utilizan.
-export const verificarRol = (rolesPermitidos: number[]) => (
-    req: AuthRequest,
-    res: Response,
-    next: NextFunction
-): void => {
-    const usuario = req.usuario;
-
-    if (!usuario) {
-        res.status(401).json({
-            status: 'error',
-            message: 'Usuario no autenticado'
-        });
-        return;
-    }
-
-    if (!rolesPermitidos.includes(usuario.id_rol)) {
-        res.status(403).json({
-            status: 'error',
-            message: 'No tiene permisos para realizar esta acción'
-        });
-        return;
-    }
-
-    next();
-};
-
-// Nuevo middleware: autoriza según los nombres del catálogo Rol.
+// Autoriza consultando los nombres del catálogo Rol.
 export const verificarRolPorNombre = (rolesPermitidos: string[]) => async (
     req: AuthRequest,
     res: Response,

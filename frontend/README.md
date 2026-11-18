@@ -64,7 +64,7 @@ La carpeta `features/` agrupa las funcionalidades principales del sistema:
 | `users/` | Gestión de usuarios, perfiles y datos personales. |
 | `agenda/` | Funcionalidades relacionadas con turnos y horarios. |
 | `catalogs/` | Estructura prevista para catálogos del sistema. |
-| `clinic/` | Estructura prevista para funcionalidades clínicas. |
+| `clinical/` | Estructura prevista para funcionalidades clínicas. |
 
 Cada funcionalidad se organiza de forma independiente para facilitar su mantenimiento y evolución.
 

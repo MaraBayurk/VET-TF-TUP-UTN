@@ -3,10 +3,9 @@ import { Router, Response } from 'express';
 import { login, register, me, logout } from './auth.controller';
 import {
     verificarToken,
-    verificarRol,
+    verificarRolPorNombre,
     AuthRequest
 } from '../../middlewares/auth.middleware';
-import { ROLES } from '../../constants/roles';
 
 const router = Router();
 
@@ -147,7 +146,7 @@ router.post('/logout', verificarToken, logout);
 router.get(
     '/perfil-admin',
     verificarToken,
-    verificarRol([ROLES.ADMINISTRADOR]),
+    verificarRolPorNombre(['Administrador']),
     (req: AuthRequest, res: Response) => {
         res.status(200).json({
             status: 'success',

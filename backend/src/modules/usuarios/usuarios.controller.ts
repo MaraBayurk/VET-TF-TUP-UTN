@@ -62,6 +62,10 @@ export const crearUsuario = async (req: Request, res: Response): Promise<void> =
             res.status(400).json({ status: 'error', message: 'Para registrar un veterinario, la matrícula y la especialidad son obligatorias' });
             return;
         }
+        if (error.message === 'ROLE_NOT_FOUND') {
+            res.status(400).json({ status: 'error', message: 'El rol indicado no existe en el catálogo de roles' });
+            return;
+        }
 
         console.error('Error al crear usuario:', error);
         res.status(500).json({ status: 'error', message: 'Error interno del servidor' });
