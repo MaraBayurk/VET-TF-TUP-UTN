@@ -11,6 +11,7 @@ import CreateEditUserPage from "../features/users/pages/CreateEditUserPage";
 import PetsPage from "../features/pets/pages/PetsPage";
 import CreateEditPetPage from "../features/pets/pages/CreateEditPetPage";
 import PetDetailPage from "../features/pets/pages/PetDetailPage";
+import RequireAdmin from "../components/auth/RequireAdmin";
 
 function AppRouter() {
   return (
@@ -26,10 +27,12 @@ function AppRouter() {
         {/* Secciones internas */}
         <Route element={<MainLayout />}>
           <Route path="/inicio" element={<HomePage />} />
-          <Route path="/usuarios" element={<UsersPage />} />
-          <Route path="/usuarios/nuevo" element={<CreateEditUserPage />} />
-          <Route path="/usuarios/:id/editar" element={<CreateEditUserPage />} />
-          <Route path="/usuarios/:id" element={<UserDetailPage />} />
+          <Route element={<RequireAdmin />}>
+            <Route path="/usuarios" element={<UsersPage />} />
+            <Route path="/usuarios/nuevo" element={<CreateEditUserPage />} />
+            <Route path="/usuarios/:id/editar" element={<CreateEditUserPage />} />
+            <Route path="/usuarios/:id" element={<UserDetailPage />} />
+          </Route>
           <Route path="/mascotas" element={<PetsPage />} />
           <Route path="/mascotas/nueva" element={<CreateEditPetPage />} />
           <Route path="/mascotas/:id/editar" element={<CreateEditPetPage />} />

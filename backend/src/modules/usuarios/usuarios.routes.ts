@@ -5,7 +5,9 @@ import {
     obtenerUsuarioPorId,
     crearUsuario,
     eliminarUsuario,
-    actualizarMiPerfil
+    actualizarMiPerfil,
+    obtenerCatalogosUsuarios,
+    actualizarUsuario
 } from './usuarios.controller';
 import { verificarToken, verificarRolPorNombre } from '../../middlewares/auth.middleware';
 
@@ -13,6 +15,7 @@ const router = Router();
 
 // Todas las rutas requieren autenticación
 router.use(verificarToken);
+router.get('/catalogos', verificarRolPorNombre(['Administrador']), obtenerCatalogosUsuarios);
 
 /**
  * @swagger
@@ -315,5 +318,6 @@ router.delete('/:id', verificarRolPorNombre(['Administrador']), eliminarUsuario)
  *               $ref: '#/components/schemas/ApiEnvelope'
  */
 router.put('/perfil', actualizarMiPerfil);
+router.put('/:id', verificarRolPorNombre(['Administrador']), actualizarUsuario);
 
 export default router;

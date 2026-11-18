@@ -10,13 +10,13 @@ import {
 } from "lucide-react";
 
 import "./Navbar.scss";
+import { getAuthUser } from "../../features/auth/services/authStorage";
 
 const navigationItems = [
   { label: "Inicio", path: "/inicio", icon: House },
   { label: "Turnos", path: "/turnos", icon: CalendarDays },
   { label: "Mascotas", path: "/mascotas", icon: PawPrint },
   { label: "Clientes", path: "/clientes", icon: Users },
-  { label: "Usuarios", path: "/usuarios", icon: Users },
   {
     label: "Historial clínico",
     path: "/historial-clinico",
@@ -25,6 +25,9 @@ const navigationItems = [
 ];
 
 function Navbar() {
+  const role = getAuthUser()?.rol;
+  const isAdmin = typeof role === "string" && role.trim().toLocaleLowerCase("es") === "administrador";
+  const items = isAdmin ? [...navigationItems.slice(0, 3), { label: "Usuarios", path: "/usuarios", icon: Users }, ...navigationItems.slice(3)] : navigationItems;
   return (
     <aside className="sidebar">
       <div className="sidebar__brand">
@@ -37,7 +40,7 @@ function Navbar() {
       </div>
 
       <nav className="sidebar__navigation">
-        {navigationItems.map(({ label, path, icon: Icon }) => (
+        {items.map(({ label, path, icon: Icon }) => (
           <NavLink
             key={path}
             to={path}

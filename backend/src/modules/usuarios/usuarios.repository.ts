@@ -1,5 +1,5 @@
 import pool from '../../config/db';
-import { CrearUsuarioDTO, ActualizarPerfilDTO } from './usuarios.dto';
+import { CrearUsuarioDTO, ActualizarPerfilDTO, ActualizarUsuarioDTO } from './usuarios.dto';
 import { IUsuariosRepository } from './usuarios.repository.interface';
 
 export class UsuariosRepository implements IUsuariosRepository {
@@ -17,18 +17,30 @@ export class UsuariosRepository implements IUsuariosRepository {
 
      async obtenerTodos(): Promise<any[]> {
         const [rows] = await pool.query(`
-            SELECT id_usuario, nombre, apellido, numero_documento, email, telefono, id_rol, activo, fecha_creacion 
-            FROM Usuario 
-            WHERE activo = 1
+            SELECT u.id_usuario, u.nombre, u.apellido, u.numero_documento, u.email, u.telefono,
+                   u.id_rol, r.nombre AS rol, u.activo, u.fecha_creacion,
+                   c.direccion, v.matricula, v.id_especialidad, e.nombre AS especialidad
+            FROM Usuario u
+            INNER JOIN Rol r ON r.id_rol = u.id_rol
+            LEFT JOIN Cliente c ON c.id_usuario = u.id_usuario
+            LEFT JOIN Veterinario v ON v.id_usuario = u.id_usuario
+            LEFT JOIN Especialidad e ON e.id_especialidad = v.id_especialidad
+            WHERE u.activo = 1 AND LOWER(r.nombre) IN ('administrador', 'veterinario') ORDER BY u.apellido, u.nombre
         `);
         return rows as any[];
     }
 
      async obtenerPorId(id: string): Promise<any> {
         const [rows]: any = await pool.query(`
-            SELECT id_usuario, nombre, apellido, numero_documento, email, telefono, id_rol, activo, fecha_creacion 
-            FROM Usuario 
-            WHERE id_usuario = ? AND activo = 1
+            SELECT u.id_usuario, u.nombre, u.apellido, u.numero_documento, u.email, u.telefono,
+                   u.id_rol, r.nombre AS rol, u.activo, u.fecha_creacion,
+                   c.direccion, v.matricula, v.id_especialidad, e.nombre AS especialidad
+            FROM Usuario u
+            INNER JOIN Rol r ON r.id_rol = u.id_rol
+            LEFT JOIN Cliente c ON c.id_usuario = u.id_usuario
+            LEFT JOIN Veterinario v ON v.id_usuario = u.id_usuario
+            LEFT JOIN Especialidad e ON e.id_especialidad = v.id_especialidad
+            WHERE u.id_usuario = ? AND u.activo = 1 AND LOWER(r.nombre) IN ('administrador', 'veterinario')
         `, [id]);
         
         return (rows as any[]).length > 0 ? rows[0] : null;
@@ -37,10 +49,54 @@ export class UsuariosRepository implements IUsuariosRepository {
     // Cumple con RN-01: Baja lógica
      async eliminarLogicamente(id: string): Promise<boolean> {
         const [result]: any = await pool.query(`
-            UPDATE Usuario SET activo = 0 WHERE id_usuario = ?
+            UPDATE Usuario u
+            INNER JOIN Rol r ON r.id_rol = u.id_rol
+            SET u.activo = 0
+            WHERE u.id_usuario = ? AND u.activo = 1
+              AND LOWER(r.nombre) IN ('administrador', 'veterinario')
         `, [id]);
         
         return result.affectedRows > 0;
+    }
+
+    async obtenerRoles(): Promise<any[]> {
+        const [rows] = await pool.query("SELECT id_rol, nombre FROM Rol WHERE LOWER(nombre) IN ('administrador', 'veterinario') ORDER BY id_rol");
+        return rows as any[];
+    }
+
+    async obtenerEspecialidades(): Promise<any[]> {
+        const [rows] = await pool.query('SELECT id_especialidad, nombre FROM Especialidad WHERE activo = 1 ORDER BY nombre');
+        return rows as any[];
+    }
+
+    async actualizar(id: string, usuario: ActualizarUsuarioDTO): Promise<boolean> {
+        const connection = await pool.getConnection();
+        try {
+            await connection.beginTransaction();
+            const [actualRows]: any = await connection.query(
+                'SELECT u.id_rol, r.nombre AS rol FROM Usuario u JOIN Rol r ON r.id_rol = u.id_rol WHERE u.id_usuario = ? AND u.activo = 1 FOR UPDATE', [id]
+            );
+            if (!actualRows.length) { await connection.rollback(); return false; }
+            const nuevoRol = await this.obtenerNombreRol(connection, usuario.id_rol);
+            if (!nuevoRol || !['administrador', 'veterinario'].includes(nuevoRol)) throw new Error('ROLE_NOT_SUPPORTED');
+            const rolAnterior = String(actualRows[0].rol).toLowerCase();
+            if (rolAnterior !== nuevoRol) throw new Error('ROLE_CHANGE_NOT_SUPPORTED');
+
+            await connection.query(`UPDATE Usuario SET nombre = ?, apellido = ?, numero_documento = ?, email = ?, telefono = ?, id_rol = ?${usuario.password_hash ? ', password_hash = ?' : ''} WHERE id_usuario = ?`,
+                usuario.password_hash
+                    ? [usuario.nombre, usuario.apellido, usuario.numero_documento, usuario.email, usuario.telefono || null, usuario.id_rol, usuario.password_hash, id]
+                    : [usuario.nombre, usuario.apellido, usuario.numero_documento, usuario.email, usuario.telefono || null, usuario.id_rol, id]);
+            if (nuevoRol === 'veterinario') {
+                if (!usuario.matricula || !usuario.id_especialidad) throw new Error('MISSING_VET_DATA');
+                await connection.query('UPDATE Veterinario SET matricula = ?, id_especialidad = ? WHERE id_usuario = ?', [usuario.matricula, usuario.id_especialidad, id]);
+            }
+            await connection.commit();
+            return true;
+        } catch (error: any) {
+            await connection.rollback();
+            if (error.code === 'ER_DUP_ENTRY') throw new Error('DUPLICATE_ENTRY');
+            throw error;
+        } finally { connection.release(); }
     }
 
     // ==========================================
@@ -76,7 +132,7 @@ export class UsuariosRepository implements IUsuariosRepository {
             if (!nombreRol) {
                 throw new Error('ROLE_NOT_FOUND');
             }
-            if (!['administrador', 'cliente', 'veterinario'].includes(nombreRol)) {
+            if (!['administrador', 'veterinario'].includes(nombreRol)) {
                 throw new Error('ROLE_NOT_SUPPORTED');
             }
 
