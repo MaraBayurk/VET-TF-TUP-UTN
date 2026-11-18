@@ -25,11 +25,12 @@ El sistema se divide en siguientes módulos principales:
 
 0. **Landing page:** acceso a página de inicio pública de la veterinaria.
 1. **Autenticación y Seguridad:** inicio de sesión, registro de usuarios y control de acceso según roles.
-2. **Gestión de Usuarios y Perfiles:** administración de usuarios, perfiles y roles.
-3. **Gestión de Mascotas:** registro, consulta, actualización y baja lógica de pacientes.
-4. **Agenda y Turnos:** solicitud, aprobación, cancelación y consulta de turnos, junto con la configuración de horarios de atención.
-5. **Atención Clínica y Libreta Sanitaria:** registro y consulta de atenciones, diagnósticos, tratamientos, vacunas y controles.
-6. **Catálogos y Configuración:** registro y consulta del catalogo de especialidades de los profesionales.
+2. **Gestión de Usuarios y Perfiles:** administración de cuentas de Administrador y Veterinario; acceso exclusivo para Administradores.
+3. **Gestión de Clientes:** administración de cuentas y datos de contacto de clientes; acceso para Administradores y Veterinarios.
+4. **Gestión de Mascotas:** registro, consulta, actualización y baja lógica de pacientes.
+5. **Agenda y Turnos:** solicitud, aprobación, cancelación y consulta de turnos, junto con la configuración de horarios de atención.
+6. **Atención Clínica y Libreta Sanitaria:** registro y consulta de atenciones, diagnósticos, tratamientos, vacunas y controles.
+7. **Catálogos y Configuración:** registro y consulta del catálogo de especialidades de los profesionales.
 
 ## Roles del Sistema
 

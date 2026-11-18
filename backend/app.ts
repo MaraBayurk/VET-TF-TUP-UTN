@@ -11,6 +11,7 @@ import especialidadesRoutes from './src/modules/especialidades/especialidades.ro
 import mascotasRoutes from './src/modules/mascotas/mascotas.routes';
 import horariosRoutes from './src/modules/agenda/horarios/horarios.routes';
 import turnosRoutes from './src/modules/agenda/turnos/turnos.routes';
+import clientesRoutes from './src/modules/clientes/clientes.routes';
 
 const app: Application = express();
 
@@ -28,6 +29,7 @@ setupSwagger(app);
 // RUTAS DE LA API
 app.use('/api/auth', authRoutes);
 app.use('/api/usuarios', usuariosRoutes);
+app.use('/api/clientes', clientesRoutes);
 app.use('/api/especialidades', especialidadesRoutes);
 app.use('/api/mascotas', mascotasRoutes);
 app.use('/api/horarios', horariosRoutes);

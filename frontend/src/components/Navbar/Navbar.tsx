@@ -16,7 +16,6 @@ const navigationItems = [
   { label: "Inicio", path: "/inicio", icon: House },
   { label: "Turnos", path: "/turnos", icon: CalendarDays },
   { label: "Mascotas", path: "/mascotas", icon: PawPrint },
-  { label: "Clientes", path: "/clientes", icon: Users },
   {
     label: "Historial clínico",
     path: "/historial-clinico",
@@ -27,7 +26,10 @@ const navigationItems = [
 function Navbar() {
   const role = getAuthUser()?.rol;
   const isAdmin = typeof role === "string" && role.trim().toLocaleLowerCase("es") === "administrador";
-  const items = isAdmin ? [...navigationItems.slice(0, 3), { label: "Usuarios", path: "/usuarios", icon: Users }, ...navigationItems.slice(3)] : navigationItems;
+  const isStaff = isAdmin || (typeof role === "string" && role.trim().toLocaleLowerCase("es") === "veterinario");
+  const items = isStaff
+    ? [...navigationItems.slice(0, 3), { label: "Clientes", path: "/clientes", icon: Users }, ...(isAdmin ? [{ label: "Usuarios", path: "/usuarios", icon: Users }] : []), ...navigationItems.slice(3)]
+    : navigationItems;
   return (
     <aside className="sidebar">
       <div className="sidebar__brand">

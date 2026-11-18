@@ -43,7 +43,8 @@ permitiendo una mejor organización de las tareas administrativas y clínicas.
 
 ## Funcionalidades previstas
 
-- Gestión de usuarios y roles.
+- Gestión de usuarios del equipo y roles.
+- Gestión de clientes, datos de contacto, mascotas asociadas y bajas lógicas.
 - Registro y administración de mascotas.
 - Solicitud, aprobación y cancelación de turnos.
 - Gestión de la agenda veterinaria.
@@ -51,7 +52,7 @@ permitiendo una mejor organización de las tareas administrativas y clínicas.
 - Administración de vacunas aplicadas.
 - Consulta de la libreta sanitaria de las mascotas.
 
-Este listado resume el alcance del proyecto. En la entrega actual están implementados los módulos de usuarios, mascotas, especialidades, agenda y turnos. La atención clínica y la vacunación están modeladas y documentadas, pero su módulo backend aún no está desarrollado; `catalogs/` también es una estructura inicial, mientras que las consultas de catálogos se realizan desde los repositorios de cada funcionalidad.
+Este listado resume el alcance del proyecto. En la entrega actual están implementados los módulos de autenticación, usuarios del equipo, clientes, mascotas, especialidades, agenda y turnos. El módulo de Clientes permite listar, consultar, crear, editar y dar de baja lógicamente cuentas de clientes, y presenta sus mascotas y turnos asociados. La atención clínica y la vacunación están modeladas y documentadas, pero su módulo backend aún no está desarrollado; `catalogs/` también es una estructura inicial, mientras que las consultas de catálogos se realizan desde los repositorios de cada funcionalidad.
 
 ## Estructura del repositorio
 
