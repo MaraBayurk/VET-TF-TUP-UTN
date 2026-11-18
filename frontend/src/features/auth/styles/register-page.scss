@@ -1,0 +1,77 @@
+@use "../../../styles/variables" as *;
+
+.register-page {
+  padding: 30px 24px;
+}
+
+.register-card {
+  min-height: 720px;
+
+  &__content {
+    padding: 40px 65px;
+  }
+
+  &__decoration {
+    position: absolute;
+    pointer-events: none;
+
+    &--circle {
+      width: 130px;
+      height: 130px;
+      left: -45px;
+      bottom: 80px;
+      border-radius: 50%;
+      background: $color-decoration;
+      opacity: 0.8;
+    }
+
+    &--leaf {
+      width: 65px;
+      height: 110px;
+      right: 20px;
+      bottom: 35px;
+      border-radius: 100% 0 100% 0;
+      background: #b7d0c7;
+      transform: rotate(25deg);
+      opacity: 0.7;
+    }
+  }
+
+  &__heart {
+    display: block;
+    margin-top: 22px;
+    color: $color-heading;
+    font-size: 36px;
+    line-height: 1;
+  }
+}
+
+@media (max-width: 768px) {
+  .register-page {
+    padding: 16px;
+  }
+
+  .register-card {
+    min-height: auto;
+
+    &__content {
+      padding: 35px 30px;
+    }
+
+    &__decoration--circle {
+      width: 90px;
+      height: 90px;
+    }
+
+    &__decoration--leaf {
+      width: 45px;
+      height: 75px;
+    }
+  }
+}
+
+@media (max-width: 400px) {
+  .register-card__content {
+    padding: 30px 20px;
+  }
+}

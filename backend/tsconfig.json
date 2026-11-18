@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "target": "es2022",                                  /* Define la versión de JavaScript a la que se va a compilar. */
+    "module": "node16",                                  /* Permite que Node.js lea el código compilado sin problemas. */
+    "moduleResolution": "node16",                        /* Le dice a TypeScript cómo buscar los archivos en node_modules. */
+    "outDir": "./dist",                                  /* Carpeta donde se guardará el código compilado (para producción). */
+    "esModuleInterop": true,                             /* SOLUCIÓN AL ERROR: Permite mezclar importaciones modernas con librerías antiguas de forma segura. */
+    "forceConsistentCasingInFileNames": true,            /* Evita errores si alguien usa Windows y otro Mac/Linux con mayúsculas/minúsculas. */
+    "strict": true,                                      /* Activa las validaciones de seguridad de TypeScript. */
+    "skipLibCheck": true                                 /* Ignora chequeos de tipos dentro de la carpeta node_modules para que compile más rápido. */
+  },
+  "include": ["src/**/*", "app.ts", "server.ts"],        /* Archivos que TypeScript debe vigilar y compilar. */
+  "exclude": ["node_modules", "dist"]                    /* Archivos que TypeScript debe ignorar. */
+}

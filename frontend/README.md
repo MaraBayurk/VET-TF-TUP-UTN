@@ -9,6 +9,7 @@ Está desarrollado utilizando las siguientes tecnologías:
 - **React:** construcción de interfaces mediante componentes reutilizables.
 - **TypeScript:** tipado estático para mejorar la organización y el mantenimiento del código.
 - **SCSS:** gestión de estilos y diseño visual de la aplicación.
+- **Vite:** herramienta de desarrollo y compilación del proyecto.
 
 ## Arquitectura
 
@@ -19,27 +20,28 @@ El frontend adopta una organización modular por funcionalidades (*Feature-Based
 ```text
 frontend/
 ├── src/
-│   ├── core/
-│   │   └── index.ts
-│   ├── features/
-│   │   ├── landing/
-│   │   │   └── index.ts
-│   │   ├── auth/
-│   │   │   └── index.ts
-│   │   ├── pets/
-│   │   │   └── index.ts
-│   │   ├── users/
-│   │   │   └── index.ts
-│   │   ├── catalogs/
-│   │   │   └── index.ts
-│   │   └── agenda/
-│   │       └── index.ts
+│   ├── assets/
 │   ├── components/
-│   │   └── index.ts
-│   └── assets/
-│       └── index.ts
-├── App.ts
-├── main.ts
+│   │   ├── commons/
+│   │   ├── layouts/
+│   │   └── Navbar/
+│   ├── core/
+│   │   └── api/
+│   ├── features/
+│   │   ├── agenda/
+│   │   ├── auth/
+│   │   ├── catalogs/
+│   │   ├── clinical/
+│   │   ├── dashboard/
+│   │   ├── landing/
+│   │   ├── pets/
+│   │   └── users/
+│   ├── routes/
+│   ├── styles/
+│   ├── types/
+│   └── utils/
+├── App.tsx
+├── main.tsx
 └── README.md
 ```
 
@@ -47,7 +49,7 @@ frontend/
 
 ### Core
 
-La carpeta `core/` contiene los elementos centrales y compartidos de la aplicación, como la configuración general y la lógica común que utilizan distintas funcionalidades.
+La carpeta `core/` contiene configuraciones y elementos centrales compartidos por la aplicación, como la configuración para la comunicación con el backend.
 
 ### Features
 
@@ -57,45 +59,66 @@ La carpeta `features/` agrupa las funcionalidades principales del sistema:
 |---|---|
 | `landing/` | Página de inicio y presentación de los servicios de la veterinaria. |
 | `auth/` | Inicio de sesión, registro y funcionalidades relacionadas con la autenticación. |
+| `dashboard/` | Pantalla principal del sistema. |
 | `pets/` | Registro, consulta y actualización de los perfiles de las mascotas. |
 | `users/` | Gestión de usuarios, perfiles y datos personales. |
-| `catalogs/` | Administración y consulta de especialidades y catálogos del sistema. |
-| `agenda/` | Solicitud, consulta, cancelación y gestión de turnos y horarios. |
+| `agenda/` | Funcionalidades relacionadas con turnos y horarios. |
+| `catalogs/` | Estructura prevista para catálogos del sistema. |
+| `clinic/` | Estructura prevista para funcionalidades clínicas. |
 
-Cada funcionalidad se organiza de forma independiente para facilitar su mantenimiento, evolución y reutilización.
+Cada funcionalidad se organiza de forma independiente para facilitar su mantenimiento y evolución.
 
 ### Components
 
 La carpeta `components/` contiene los componentes visuales compartidos que pueden utilizarse en diferentes módulos, evitando la duplicación de código y manteniendo la consistencia de la interfaz.
 
+### Routes
+
+La carpeta `routes/` centraliza la configuración de navegación entre las diferentes páginas de la aplicación mediante React Router.
+
+### Styles
+
+La carpeta `styles/` contiene los estilos globales, variables y configuraciones visuales compartidas.
+
+### Types
+
+La carpeta `types/` agrupa las definiciones de tipos utilizadas en distintas funcionalidades.
+
+### Utils
+
+La carpeta `utils/` contiene funciones auxiliares reutilizables.
+
 ### Assets
 
 La carpeta `assets/` almacena los recursos estáticos de la aplicación, como imágenes, íconos y otros elementos visuales.
 
-### App.ts
+### App.tsx
 
-Archivo encargado de definir la composición principal de la aplicación y la integración de sus distintas funcionalidades.
+Archivo encargado de definir la composición principal de la aplicación.
 
-### main.ts
+### main.tsx
 
-Punto de entrada de la aplicación, responsable de iniciar el frontend y montar la aplicación.
+Punto de entrada de la aplicación, responsable de iniciar el frontend y montar la aplicación React.
 
 ## Roles y Funcionalidades
 
 La interfaz contempla tres perfiles de usuario:
 
-- **Administrador:** acceso a las herramientas de gestión de la clínica.
-- **Veterinario:** acceso a su agenda y a las funcionalidades de atención clínica.
-- **Cliente:** acceso a sus mascotas, turnos y libretas sanitarias.
+- **Administrador:** acceso a las herramientas de gestión del sistema.
+- **Veterinario:** acceso a las funcionalidades relacionadas con la atención veterinaria.
+- **Cliente:** acceso a sus mascotas y a los servicios de la veterinaria.
 
 La visualización y el acceso a las funcionalidades deben respetar los permisos definidos para cada rol, con las validaciones correspondientes en el backend.
 
 ## Comunicación con el Backend
 
-El frontend se comunica con el backend mediante solicitudes HTTP a la API REST. El servidor es responsable de procesar las solicitudes, aplicar las reglas de negocio y acceder a la base de datos.
+El frontend se comunica con el backend mediante solicitudes HTTP a la API REST, utilizando Axios. La URL del servidor se configura mediante variables de entorno.
 
 ## Tecnologías
 
 - React
 - TypeScript
+- Vite
+- React Router
+- Axios
 - SCSS

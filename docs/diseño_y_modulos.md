@@ -36,7 +36,7 @@ Definen la arquitectura, tecnologías y atributos de calidad del sistema.
 
 - **Pila Tecnológica:** El sistema debe estar desarrollado utilizando Node.js/Express para la API backend y React (con TypeScript) para el frontend.
 
-- **Persistencia de Datos:** La información debe almacenarse en una base de datos relacional MySQL, garantizando la integridad referencial (Foreign Keys) y normalización.
+- **Persistencia de Datos:** La información debe almacenarse en una base de datos relacional MySQL (vía Aiven Cloud), garantizando la integridad referencial (Foreign Keys) y normalización. Se requiere conexión cifrada (SSL) para interactuar con el clúster.
 
 - **Paradigma y Diseño:** El backend debe construirse respetando la Programación Orientada a Objetos (POO), aplicando herencia para los perfiles de usuario y respetando los principios SOLID.
 
@@ -58,6 +58,8 @@ Definen la arquitectura, tecnologías y atributos de calidad del sistema.
   - Inicio de Sesión: Al ejecutar el método iniciarSesion(), el backend validará las credenciales contra la base de datos y emitirá un token JWT firmado digitalmente. Este token contendrá en su carga útil (payload) el id_usuario y el id_rol, permitiendo identificar al actor y sus permisos.
   - Manejo de Sesión: El frontend almacenará el JWT de forma segura (ej. Local Storage o HTTP-Only Cookies) y lo enviará en la cabecera (Header de Autorización: Bearer) de cada petición HTTP para acceder a las rutas protegidas.
   - Cierre de Sesión y Seguridad: El token tendrá un tiempo de expiración corto (ej. 8 horas) para mitigar riesgos. La acción de cerrarSesion() se resolverá del lado del cliente eliminando el token del almacenamiento local, cortando inmediatamente el acceso al sistema.
+
+  - **Sensibilidad a Mayúsculas (Case Sensitivity):** Al estar alojada en servidores Linux (Aiven), la base de datos es estricta con el uso de mayúsculas en los nombres de las tablas. El esquema DDL debe coincidir exactamente con el mapeo del código (ej: `Usuario` vs `usuario`), a diferencia de los entornos locales de Windows que omiten esta validación.
 
 ## 2.3 Reglas de Negocio
 

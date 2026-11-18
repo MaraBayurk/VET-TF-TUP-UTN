@@ -1,0 +1,99 @@
+@use "../../../styles/variables" as *;
+
+.login-form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+
+  &__field {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+
+    label {
+      color: $color-heading;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    input {
+      width: 100%;
+      height: 43px;
+      padding: 0 13px;
+      border: 1px solid $color-border;
+      border-radius: $radius-input;
+      background: $color-surface;
+      color: $color-heading;
+      font-size: 13px;
+      outline: none;
+      transition: border-color 0.2s;
+
+      &::placeholder {
+        color: $color-text-light;
+      }
+
+      &:focus {
+        border-color: $color-primary;
+      }
+    }
+  }
+
+  &__password {
+    display: flex;
+    align-items: center;
+    border: 1px solid $color-border;
+    border-radius: $radius-input;
+
+    &:focus-within {
+      border-color: $color-primary;
+    }
+
+    input {
+      border: none;
+
+      &:focus {
+        border: none;
+      }
+    }
+
+    button {
+      flex-shrink: 0;
+      margin-right: 10px;
+      border: none;
+      background: transparent;
+      color: $color-primary;
+      font-size: 11px;
+    }
+  }
+
+  &__error {
+    margin-top: -12px;
+    color: #bd4c4c;
+    font-size: 12px;
+  }
+
+  &__submit {
+    width: 100%;
+    height: 46px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    border: none;
+    border-radius: 7px;
+    background: $color-primary;
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+    transition: background 0.2s;
+
+    &:hover {
+      background: $color-primary-dark;
+    }
+
+    span {
+      font-size: 19px;
+    }
+  }
+}

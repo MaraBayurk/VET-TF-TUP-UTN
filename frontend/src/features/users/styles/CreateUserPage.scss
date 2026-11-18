@@ -1,0 +1,185 @@
+
+@use "../../../styles/variables" as *;
+
+.create-user {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+
+  &__heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 24px;
+    background: #e9f2ef;
+    border-radius: 16px;
+
+    h1 {
+      color: $color-heading;
+      font-size: 28px;
+      font-weight: 700;
+    }
+
+    p {
+      margin-top: 6px;
+      color: $color-text;
+      font-size: 13px;
+    }
+  }
+
+  &__heading-icons {
+    display: flex;
+    gap: 12px;
+    color: $color-primary;
+  }
+
+  &__form {
+    padding: 26px;
+    background: $color-surface;
+    border: 1px solid $color-border;
+    border-radius: 14px;
+  }
+
+  &__form-heading {
+    margin-bottom: 28px;
+
+    h2 {
+      color: $color-heading;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    p {
+      margin-top: 6px;
+      color: $color-text-light;
+      font-size: 12px;
+    }
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 22px 28px;
+  }
+
+  &__field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    label {
+      color: $color-heading;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    input,
+    select {
+      width: 100%;
+      min-height: 42px;
+      padding: 10px 12px;
+      border: 1px solid $color-border;
+      border-radius: 8px;
+      outline: none;
+      background: #fbfcfc;
+      color: $color-heading;
+      font-family: inherit;
+      font-size: 12px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+
+      &::placeholder {
+        color: $color-text-light;
+      }
+
+      &:focus {
+        border-color: $color-primary;
+        box-shadow: 0 0 0 3px rgba(91, 145, 128, 0.12);
+      }
+    }
+
+    select {
+      cursor: pointer;
+    }
+
+    &--full {
+      grid-column: 1 / -1;
+    }
+  }
+
+  &__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 28px;
+
+    button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      min-width: 120px;
+      padding: 12px 18px;
+      border: none;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+  }
+
+  &__cancel {
+    background: #f1f3f3;
+    color: $color-text;
+
+    &:hover {
+      background: #e5e9e8;
+    }
+  }
+
+  &__submit {
+    background: $color-primary;
+    color: white;
+
+    &:hover {
+      background: $color-primary-dark;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .create-user {
+    &__heading {
+      padding: 20px;
+
+      h1 {
+        font-size: 22px;
+      }
+    }
+
+    &__form {
+      padding: 20px;
+    }
+
+    &__grid {
+      grid-template-columns: 1fr;
+      gap: 18px;
+    }
+
+    &__field--full {
+      grid-column: auto;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .create-user {
+    &__actions {
+      flex-direction: column-reverse;
+
+      button {
+        width: 100%;
+      }
+    }
+  }
+}

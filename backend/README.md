@@ -2,105 +2,236 @@
 
 ## Descripción
 
-El backend es el componente encargado de procesar las solicitudes del frontend, ejecutar la lógica de negocio, aplicar las reglas de seguridad y gestionar el acceso a la base de datos.
+El backend es el componente encargado de procesar las solicitudes del frontend, ejecutar la lógica de negocio, aplicar las reglas de seguridad y gestionar el acceso a la base de datos del sistema VET.
 
-Está desarrollado con:
+Está desarrollado con las siguientes tecnologías:
 
 - **Node.js:** entorno de ejecución de JavaScript.
 - **Express:** framework para la construcción de la API REST.
+- **TypeScript:** lenguaje utilizado para desarrollar el backend con tipado estático.
 - **MySQL:** sistema de gestión de bases de datos relacionales.
+- **mysql2:** biblioteca utilizada para establecer conexiones y ejecutar consultas sobre MySQL.
+- **JWT:** mecanismo de autenticación mediante tokens.
+- **bcrypt:** biblioteca utilizada para el hashing de contraseñas.
+- **Swagger / OpenAPI:** herramientas para documentar y probar los endpoints de la API.
 
 ## Arquitectura
 
-El backend adopta una arquitectura modular, organizada por responsabilidades y funcionalidades del sistema. Esta estructura permite separar la configuración general, los mecanismos transversales y la lógica específica de cada módulo.
+El backend adopta una arquitectura modular organizada por funcionalidades y responsabilidades.
 
-## Estructura de Carpetas
+Cada módulo concentra los componentes necesarios para implementar sus operaciones, separando principalmente:
+
+- **Routes:** definen los endpoints y vinculan las solicitudes HTTP con sus controladores.
+- **Controllers:** reciben las solicitudes, ejecutan las validaciones correspondientes y coordinan las operaciones.
+- **Repositories:** centralizan el acceso y las consultas a la base de datos.
+- **DTOs:** definen las estructuras de datos utilizadas en determinadas operaciones.
+
+Esta organización permite mantener una separación de responsabilidades y facilita el mantenimiento y la evolución del sistema.
+
+## Estructura de carpetas
 
 ```text
 backend/
 ├── src/
 │   ├── config/
-│   │   └── index.ts
+│   │   ├── db.ts
+│   │   └── swagger.ts
+│   ├── constants/
+│   │   └── roles.ts
 │   ├── middlewares/
-│   │   └── index.ts
-│   └── modules/
-│       ├── auth/
-│       │   └── index.ts
-│       ├── pets/
-│       │   └── index.ts
-│       ├── users/
-│       │   └── index.ts
-│       ├── catalogs/
-│       │   └── index.ts
-│       ├── agenda/
-│       │   └── index.ts
-│       └── clinical/
-│           └── index.ts
+│   │   └── auth.middleware.ts
+│   ├── modules/
+│   │   ├── agenda/
+│   │   │   ├── horarios/
+│   │   │   │   ├── horarios.controller.ts
+│   │   │   │   ├── horarios.repository.ts
+│   │   │   │   └── horarios.routes.ts
+│   │   │   └── turnos/
+│   │   │       ├── turnos.controller.ts
+│   │   │       ├── turnos.repository.ts
+│   │   │       └── turnos.routes.ts
+│   │   ├── auth/
+│   │   │   ├── auth.controller.ts
+│   │   │   ├── auth.dto.ts
+│   │   │   ├── auth.repository.ts
+│   │   │   └── auth.routes.ts
+│   │   ├── catalogs/
+│   │   │   └── index.ts
+│   │   ├── clinical/
+│   │   │   └── index.ts
+│   │   ├── especialidades/
+│   │   │   ├── especialidades.controller.ts
+│   │   │   ├── especialidades.dto.ts
+│   │   │   ├── especialidades.repository.ts
+│   │   │   └── especialidades.routes.ts
+│   │   ├── mascotas/
+│   │   │   ├── mascotas.controller.ts
+│   │   │   ├── mascotas.dto.ts
+│   │   │   ├── mascotas.repository.ts
+│   │   │   └── mascotas.routes.ts
+│   │   └── usuarios/
+│   │       ├── usuarios.controller.ts
+│   │       ├── usuarios.dependencies.ts
+│   │       ├── usuarios.dto.ts
+│   │       ├── usuarios.repository.interface.ts
+│   │       ├── usuarios.repository.ts
+│   │       └── usuarios.routes.ts
+│   └── utils/
+│       ├── password.util.ts
+│       └── validator.util.ts
 ├── app.ts
 ├── server.ts
+├── package.json
 └── README.md
 ```
 
-## Organización del Backend
+## Organización del backend
 
 ### Config
 
-La carpeta `config/` centraliza la configuración general del backend, incluyendo los parámetros necesarios para el funcionamiento de la aplicación y la conexión con la base de datos.
+La carpeta `config/` centraliza la configuración general de la aplicación.
+
+- **db.ts:** configura el pool de conexiones con MySQL mediante `mysql2/promise`.
+- **swagger.ts:** configura la documentación interactiva de la API mediante Swagger.
+
+### Constants
+
+Contiene constantes compartidas por los distintos módulos.
+
+- **roles.ts:** centraliza los identificadores de roles utilizados en las verificaciones de permisos.
 
 ### Middlewares
 
-La carpeta `middlewares/` agrupa los mecanismos que intervienen en el procesamiento de las solicitudes HTTP, como:
+La carpeta `middlewares/` contiene mecanismos que intervienen en el procesamiento de las solicitudes HTTP.
 
-- Autenticación.
-- Autorización basada en roles.
-- Validación de solicitudes.
-- Manejo de errores.
+Actualmente se utiliza el middleware de autenticación y autorización para:
 
-Estos mecanismos permiten aplicar controles comunes antes de ejecutar la lógica de cada módulo.
+- Verificar la validez del token JWT.
+- Identificar al usuario autenticado.
+- Controlar el acceso a determinadas operaciones según el rol del usuario.
 
 ### Modules
 
-La carpeta `modules/` contiene la lógica organizada según las funcionalidades principales del sistema.
+La carpeta `modules/` contiene la lógica organizada según las funcionalidades del sistema.
 
 | Módulo | Responsabilidad |
 |---|---|
-| `auth/` | Registro, inicio de sesión, autenticación y control de acceso. |
-| `pets/` | Alta, consulta, actualización y baja lógica de mascotas. |
-| `users/` | Gestión de usuarios, perfiles, roles y datos personales. |
-| `catalogs/` | Administración de especialidades y catálogos del sistema. |
-| `agenda/` | Gestión de turnos, disponibilidad, horarios de atención y estados de las reservas. |
-| `clinical/` | Registro, actualización y consulta de atenciones clínicas, vacunación y libreta sanitaria. |
+| `auth/` | Registro de clientes, inicio de sesión, consulta del perfil autenticado y cierre de sesión del lado del cliente. |
+| `usuarios/` | Gestión de usuarios, perfiles y operaciones administrativas. |
+| `mascotas/` | Alta, consulta, actualización y baja lógica de mascotas, aplicando controles de permisos y pertenencia. |
+| `especialidades/` | Consulta, creación, actualización y baja lógica de especialidades veterinarias. |
+| `agenda/` | Gestión de turnos, disponibilidad y horarios de atención de los veterinarios. |
+| `catalogs/` | Estructura prevista para centralizar consultas de catálogos del sistema. Pendiente de desarrollo. |
+| `clinical/` | Estructura prevista para futuras funcionalidades de atención clínica y vacunación. Pendiente de desarrollo. |
 
-Cada módulo concentra las operaciones correspondientes a su funcionalidad y permite mantener una separación lógica entre las distintas áreas del sistema.
+#### Módulo Agenda
+
+El módulo `agenda/` se encuentra organizado en dos submódulos para separar sus responsabilidades:
+
+**Turnos (`agenda/turnos/`)**
+
+Gestiona las operaciones relacionadas con las reservas de atención veterinaria:
+
+- Consulta de disponibilidad.
+- Solicitud de turnos.
+- Listado y consulta de reservas.
+- Gestión y cancelación de turnos.
+- Validaciones de permisos, pertenencia de mascotas, fechas y superposición de reservas.
+
+**Horarios (`agenda/horarios/`)**
+
+Gestiona los horarios de atención configurados para los veterinarios, que se utilizan para determinar la disponibilidad de turnos.
+
+Cada submódulo cuenta con sus propios controladores, repositorios y rutas.
+
+### Utils
+
+La carpeta `utils/` agrupa funciones auxiliares reutilizables:
+
+- **password.util.ts:** utilidades relacionadas con el manejo de contraseñas.
+- **validator.util.ts:** utilidades relacionadas con la validación de datos.
 
 ### App.ts
 
-Archivo responsable de configurar la aplicación Express, integrar los middlewares y registrar los módulos y sus rutas para exponer la API REST.
+Es responsable de configurar la aplicación Express, incorporar los middlewares generales y registrar las rutas de los módulos disponibles.
 
 ### Server.ts
 
-Punto de entrada del servidor. Se encarga de iniciar la aplicación y poner en funcionamiento la API en el puerto configurado.
+Es el punto de entrada del servidor. Importa la aplicación Express e inicia el servidor HTTP en el puerto configurado.
 
 ## Seguridad
 
-El backend es responsable de aplicar las medidas de seguridad necesarias para proteger la información y garantizar que cada usuario acceda únicamente a las funcionalidades autorizadas.
+El backend implementa mecanismos de autenticación y autorización para proteger los recursos de la API.
 
-Se contemplan los siguientes mecanismos:
+Entre las medidas contempladas se encuentran:
 
-- Almacenamiento seguro de contraseñas.
+- Autenticación mediante tokens JWT.
+- Hashing de contraseñas mediante bcrypt.
 - Autorización basada en roles: Administrador, Veterinario y Cliente.
-- Validación de datos recibidos desde el frontend.
-- Protección de las operaciones mediante controles de permisos.
-- Baja lógica de registros para preservar la trazabilidad histórica.
+- Verificación de permisos en el servidor.
+- Validación de pertenencia de las mascotas en las operaciones correspondientes.
+- Baja lógica de registros para preservar la información histórica.
 
-La validación de permisos se realiza en el servidor, independientemente de las restricciones de visualización implementadas en el frontend.
+Los controles de acceso se ejecutan en el backend, independientemente de las restricciones de visualización que pueda implementar el frontend.
 
-## Base de Datos
+## Base de datos
 
-El backend utiliza MySQL como sistema de persistencia, gestionando las operaciones sobre las entidades definidas en el modelo de datos.
+El backend utiliza **MySQL** como sistema de persistencia.
 
-La estructura de la base de datos, sus relaciones y restricciones se encuentran documentadas en la carpeta `database/` del repositorio.
+La conexión se configura mediante un pool utilizando `mysql2/promise`. Los parámetros de conexión se obtienen de variables de entorno para evitar incluir credenciales directamente en el código fuente.
 
-## Comunicación con el Frontend
+La estructura de la base de datos, sus entidades, relaciones y restricciones se encuentran documentadas en la carpeta `database/` del repositorio.
 
-El backend expone una API REST que permite al frontend realizar operaciones mediante solicitudes HTTP. Las respuestas se envían en formato JSON, utilizando los códigos de estado HTTP correspondientes para informar el resultado de cada operación.
+## Comunicación con el frontend
+
+El backend expone una API REST que permite al frontend realizar operaciones mediante solicitudes HTTP.
+
+Las respuestas se envían en formato JSON y utilizan los códigos de estado HTTP correspondientes para informar el resultado de cada operación.
+
+Para el desarrollo y la validación de los endpoints se utilizan:
+
+- **Postman:** ejecución y prueba de solicitudes HTTP.
+- **Swagger / OpenAPI:** documentación de los endpoints y prueba interactiva de la API.
+
+## Ejecución local
+
+### Requisitos previos
+
+- Node.js.
+- npm.
+- MySQL.
+- Base de datos del proyecto creada y configurada.
+
+### Instalación de dependencias
+
+Desde la carpeta `backend/`, ejecutar:
+
+```bash
+npm install
+```
+
+### Configuración de variables de entorno
+
+Crear un archivo `.env` en la raíz de `backend/` con los parámetros de conexión a MySQL y la configuración de autenticación.
+
+Las variables necesarias deben configurarse de acuerdo con los parámetros utilizados por la aplicación.
+
+### Iniciar el servidor
+
+Ejecutar:
+
+```bash
+npm run dev
+```
+
+Este comando inicia el servidor mediante `tsx watch`, permitiendo detectar cambios en los archivos y reiniciar automáticamente la aplicación durante el desarrollo.
+
+### Documentación de la API
+
+Con el servidor en funcionamiento, acceder a:
+
+```text
+http://localhost:3000/api-docs
+```
+
+Swagger permite consultar los endpoints documentados, sus parámetros, cuerpos de petición y respuestas, además de probar las operaciones disponibles.
