@@ -79,6 +79,7 @@ backend/
 │       └── validator.util.ts
 ├── app.ts
 ├── server.ts
+├── .env.example
 ├── package.json
 └── README.md
 ```
@@ -91,12 +92,6 @@ La carpeta `config/` centraliza la configuración general de la aplicación.
 
 - **db.ts:** configura el pool de conexiones con MySQL mediante `mysql2/promise`.
 - **swagger.ts:** configura la documentación interactiva de la API mediante Swagger.
-
-### Constants
-
-Contiene constantes compartidas por los distintos módulos.
-
-- La autorización consulta los nombres de roles en la tabla `Rol`, sin depender de identificadores numéricos fijos.
 
 ### Middlewares
 
@@ -120,7 +115,8 @@ La carpeta `modules/` contiene la lógica organizada según las funcionalidades 
 | `especialidades/` | Consulta, creación, actualización y baja lógica de especialidades veterinarias. |
 | `agenda/` | Gestión de turnos, disponibilidad y horarios de atención de los veterinarios. |
 | `catalogs/` | Estructura prevista para centralizar consultas de catálogos del sistema. Pendiente de desarrollo. |
-| `clinical/` | Estructura prevista para futuras funcionalidades de atención clínica y vacunación. Pendiente de desarrollo. |
+| `catalogs/` | Solo contiene el archivo de estructura `index.ts`; no existe aún un módulo centralizado de catálogos. Las consultas de roles y estados están en los repositorios de sus funcionalidades, y las especialidades se gestionan en `especialidades/`. |
+| `clinical/` | Solo contiene el archivo de estructura `index.ts`; no hay endpoints ni lógica backend para atenciones clínicas o vacunación. Las tablas clínicas sí están definidas en el modelo y el script SQL. |
 
 #### Módulo Agenda
 
@@ -149,13 +145,9 @@ La carpeta `utils/` agrupa funciones auxiliares reutilizables:
 - **password.util.ts:** utilidades relacionadas con el manejo de contraseñas.
 - **validator.util.ts:** utilidades relacionadas con la validación de datos.
 
-### App.ts
+### App.ts y Server.ts
 
-Es responsable de configurar la aplicación Express, incorporar los middlewares generales y registrar las rutas de los módulos disponibles.
-
-### Server.ts
-
-Es el punto de entrada del servidor. Importa la aplicación Express e inicia el servidor HTTP en el puerto configurado.
+`app.ts` configura Express, incorpora los middlewares generales y registra las rutas implementadas. `server.ts` importa esa aplicación e inicia el servidor HTTP en el puerto configurado.
 
 ## Seguridad
 

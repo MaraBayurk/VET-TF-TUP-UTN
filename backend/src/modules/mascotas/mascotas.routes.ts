@@ -50,14 +50,34 @@ const rolesDeGestion = verificarRolPorNombre([
  *     responses:
  *       200:
  *         description: Listado de mascotas obtenido correctamente.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  *       401:
  *         description: Token inválido o no proporcionado.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  *       403:
  *         description: Rol sin permisos.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  *       404:
  *         description: Perfil de cliente no encontrado o inactivo.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  *       500:
  *         description: Error interno del servidor.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  */
 router.get('/', todosLosRoles, obtenerMascotas);
 
@@ -80,16 +100,40 @@ router.get('/', todosLosRoles, obtenerMascotas);
  *     responses:
  *       200:
  *         description: Mascota encontrada.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  *       400:
  *         description: Identificador inválido.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  *       401:
  *         description: Token inválido o no proporcionado.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  *       403:
  *         description: La mascota no pertenece al cliente autenticado.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  *       404:
  *         description: Mascota no encontrada o inactiva.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  *       500:
  *         description: Error interno del servidor.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  */
 router.get('/:id', todosLosRoles, obtenerMascotaPorId);
 
@@ -146,16 +190,40 @@ router.get('/:id', todosLosRoles, obtenerMascotaPorId);
  *     responses:
  *       201:
  *         description: Mascota registrada exitosamente.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  *       400:
  *         description: Datos inválidos o cliente inexistente o inactivo.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  *       401:
  *         description: Token inválido o no proporcionado.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  *       403:
  *         description: Rol sin permisos.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  *       404:
  *         description: Perfil de cliente no encontrado o inactivo.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  *       500:
  *         description: Error interno del servidor.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  */
 router.post('/', todosLosRoles, crearMascota);
 
@@ -211,16 +279,40 @@ router.post('/', todosLosRoles, crearMascota);
  *     responses:
  *       200:
  *         description: Datos de la mascota actualizados exitosamente.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  *       400:
  *         description: Identificador o datos inválidos, o no se enviaron campos válidos.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  *       401:
  *         description: Token inválido o no proporcionado.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  *       403:
  *         description: La mascota no pertenece al cliente autenticado.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  *       404:
  *         description: Mascota no encontrada o inactiva.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  *       500:
  *         description: Error interno del servidor.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  */
 router.put('/:id', todosLosRoles, actualizarMascota);
 
@@ -243,16 +335,40 @@ router.put('/:id', todosLosRoles, actualizarMascota);
  *     responses:
  *       200:
  *         description: Mascota dada de baja y turnos futuros cancelados.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  *       400:
  *         description: Identificador inválido.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  *       401:
  *         description: Token inválido o no proporcionado.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  *       403:
  *         description: El usuario no tiene permisos para dar de baja mascotas.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  *       404:
  *         description: Mascota no encontrada o ya inactiva.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  *       500:
  *         description: Error interno del servidor.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  */
 router.delete('/:id', rolesDeGestion, eliminarMascota);
 

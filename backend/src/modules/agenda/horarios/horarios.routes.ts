@@ -37,14 +37,34 @@ const soloAdministrador = verificarRolPorNombre(['Administrador']);
  *     responses:
  *       200:
  *         description: Horarios obtenidos correctamente.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  *       400:
  *         description: Filtros inválidos.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  *       401:
  *         description: Usuario no autenticado.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  *       403:
  *         description: Rol sin permisos.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  *       500:
  *         description: Error interno.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  */
 router.get('/', verificarToken, soloAdministrador, listarHorarios);
 
@@ -86,18 +106,46 @@ router.get('/', verificarToken, soloAdministrador, listarHorarios);
  *     responses:
  *       201:
  *         description: Horario registrado exitosamente.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  *       400:
  *         description: Datos inválidos.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  *       401:
  *         description: Usuario no autenticado.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  *       403:
  *         description: Rol sin permisos.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  *       404:
  *         description: Veterinario inexistente o inactivo.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  *       409:
  *         description: Franja horaria superpuesta.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  *       500:
  *         description: Error interno.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  */
 router.post('/', verificarToken, soloAdministrador, crearHorario);
 

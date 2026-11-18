@@ -66,6 +66,10 @@ export const crearUsuario = async (req: Request, res: Response): Promise<void> =
             res.status(400).json({ status: 'error', message: 'El rol indicado no existe en el catálogo de roles' });
             return;
         }
+        if (error.message === 'ROLE_NOT_SUPPORTED') {
+            res.status(400).json({ status: 'error', message: 'El rol no tiene un perfil habilitado para el sistema' });
+            return;
+        }
 
         console.error('Error al crear usuario:', error);
         res.status(500).json({ status: 'error', message: 'Error interno del servidor' });
@@ -93,8 +97,6 @@ export const actualizarMiPerfil = async (req: Request, res: Response): Promise<v
     try {
         // Obtenemos los datos del usuario desde el token JWT inyectado por el middleware
         const idUsuario = (req as any).usuario.id_usuario; 
-        const idRol = (req as any).usuario.id_rol;
-        
         const { telefono, direccion } = req.body;
         const datos: ActualizarPerfilDTO = { telefono, direccion };
 
@@ -104,7 +106,7 @@ export const actualizarMiPerfil = async (req: Request, res: Response): Promise<v
             return;
         }
 
-        await usuariosRepository.actualizarPerfil(idUsuario, idRol, datos);
+        await usuariosRepository.actualizarPerfil(idUsuario, datos);
 
         res.status(200).json({ 
             status: 'success', 
@@ -112,6 +114,14 @@ export const actualizarMiPerfil = async (req: Request, res: Response): Promise<v
         });
 
     } catch (error) {
+        if ((error as Error).message === 'USER_NOT_FOUND') {
+            res.status(404).json({ status: 'error', message: 'Usuario no encontrado o inactivo' });
+            return;
+        }
+        if ((error as Error).message === 'PROFILE_MISMATCH') {
+            res.status(409).json({ status: 'error', message: 'El perfil extendido del usuario no coincide con su rol' });
+            return;
+        }
         console.error('Error al actualizar el perfil:', error);
         res.status(500).json({ status: 'error', message: 'Error interno del servidor' });
     }
