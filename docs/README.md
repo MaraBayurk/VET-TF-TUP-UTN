@@ -9,6 +9,7 @@ Esta carpeta contiene la documentación funcional y técnica del sistema de gest
 | `propuesta_del_proyecto.md` | Presenta la problemática, los objetivos, el alcance, los requerimientos y las reglas de negocio del sistema. |
 | `diseño_y_modulos.md` | Describe el diseño funcional, las historias de usuario, los módulos y la matriz de permisos. |
 | `UML.png` | Representa el diagrama de clases UML, con sus atributos, métodos y relaciones. |
+| `UML.puml` | Fuente editable de las entidades, atributos y relaciones del modelo UML. |
 
 ## Arquitectura del Sistema
 

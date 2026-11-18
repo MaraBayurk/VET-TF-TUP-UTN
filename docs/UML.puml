@@ -1,0 +1,135 @@
+@startuml
+title Modelo de dominio VET
+hide methods
+skinparam classAttributeIconSize 0
+
+class Rol {
+  id_rol: TINYINT <<PK>>
+  nombre: VARCHAR(30)
+}
+
+class Usuario {
+  id_usuario: INT <<PK>>
+  nombre: VARCHAR(100)
+  apellido: VARCHAR(100)
+  numero_documento: VARCHAR(20)
+  email: VARCHAR(150)
+  password_hash: VARCHAR(255)
+  telefono: VARCHAR(30)
+  id_rol: TINYINT <<FK>>
+  fecha_creacion: DATETIME
+  fecha_actualizacion: DATETIME
+  activo: BOOLEAN
+}
+
+class Cliente {
+  id_cliente: INT <<PK>>
+  id_usuario: INT <<FK, UNIQUE>>
+  direccion: VARCHAR(255)
+}
+
+class Veterinario {
+  id_veterinario: INT <<PK>>
+  id_usuario: INT <<FK, UNIQUE>>
+  matricula: VARCHAR(50)
+  id_especialidad: INT <<FK>>
+}
+
+class Especialidad {
+  id_especialidad: INT <<PK>>
+  nombre: VARCHAR(100)
+  descripcion: VARCHAR(255)
+  activo: BOOLEAN
+}
+
+class Mascota {
+  id_mascota: INT <<PK>>
+  id_cliente: INT <<FK>>
+  nombre: VARCHAR(100)
+  especie: VARCHAR(60)
+  raza: VARCHAR(100)
+  fecha_nacimiento: DATE
+  sexo: VARCHAR(20)
+  observaciones: TEXT
+  fecha_creacion: DATETIME
+  fecha_actualizacion: DATETIME
+  activo: BOOLEAN
+}
+
+class EstadoTurno {
+  id_estado_turno: TINYINT <<PK>>
+  nombre: VARCHAR(20)
+}
+
+class Turno {
+  id_turno: INT <<PK>>
+  id_mascota: INT <<FK>>
+  id_veterinario: INT <<FK>>
+  id_usuario_creador: INT <<FK>>
+  id_estado_turno: TINYINT <<FK>>
+  fecha_hora: DATETIME
+  motivo: VARCHAR(500)
+  observaciones: TEXT
+  fecha_creacion: DATETIME
+  fecha_actualizacion: DATETIME
+}
+
+class TipoAtencion {
+  id_tipo_atencion: TINYINT <<PK>>
+  nombre: VARCHAR(30)
+}
+
+class AtencionClinica {
+  id_atencion: INT <<PK>>
+  id_turno: INT <<FK, NULL, UNIQUE>>
+  id_mascota: INT <<FK>>
+  id_veterinario: INT <<FK>>
+  id_tipo_atencion: TINYINT <<FK>>
+  diagnostico: TEXT
+  tratamiento: TEXT
+  observaciones: TEXT
+  proximo_control: DATE
+  fecha_atencion: DATETIME
+  id_usuario_ultima_modificacion: INT <<FK, NULL>>
+  fecha_ultima_modificacion: DATETIME
+  activo: BOOLEAN
+}
+
+class HorarioAtencion {
+  id_horario: INT <<PK>>
+  id_veterinario: INT <<FK>>
+  dia_semana: TINYINT
+  hora_inicio: TIME
+  hora_fin: TIME
+  intervalo_minutos: SMALLINT
+  activo: BOOLEAN
+}
+
+class VacunaAplicada {
+  id_vacuna_aplicada: INT <<PK>>
+  id_atencion: INT <<FK>>
+  nombre_vacuna: VARCHAR(120)
+  dosis: VARCHAR(80)
+  lote: VARCHAR(80)
+  fecha_aplicacion: DATE
+  proxima_aplicacion: DATE
+  laboratorio: VARCHAR(120)
+}
+
+Rol "1" -- "0..*" Usuario : asigna
+Usuario "1" -- "0..1" Cliente : perfil
+Usuario "1" -- "0..1" Veterinario : perfil
+Cliente "1" -- "0..*" Mascota : responsable
+Especialidad "1" -- "0..*" Veterinario : especialidad
+Mascota "1" -- "0..*" Turno : tiene
+Veterinario "1" -- "0..*" Turno : atiende
+Usuario "1" -- "0..*" Turno : solicita
+EstadoTurno "1" -- "0..*" Turno : estado
+Turno "0..1" -- "0..1" AtencionClinica : origina (opcional)
+Mascota "1" -- "0..*" AtencionClinica : recibe
+Veterinario "1" -- "0..*" AtencionClinica : registra
+TipoAtencion "1" -- "0..*" AtencionClinica : clasifica
+Usuario "0..1" -- "0..*" AtencionClinica : modifica
+Veterinario "1" -- "0..*" HorarioAtencion : dispone
+AtencionClinica "1" -- "0..*" VacunaAplicada : incluye
+@enduml

@@ -7,8 +7,7 @@ import {
     eliminarUsuario,
     actualizarMiPerfil
 } from './usuarios.controller';
-import { verificarToken, verificarRol } from '../../middlewares/auth.middleware';
-import { ROLES } from "../../constants/roles";
+import { verificarToken, verificarRolPorNombre } from '../../middlewares/auth.middleware';
 
 const router = Router();
 
@@ -40,7 +39,7 @@ router.use(verificarToken);
  *       500:
  *         description: Error interno del servidor
  */
-router.get('/', verificarRol([ROLES.ADMINISTRADOR]), obtenerUsuarios);
+router.get('/', verificarRolPorNombre(['Administrador']), obtenerUsuarios);
 
 /**
  * @swagger
@@ -69,7 +68,7 @@ router.get('/', verificarRol([ROLES.ADMINISTRADOR]), obtenerUsuarios);
  *       500:
  *         description: Error interno del servidor
  */
-router.get('/:id', verificarRol([ROLES.ADMINISTRADOR]), obtenerUsuarioPorId);
+router.get('/:id', verificarRolPorNombre(['Administrador']), obtenerUsuarioPorId);
 
 /**
  * @swagger
@@ -144,7 +143,7 @@ router.get('/:id', verificarRol([ROLES.ADMINISTRADOR]), obtenerUsuarioPorId);
  *       500:
  *         description: Error interno del servidor
  */
-router.post('/', verificarRol([ROLES.ADMINISTRADOR]), crearUsuario);
+router.post('/', verificarRolPorNombre(['Administrador']), crearUsuario);
 
 /**
  * @swagger
@@ -174,7 +173,7 @@ router.post('/', verificarRol([ROLES.ADMINISTRADOR]), crearUsuario);
  *       500:
  *         description: Error interno del servidor
  */
-router.delete('/:id', verificarRol([ROLES.ADMINISTRADOR]), eliminarUsuario);
+router.delete('/:id', verificarRolPorNombre(['Administrador']), eliminarUsuario);
 
 /**
  * @swagger

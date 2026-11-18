@@ -60,6 +60,59 @@ permitiendo una mejor organización de las tareas administrativas y clínicas.
 
 ## Instalación y ejecución
 
-Las instrucciones de instalación y ejecución se incorporarán junto con
-la implementación del frontend y el backend.
+### Requisitos previos
+
+- Node.js y npm.
+- MySQL en ejecución o una instancia MySQL accesible.
+
+### Base de datos
+
+Crear la base ejecutando el script [`database/script.sql`](./database/script.sql) en MySQL. Por ejemplo, desde la raíz del repositorio:
+
+```bash
+mysql -u root -p < database/script.sql
+```
+
+Si se utiliza otro servidor o credenciales, adaptar este comando a la configuración local.
+
+### Backend
+
+En una terminal, preparar la configuración y arrancar la API:
+
+```bash
+cd backend
+npm install
+cp .env.example .env
+```
+
+Completar `backend/.env` con los datos de conexión a MySQL y reemplazar `JWT_SECRET` por una clave segura. Luego ejecutar:
+
+```bash
+npm run dev
+```
+
+La API queda disponible en `http://localhost:3000` y la documentación Swagger en `http://localhost:3000/api-docs`.
+
+### Frontend
+
+En otra terminal:
+
+```bash
+cd frontend
+npm install
+```
+
+Crear `frontend/.env` con la URL de la API:
+
+```env
+VITE_API_URL=http://localhost:3000/api
+```
+
+Iniciar la aplicación web:
+
+```bash
+npm run dev
+```
+
+Vite mostrará en la terminal la dirección local del frontend, normalmente `http://localhost:5173`.
 
