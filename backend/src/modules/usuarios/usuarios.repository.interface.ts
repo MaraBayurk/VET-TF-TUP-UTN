@@ -11,7 +11,6 @@ export interface IUsuariosRepository {
 
     actualizarPerfil(
         idUsuario: number,
-        idRol: number,
         datos: ActualizarPerfilDTO
     ): Promise<void>;
 }

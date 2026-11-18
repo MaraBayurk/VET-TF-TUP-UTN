@@ -41,7 +41,7 @@ permitiendo una mejor organización de las tareas administrativas y clínicas.
 - [Relevamiento de encuestas](./docs/relevamiento_encuestas.md)
 
 
-## Funcionalidades principales
+## Funcionalidades previstas
 
 - Gestión de usuarios y roles.
 - Registro y administración de mascotas.
@@ -50,6 +50,8 @@ permitiendo una mejor organización de las tareas administrativas y clínicas.
 - Registro y consulta de atenciones clínicas.
 - Administración de vacunas aplicadas.
 - Consulta de la libreta sanitaria de las mascotas.
+
+Este listado resume el alcance del proyecto. En la entrega actual están implementados los módulos de usuarios, mascotas, especialidades, agenda y turnos. La atención clínica y la vacunación están modeladas y documentadas, pero su módulo backend aún no está desarrollado; `catalogs/` también es una estructura inicial, mientras que las consultas de catálogos se realizan desde los repositorios de cada funcionalidad.
 
 ## Estructura del repositorio
 

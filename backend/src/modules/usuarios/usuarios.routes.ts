@@ -32,12 +32,28 @@ router.use(verificarToken);
  *     responses:
  *       200:
  *         description: Lista de usuarios obtenida exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  *       401:
  *         description: Token faltante o inválido
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  *       403:
  *         description: Acceso restringido al administrador
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  *       500:
  *         description: Error interno del servidor
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  */
 router.get('/', verificarRolPorNombre(['Administrador']), obtenerUsuarios);
 
@@ -59,14 +75,34 @@ router.get('/', verificarRolPorNombre(['Administrador']), obtenerUsuarios);
  *     responses:
  *       200:
  *         description: Usuario encontrado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  *       401:
  *         description: Token faltante o inválido
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  *       403:
  *         description: Acceso restringido al administrador
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  *       404:
  *         description: Usuario no encontrado o inactivo
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  *       500:
  *         description: Error interno del servidor
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  */
 router.get('/:id', verificarRolPorNombre(['Administrador']), obtenerUsuarioPorId);
 
@@ -131,16 +167,40 @@ router.get('/:id', verificarRolPorNombre(['Administrador']), obtenerUsuarioPorId
  *     responses:
  *       201:
  *         description: Usuario y perfil extendido creados exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  *       400:
- *         description: Faltan datos obligatorios o datos del veterinario
+ *         description: Faltan datos obligatorios, faltan datos del veterinario o el rol no existe o no está soportado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  *       401:
  *         description: Token faltante o inválido
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  *       403:
  *         description: Operación exclusiva del administrador
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  *       409:
  *         description: Email, documento o matrícula duplicados
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  *       500:
  *         description: Error interno del servidor
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  */
 router.post('/', verificarRolPorNombre(['Administrador']), crearUsuario);
 
@@ -163,14 +223,34 @@ router.post('/', verificarRolPorNombre(['Administrador']), crearUsuario);
  *     responses:
  *       200:
  *         description: Usuario dado de baja exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  *       401:
  *         description: Token faltante o inválido
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  *       403:
  *         description: Operación exclusiva del administrador
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  *       404:
  *         description: Usuario no encontrado o ya inactivo
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  *       500:
  *         description: Error interno del servidor
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  */
 router.delete('/:id', verificarRolPorNombre(['Administrador']), eliminarUsuario);
 
@@ -199,12 +279,40 @@ router.delete('/:id', verificarRolPorNombre(['Administrador']), eliminarUsuario)
  *     responses:
  *       200:
  *         description: Datos de contacto actualizados exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  *       400:
  *         description: No se enviaron datos para actualizar
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  *       401:
  *         description: Token faltante o inválido
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
+ *       404:
+ *         description: Usuario no encontrado o inactivo
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
+ *       409:
+ *         description: El perfil extendido no coincide con el rol registrado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  *       500:
  *         description: Error interno del servidor
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  */
 router.put('/perfil', actualizarMiPerfil);
 

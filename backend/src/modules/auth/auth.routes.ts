@@ -50,12 +50,28 @@ const router = Router();
  *     responses:
  *       201:
  *         description: Cuenta creada exitosamente.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  *       400:
  *         description: Datos inválidos o campos obligatorios faltantes.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  *       409:
  *         description: Email o documento ya registrado.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  *       500:
  *         description: Error interno del servidor.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  */
 router.post('/register', register);
 
@@ -72,6 +88,9 @@ router.post('/register', register);
  *         application/json:
  *           schema:
  *             type: object
+ *             required:
+ *               - email
+ *               - password
  *             properties:
  *               email:
  *                 type: string
@@ -82,10 +101,28 @@ router.post('/register', register);
  *     responses:
  *       200:
  *         description: Login exitoso. Devuelve el token JWT y los datos del usuario.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
+ *       400:
+ *         description: Faltan el email o la contraseña.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  *       401:
  *         description: Credenciales inválidas.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  *       500:
  *         description: Error interno del servidor.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  */
 router.post('/login', login);
 
@@ -101,10 +138,22 @@ router.post('/login', login);
  *     responses:
  *       200:
  *         description: Datos del usuario autenticado.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  *       401:
  *         description: Token inválido, expirado o usuario inactivo.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  *       500:
  *         description: Error interno del servidor.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  */
 router.get('/me', verificarToken, me);
 
@@ -119,10 +168,22 @@ router.get('/me', verificarToken, me);
  *     responses:
  *       200:
  *         description: Sesión cerrada correctamente.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  *       401:
  *         description: Usuario no autenticado.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  *       500:
  *         description: Error interno del servidor.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  */
 router.post('/logout', verificarToken, logout);
 
@@ -138,10 +199,28 @@ router.post('/logout', verificarToken, logout);
  *     responses:
  *       200:
  *         description: Acceso concedido al administrador.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  *       401:
  *         description: No autorizado.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  *       403:
  *         description: El usuario no tiene permisos.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
+ *       500:
+ *         description: No se pudo consultar el catálogo de roles.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiEnvelope'
  */
 router.get(
     '/perfil-admin',

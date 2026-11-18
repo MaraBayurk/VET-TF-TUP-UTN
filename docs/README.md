@@ -39,9 +39,9 @@ El sistema contempla tres perfiles de acceso:
 - **Veterinario:** consulta su agenda, administra la información clínica y realiza el seguimiento sanitario de los pacientes.
 - **Cliente:** administra sus datos personales, registra y consulta sus mascotas, solicita y cancela turnos y accede a la libreta sanitaria.
 
-## Reglas de Negocio
+## Reglas de Negocio Definidas
 
-El comportamiento del sistema está definido por las reglas de negocio y los criterios de aceptación documentados en la propuesta. Entre sus principales consideraciones se encuentran:
+El comportamiento funcional previsto está definido por las reglas de negocio y los criterios de aceptación documentados en la propuesta. Entre sus principales consideraciones se encuentran:
 
 - Control de acceso basado en roles.
 - Validación de disponibilidad de horarios para la solicitud de turnos.

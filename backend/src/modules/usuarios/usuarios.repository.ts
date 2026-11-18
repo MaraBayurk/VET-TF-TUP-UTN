@@ -76,6 +76,9 @@ export class UsuariosRepository implements IUsuariosRepository {
             if (!nombreRol) {
                 throw new Error('ROLE_NOT_FOUND');
             }
+            if (!['administrador', 'cliente', 'veterinario'].includes(nombreRol)) {
+                throw new Error('ROLE_NOT_SUPPORTED');
+            }
 
             // 1. Insertar el registro base en la tabla Usuario
             const [resultUsuario]: any = await connection.query(`
@@ -114,13 +117,44 @@ export class UsuariosRepository implements IUsuariosRepository {
     // ACTUALIZACIÓN DE PERFIL DEL USUARIO
     // ==========================================
 
-     async actualizarPerfil(idUsuario: number, idRol: number, datos: ActualizarPerfilDTO): Promise<void> {
+    async actualizarPerfil(idUsuario: number, datos: ActualizarPerfilDTO): Promise<void> {
         const connection = await pool.getConnection();
 
         try {
             await connection.beginTransaction();
 
-            const nombreRol = await this.obtenerNombreRol(connection, idRol);
+            const [usuarios]: any = await connection.query(`
+                SELECT r.nombre
+                FROM Usuario u
+                INNER JOIN Rol r ON r.id_rol = u.id_rol
+                WHERE u.id_usuario = ? AND u.activo = 1
+                LIMIT 1
+                FOR UPDATE
+            `, [idUsuario]);
+
+            if (usuarios.length === 0) {
+                throw new Error('USER_NOT_FOUND');
+            }
+
+            const nombreRol = String(usuarios[0].nombre).toLowerCase();
+
+            if (nombreRol === 'cliente') {
+                const [perfiles]: any = await connection.query(`
+                    SELECT id_cliente FROM Cliente WHERE id_usuario = ? LIMIT 1
+                `, [idUsuario]);
+                if (perfiles.length === 0) {
+                    throw new Error('PROFILE_MISMATCH');
+                }
+            } else if (nombreRol === 'veterinario') {
+                const [perfiles]: any = await connection.query(`
+                    SELECT id_veterinario FROM Veterinario WHERE id_usuario = ? LIMIT 1
+                `, [idUsuario]);
+                if (perfiles.length === 0) {
+                    throw new Error('PROFILE_MISMATCH');
+                }
+            } else if (nombreRol !== 'administrador') {
+                throw new Error('ROLE_NOT_SUPPORTED');
+            }
 
             // 1. Actualizamos el teléfono en la tabla base Usuario (si fue enviado)
             if (datos.telefono !== undefined) {
