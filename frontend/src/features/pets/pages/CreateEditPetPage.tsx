@@ -10,7 +10,9 @@ import {
   UserRound,
 } from "lucide-react";
 
-import type { PetItem } from "../../../types/pet";
+import { getAuthUser } from "../../auth/services/authStorage";
+import { getClients } from "../../clients/services/clientService";
+import { createPet, getPet, updatePet } from "../services/petService";
 import "../styles/CreateEditPetPage.scss";
 import { validatePetForm } from "../utils/validatePetForm";
 
@@ -20,8 +22,8 @@ interface Client {
   nombre: string;
   apellido: string;
   numero_documento: string;
-  email: string;
-  telefono: string;
+  email?: string;
+  telefono?: string | null;
 }
 
 interface PetFormData {
@@ -32,193 +34,6 @@ interface PetFormData {
   sexo: string;
   observaciones: string;
 }
-
-const mockClients: Client[] = [
-  {
-    id_cliente: 1,
-    id_usuario: 1,
-    nombre: "María",
-    apellido: "González",
-    numero_documento: "12.345.678",
-    email: "maria.gonzalez@email.com",
-    telefono: "381 123 4567",
-  },
-  {
-    id_cliente: 2,
-    id_usuario: 2,
-    nombre: "Pedro",
-    apellido: "Ramírez",
-    numero_documento: "23.456.789",
-    email: "pedro.ramirez@email.com",
-    telefono: "381 234 5678",
-  },
-  {
-    id_cliente: 3,
-    id_usuario: 3,
-    nombre: "Lucía",
-    apellido: "Fernández",
-    numero_documento: "34.567.890",
-    email: "lucia.fernandez@email.com",
-    telefono: "381 345 6789",
-  },
-  {
-    id_cliente: 4,
-    id_usuario: 4,
-    nombre: "Sofía",
-    apellido: "Vera",
-    numero_documento: "11.222.333",
-    email: "sofia.vera@email.com",
-    telefono: "381 456 7890",
-  },
-  {
-    id_cliente: 5,
-    id_usuario: 5,
-    nombre: "Carlos",
-    apellido: "Méndez",
-    numero_documento: "55.667.788",
-    email: "carlos.mendez@email.com",
-    telefono: "381 567 8901",
-  },
-];
-
-const mockPets: PetItem[] = [
-  {
-    id_mascota: 1,
-    id_cliente: 1,
-    nombre: "Luna",
-    especie: "Canina",
-    raza: "Golden Retriever",
-    fecha_nacimiento: "2021-03-12",
-    sexo: "Hembra",
-    observaciones: "Control periódico",
-    activo: true,
-    cliente: {
-      id_usuario: 1,
-      nombre: "María",
-      apellido: "González",
-      numero_documento: "12.345.678",
-    },
-  },
-  {
-    id_mascota: 2,
-    id_cliente: 2,
-    nombre: "Simba",
-    especie: "Felina",
-    raza: "Europea",
-    fecha_nacimiento: "2022-07-05",
-    sexo: "Macho",
-    observaciones: null,
-    activo: true,
-    cliente: {
-      id_usuario: 2,
-      nombre: "Pedro",
-      apellido: "Ramírez",
-      numero_documento: "23.456.789",
-    },
-  },
-  {
-    id_mascota: 3,
-    id_cliente: 3,
-    nombre: "Nala",
-    especie: "Canina",
-    raza: "Labrador",
-    fecha_nacimiento: "2022-11-18",
-    sexo: "Hembra",
-    observaciones: "Control periódico",
-    activo: true,
-    cliente: {
-      id_usuario: 3,
-      nombre: "Lucía",
-      apellido: "Fernández",
-      numero_documento: "34.567.890",
-    },
-  },
-  {
-    id_mascota: 4,
-    id_cliente: 4,
-    nombre: "Mía",
-    especie: "Felina",
-    raza: "Siamés",
-    fecha_nacimiento: "2024-01-20",
-    sexo: "Hembra",
-    observaciones: null,
-    activo: true,
-    cliente: {
-      id_usuario: 4,
-      nombre: "Sofía",
-      apellido: "Vera",
-      numero_documento: "11.222.333",
-    },
-  },
-  {
-    id_mascota: 5,
-    id_cliente: 5,
-    nombre: "Rocky",
-    especie: "Canina",
-    raza: "Mestizo",
-    fecha_nacimiento: "2020-09-10",
-    sexo: "Macho",
-    observaciones: null,
-    activo: true,
-    cliente: {
-      id_usuario: 5,
-      nombre: "Carlos",
-      apellido: "Méndez",
-      numero_documento: "55.667.788",
-    },
-  },
-  {
-    id_mascota: 6,
-    id_cliente: 6,
-    nombre: "Kira",
-    especie: "Felina",
-    raza: "Maine Coon",
-    fecha_nacimiento: "2021-05-22",
-    sexo: "Hembra",
-    observaciones: null,
-    activo: true,
-    cliente: {
-      id_usuario: 6,
-      nombre: "Ana",
-      apellido: "Torres",
-      numero_documento: "44.556.677",
-    },
-  },
-  {
-    id_mascota: 7,
-    id_cliente: 7,
-    nombre: "Toby",
-    especie: "Canina",
-    raza: "Bulldog Francés",
-    fecha_nacimiento: "2023-02-14",
-    sexo: "Macho",
-    observaciones: null,
-    activo: false,
-    cliente: {
-      id_usuario: 7,
-      nombre: "Juan",
-      apellido: "Pérez",
-      numero_documento: "33.445.566",
-    },
-  },
-  {
-    id_mascota: 8,
-    id_cliente: 8,
-    nombre: "Olivia",
-    especie: "Felina",
-    raza: "Persa",
-    fecha_nacimiento: "2024-06-30",
-    sexo: "Hembra",
-    observaciones: null,
-    activo: true,
-    cliente: {
-      id_usuario: 8,
-      nombre: "Valentina",
-      apellido: "Ruiz",
-      numero_documento: "66.778.899",
-    },
-  },
-];
 
 const emptyForm: PetFormData = {
   nombre: "",
@@ -235,7 +50,13 @@ function CreateEditPetPage() {
 
   const isEditing = Boolean(id);
 
-  const [step, setStep] = useState(isEditing ? 2 : 1);
+  const role = getAuthUser()?.rol?.toLocaleUpperCase("es") ?? "CLIENTE";
+  const isClient = role === "CLIENTE";
+  const [step, setStep] = useState(isEditing || isClient ? 2 : 1);
+  const [clients, setClients] = useState<Client[]>([]);
+  const [loading, setLoading] = useState(isEditing);
+  const [submitting, setSubmitting] = useState(false);
+  const [formError, setFormError] = useState("");
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [clientSearch, setClientSearch] = useState("");
   const [formData, setFormData] = useState<PetFormData>(emptyForm);
@@ -246,37 +67,26 @@ function CreateEditPetPage() {
   useEffect(() => {
     if (!id) return;
 
-    const pet = mockPets.find((item) => item.id_mascota === Number(id));
-
-    if (!pet) {
-      setNotFound(true);
-      return;
-    }
-
-    const client = mockClients.find(
-      (item) => item.id_cliente === pet.id_cliente,
-    );
-
-    if (!client) {
-      setNotFound(true);
-      return;
-    }
-
-    setSelectedClient(client);
-
-    setFormData({
-      nombre: pet.nombre,
-      especie: pet.especie,
-      raza: pet.raza ?? "",
-      fecha_nacimiento: pet.fecha_nacimiento ?? "",
-      sexo: pet.sexo,
-      observaciones: pet.observaciones ?? "",
-    });
-
-    setStep(2);
+    let active = true;
+    getPet(id).then((pet) => {
+      if (!active) return;
+      setSelectedClient({ id_cliente: pet.id_cliente, id_usuario: pet.cliente.id_usuario, nombre: pet.cliente.nombre, apellido: pet.cliente.apellido, numero_documento: pet.cliente.numero_documento });
+      setFormData({ nombre: pet.nombre, especie: pet.especie, raza: pet.raza ?? "", fecha_nacimiento: pet.fecha_nacimiento ?? "", sexo: pet.sexo, observaciones: pet.observaciones ?? "" });
+      setStep(2);
+    }).catch(() => { if (active) setNotFound(true); })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
   }, [id]);
 
-  const filteredClients = mockClients.filter((client) => {
+  useEffect(() => {
+    if (isClient) return;
+    let active = true;
+    getClients().then(data => { if (active) setClients(data.filter(client => Boolean(client.activo)).map(client => ({ ...client, telefono: client.telefono ?? "" }))); })
+      .catch(reason => { if (active) setFormError(reason instanceof Error ? reason.message : "No se pudieron cargar los clientes"); });
+    return () => { active = false; };
+  }, [isClient]);
+
+  const filteredClients = clients.filter((client) => {
     const search = clientSearch.toLowerCase().trim();
 
     const fullName = `${client.nombre} ${client.apellido}`.toLowerCase();
@@ -284,7 +94,7 @@ function CreateEditPetPage() {
     return (
       fullName.includes(search) ||
       client.numero_documento.includes(search) ||
-      client.email.toLowerCase().includes(search)
+      (client.email ?? "").toLowerCase().includes(search)
     );
   });
 
@@ -335,19 +145,29 @@ function CreateEditPetPage() {
       }
     }
   };
-  const handleSubmit = () => {
-    if (step !== 3 || !selectedClient) {
+  const handleSubmit = async () => {
+    if (step !== 3 || (!isClient && !selectedClient)) {
       return;
     }
-
-    window.alert(
-      isEditing
-        ? "Los datos de la mascota se actualizaron correctamente (simulación)."
-        : "La mascota se registró correctamente (simulación).",
-    );
-
-    navigate("/mascotas");
+    setSubmitting(true); setFormError("");
+    const payload = {
+      ...(isClient ? {} : { id_cliente: selectedClient!.id_cliente }),
+      nombre: formData.nombre.trim(), especie: formData.especie,
+      raza: formData.raza.trim() || null, fecha_nacimiento: formData.fecha_nacimiento || null,
+      sexo: formData.sexo, observaciones: formData.observaciones.trim() || null,
+    };
+    try {
+      if (isEditing && id) {
+        const editablePayload = isClient ? { raza: payload.raza, sexo: payload.sexo, observaciones: payload.observaciones } : payload;
+        await updatePet(id, editablePayload);
+      } else await createPet(payload);
+      navigate("/mascotas");
+    } catch (reason) {
+      setFormError(reason instanceof Error ? reason.message : "No se pudo guardar la mascota");
+    } finally { setSubmitting(false); }
   };
+
+  if (loading) return <section className="pet-form"><p role="status">Cargando mascota…</p></section>;
 
   if (notFound) {
     return (
@@ -379,17 +199,19 @@ function CreateEditPetPage() {
           </div>
 
           <div>
-            <h1>{isEditing ? "Editar mascota" : "Nueva mascota"}</h1>
+            <h1>{isEditing ? "Editar mascota" : isClient ? "Registrar mascota" : "Nueva mascota"}</h1>
             <p>
               {isEditing
                 ? "Actualizá los datos de la mascota."
-                : "Completá los pasos para registrar una mascota."}
+                : isClient
+                  ? "Completá los datos para agregar una mascota a tu cuenta."
+                  : "Completá los pasos para registrar una mascota."}
             </p>
           </div>
         </header>
 
         {/* Indicador de pasos */}
-        {!isEditing && (
+        {!isEditing && !isClient && (
           <div className="pet-form__steps">
             {[
               { number: 1, label: "Cliente" },
@@ -414,7 +236,7 @@ function CreateEditPetPage() {
 
         <div className="pet-form__content">
           {/* PASO 1: CLIENTE */}
-          {step === 1 && (
+          {step === 1 && !isClient && (
             <section className="pet-form__step-content">
               <h2>1. Buscar y asociar cliente</h2>
 
@@ -456,7 +278,7 @@ function CreateEditPetPage() {
 
                         <span>DNI: {client.numero_documento}</span>
 
-                        <span>{client.email}</span>
+                    {client.email && <span>{client.email}</span>}
                       </div>
 
                       <span className="pet-form__radio">
@@ -490,7 +312,7 @@ function CreateEditPetPage() {
           {/* PASO 2: MASCOTA */}
           {step === 2 && (
             <section className="pet-form__step-content">
-              <h2>2. Datos de la mascota</h2>
+              <h2>{isClient ? "1." : "2."} Datos de la mascota</h2>
 
               <p>Completá la información de la mascota.</p>
 
@@ -525,6 +347,7 @@ function CreateEditPetPage() {
                     value={formData.nombre}
                     onChange={handleChange}
                     placeholder="Ej. Luna"
+                    disabled={isEditing && isClient}
                   />
 
                   {errors.nombre && (
@@ -539,6 +362,7 @@ function CreateEditPetPage() {
                     name="especie"
                     value={formData.especie}
                     onChange={handleChange}
+                    disabled={isEditing && isClient}
                   >
                     <option value="">Seleccionar especie</option>
                     <option value="Canina">Canina</option>
@@ -571,6 +395,7 @@ function CreateEditPetPage() {
                     value={formData.fecha_nacimiento}
                     max={new Date().toLocaleDateString("en-CA")}
                     onChange={handleChange}
+                    disabled={isEditing && isClient}
                   />
 
                   {errors.fecha_nacimiento && (
@@ -616,8 +441,8 @@ function CreateEditPetPage() {
           {/* PASO 3: CONFIRMACIÓN */}
           {step === 3 && (
             <section className="pet-form__step-content">
-              <h2>3. Confirmación</h2>
-              <p>Revisá los datos antes de registrar la mascota.</p>
+              <h2>{isClient ? "2." : "3."} Confirmación</h2>
+              <p>{isEditing ? "Revisá los cambios antes de guardarlos." : "Revisá los datos antes de registrar la mascota."}</p>
 
               {selectedClient && (
                 <div className="pet-form__review-card">
@@ -639,7 +464,7 @@ function CreateEditPetPage() {
                         {selectedClient.nombre} {selectedClient.apellido}
                       </strong>
                       <span>DNI: {selectedClient.numero_documento}</span>
-                      <span>{selectedClient.email}</span>
+                      {selectedClient.email && <span>{selectedClient.email}</span>}
                     </div>
                   </div>
                 </div>
@@ -689,14 +514,16 @@ function CreateEditPetPage() {
             </section>
           )}
 
+          {formError && <p role="alert" className="pet-form__error">{formError}</p>}
+
           {/* ACCIONES */}
           <footer className="pet-form__actions">
-            {step > 1 && (
+            {step > 1 && !isClient && (
               <button
                 type="button"
                 className="pet-form__cancel"
                 onClick={() => setStep(step - 1)}
-                disabled={isEditing}
+                disabled={isEditing || isClient}
               >
                 <ArrowLeft size={16} />
                 Volver
@@ -716,10 +543,11 @@ function CreateEditPetPage() {
               <button
                 type="button"
                 className="pet-form__submit"
-                onClick={handleSubmit}
+                onClick={() => void handleSubmit()}
+                disabled={submitting}
               >
                 <Check size={16} />
-                {isEditing ? "Guardar cambios" : "Confirmar registro"}
+                {submitting ? "Guardando…" : isEditing ? "Guardar cambios" : "Confirmar registro"}
               </button>
             )}
           </footer>

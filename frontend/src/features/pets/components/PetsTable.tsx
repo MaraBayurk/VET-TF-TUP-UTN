@@ -7,7 +7,7 @@ import {
   UserRoundX,
 } from "lucide-react";
 
-import { CURRENT_USER_ROLE } from "../../../types/roles";
+import type { UserRole } from "../../../types/roles";
 import {
   canEditPet,
   canDeactivatePet,
@@ -19,6 +19,7 @@ import type { PetItem } from "../../../types/pet";
 interface PetsTableProps {
   pets: PetItem[];
   onDeactivate: (pet: PetItem) => void;
+  role: UserRole;
 }
 
 const calculateAge = (birthDate: string | null): string => {
@@ -47,8 +48,9 @@ const calculateAge = (birthDate: string | null): string => {
   return `${years} a ${months} m`;
 };
 
-function PetsTable({ pets, onDeactivate }: PetsTableProps) {
+function PetsTable({ pets, onDeactivate, role }: PetsTableProps) {
   const navigate = useNavigate();
+  const isClient = role === "CLIENTE";
 
   const [openMenuId, setOpenMenuId] = useState<number | null>(null);
   const [selectedPet, setSelectedPet] = useState<PetItem | null>(null);
@@ -77,8 +79,7 @@ function PetsTable({ pets, onDeactivate }: PetsTableProps) {
               <th>Nombre</th>
               <th>Especie</th>
               <th>Raza</th>
-              <th>Cliente responsable</th>
-              <th>Documento</th>
+              {!isClient && <><th>Cliente responsable</th><th>Documento</th></>}
               <th>Fecha nac.</th>
               <th>Edad</th>
               <th>Sexo</th>
@@ -94,12 +95,12 @@ function PetsTable({ pets, onDeactivate }: PetsTableProps) {
               // Validar acciones según rol y estado de la mascota
               const showEditAction = canEditPet(
                 pet,
-                CURRENT_USER_ROLE
+                role
               );
 
               const showDeactivateAction = canDeactivatePet(
                 pet,
-                CURRENT_USER_ROLE
+                role
               );
 
               return (
@@ -112,8 +113,7 @@ function PetsTable({ pets, onDeactivate }: PetsTableProps) {
 
                   <td>{pet.especie}</td>
                   <td>{pet.raza || "—"}</td>
-                  <td>{ownerName}</td>
-                  <td>{pet.cliente.numero_documento}</td>
+                  {!isClient && <><td>{ownerName}</td><td>{pet.cliente.numero_documento}</td></>}
 
                   <td>
                     {pet.fecha_nacimiento
@@ -166,7 +166,7 @@ function PetsTable({ pets, onDeactivate }: PetsTableProps) {
                             }}
                           >
                             <Eye size={16} />
-                            Ver perfil
+                            {isClient ? "Ver mascota" : "Ver perfil"}
                           </button>
 
                           {/* Editar solo si tiene permisos y está activa */}
