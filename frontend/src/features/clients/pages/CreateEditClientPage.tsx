@@ -49,7 +49,7 @@ function CreateEditClientPage() {
         <label>Nombre *<input name="nombre" value={form.nombre} onChange={handleChange} required maxLength={100} placeholder="Ej. María" /></label>
         <label>Apellido *<input name="apellido" value={form.apellido} onChange={handleChange} required maxLength={100} placeholder="Ej. González" /></label>
         <label>DNI *<input name="numero_documento" value={form.numero_documento} onChange={handleChange} required maxLength={20} placeholder="Ej. 12345678" /></label>
-        <label>Teléfono *<input name="telefono" value={form.telefono} onChange={handleChange} required maxLength={30} type="tel" placeholder="Ej. 381 123 4567" /></label>
+        <label>Teléfono<input name="telefono" value={form.telefono} onChange={handleChange} maxLength={30} type="tel" placeholder="Ej. 381 123 4567" /></label>
         <label>Email *<input name="email" value={form.email} onChange={handleChange} required maxLength={150} type="email" placeholder="Ej. maria@email.com" /></label>
         <label className="client-form__full">Dirección<input name="direccion" value={form.direccion} onChange={handleChange} maxLength={255} placeholder="Ej. San Miguel de Tucumán" /></label>
         <label className="client-form__full">{editing ? "Nueva contraseña" : "Contraseña *"}<input name="password" value={form.password} onChange={handleChange} type="password" minLength={8} required={!editing} autoComplete="new-password" placeholder={editing ? "Dejar vacío para mantener la actual" : "Mínimo 8 caracteres"} />{editing && <small>Solo completá este campo si querés cambiar la contraseña.</small>}</label>

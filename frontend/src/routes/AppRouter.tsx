@@ -16,6 +16,7 @@ import RequireStaff from "../components/auth/RequireStaff";
 import ClientsPage from "../features/clients/pages/ClientsPage";
 import ClientDetailPage from "../features/clients/pages/ClientDetailPage";
 import CreateEditClientPage from "../features/clients/pages/CreateEditClientPage";
+import RequireAuth from "../components/auth/RequireAuth";
 
 function AppRouter() {
   return (
@@ -29,24 +30,26 @@ function AppRouter() {
         <Route path="/registro" element={<RegisterPage />} />
 
         {/* Secciones internas */}
-        <Route element={<MainLayout />}>
-          <Route path="/inicio" element={<HomePage />} />
-          <Route element={<RequireAdmin />}>
-            <Route path="/usuarios" element={<UsersPage />} />
-            <Route path="/usuarios/nuevo" element={<CreateEditUserPage />} />
-            <Route path="/usuarios/:id/editar" element={<CreateEditUserPage />} />
-            <Route path="/usuarios/:id" element={<UserDetailPage />} />
+        <Route element={<RequireAuth />}>
+          <Route element={<MainLayout />}>
+            <Route path="/inicio" element={<HomePage />} />
+            <Route element={<RequireAdmin />}>
+              <Route path="/usuarios" element={<UsersPage />} />
+              <Route path="/usuarios/nuevo" element={<CreateEditUserPage />} />
+              <Route path="/usuarios/:id/editar" element={<CreateEditUserPage />} />
+              <Route path="/usuarios/:id" element={<UserDetailPage />} />
+            </Route>
+            <Route element={<RequireStaff />}>
+              <Route path="/clientes" element={<ClientsPage />} />
+              <Route path="/clientes/nuevo" element={<CreateEditClientPage />} />
+              <Route path="/clientes/:id/editar" element={<CreateEditClientPage />} />
+              <Route path="/clientes/:id" element={<ClientDetailPage />} />
+            </Route>
+            <Route path="/mascotas" element={<PetsPage />} />
+            <Route path="/mascotas/nueva" element={<CreateEditPetPage />} />
+            <Route path="/mascotas/:id/editar" element={<CreateEditPetPage />} />
+            <Route path="/mascotas/:id" element={<PetDetailPage />} />
           </Route>
-          <Route element={<RequireStaff />}>
-            <Route path="/clientes" element={<ClientsPage />} />
-            <Route path="/clientes/nuevo" element={<CreateEditClientPage />} />
-            <Route path="/clientes/:id/editar" element={<CreateEditClientPage />} />
-            <Route path="/clientes/:id" element={<ClientDetailPage />} />
-          </Route>
-          <Route path="/mascotas" element={<PetsPage />} />
-          <Route path="/mascotas/nueva" element={<CreateEditPetPage />} />
-          <Route path="/mascotas/:id/editar" element={<CreateEditPetPage />} />
-          <Route path="/mascotas/:id" element={<PetDetailPage />} />
         </Route>
 
         {/* Rutas desconocidas */}
