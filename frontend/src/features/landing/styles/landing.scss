@@ -133,6 +133,14 @@
   gap: 12px;
 }
 
+.landing-user-menu {
+  position: relative;
+}
+
+.landing-user-trigger {
+  white-space: nowrap;
+}
+
 .landing-login,
 .landing-register {
   display: inline-flex;
@@ -716,6 +724,25 @@
     a {
       width: 100%;
     }
+  }
+
+  .landing-user-menu {
+    width: 100%;
+  }
+
+  .landing-user-trigger {
+    width: 100%;
+    justify-content: flex-start;
+    padding: 10px;
+  }
+
+  .landing-nav-actions .main-layout__user-info {
+    display: flex;
+  }
+
+  .landing-user-menu .main-layout__dropdown {
+    right: auto;
+    left: 0;
   }
 
   .landing-hero {

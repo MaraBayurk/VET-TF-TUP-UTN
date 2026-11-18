@@ -1,0 +1,324 @@
+@use "../../../styles/variables" as *;
+
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 17px;
+  min-width: 0;
+  color: $color-heading;
+
+  &__staff-top {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 265px;
+    gap: 14px;
+  }
+
+  &__welcome {
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-height: 145px;
+    overflow: hidden;
+    padding: 24px 28px;
+    border-radius: 15px;
+    background: linear-gradient(105deg, #e8f0ed 0%, #f2f6f3 58%, #e1ece7 100%);
+
+    > img {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 48%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 43%;
+      mix-blend-mode: multiply;
+      mask-image: linear-gradient(90deg, transparent 0%, #000 26%);
+    }
+  }
+
+  &__welcome-copy {
+    position: relative;
+    z-index: 1;
+    max-width: 62%;
+
+    > span {
+      color: $color-primary-dark;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+    }
+
+    h1 {
+      margin: 7px 0 5px;
+      color: $color-heading;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(25px, 3vw, 34px);
+      line-height: 1.12;
+    }
+
+    p {
+      max-width: 390px;
+      color: $color-text;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+  }
+
+  &__welcome-paw {
+    position: absolute;
+    right: 25px;
+    bottom: -25px;
+    color: rgba(95, 141, 128, 0.17);
+  }
+
+  &__date-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 17px;
+    border: 1px solid $color-border;
+    border-radius: 13px;
+    background: $color-surface;
+    box-shadow: $shadow-card;
+
+    > span {
+      display: grid;
+      place-items: center;
+      width: 42px;
+      height: 42px;
+      flex: none;
+      border-radius: 10px;
+      background: #e6f2ed;
+      color: $color-primary-dark;
+    }
+
+    > div {
+      display: grid;
+      gap: 5px;
+      min-width: 0;
+    }
+
+    strong {
+      font-size: 12px;
+      line-height: 1.35;
+      text-transform: capitalize;
+    }
+
+    small {
+      color: $color-text-light;
+      font-size: 10px;
+    }
+  }
+
+  &__stats {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+
+    &--client {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  &__stat {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    min-width: 0;
+    padding: 14px;
+    border: 1px solid $color-border;
+    border-radius: 12px;
+    background: $color-surface;
+    box-shadow: $shadow-card;
+
+    > div {
+      min-width: 0;
+
+      > span {
+        display: block;
+        color: $color-text-light;
+        font-size: 10px;
+        line-height: 1.4;
+      }
+
+      strong {
+        display: block;
+        margin-top: 3px;
+        color: $color-heading;
+        font-size: 21px;
+      }
+    }
+  }
+
+  &__stat-icon {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    flex: none;
+    border-radius: 12px;
+
+    &--purple { background: $color-decoration-lilac; color: #8062a3; }
+    &--green { background: #e2f1eb; color: $color-primary-dark; }
+    &--blue { background: #e4f1f8; color: #5285a2; }
+    &--orange { background: $color-decoration-peach; color: #d37a4b; }
+  }
+
+  &__panel {
+    min-width: 0;
+    padding: 18px;
+    border: 1px solid $color-border;
+    border-radius: 14px;
+    background: $color-surface;
+    box-shadow: $shadow-card;
+  }
+
+  &__panel-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 14px;
+
+    h2 {
+      margin-top: 4px;
+      font-size: 16px;
+    }
+
+    p {
+      margin-top: 5px;
+      color: $color-text-light;
+      font-size: 10px;
+    }
+
+    > a {
+      color: $color-primary-dark;
+      font-size: 11px;
+      font-weight: 650;
+      text-decoration: none;
+    }
+  }
+
+  &__eyebrow {
+    color: $color-primary-dark;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 1.25px;
+    text-transform: uppercase;
+  }
+
+  &__count {
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 9px;
+    background: #e8f3ef;
+    color: $color-primary-dark;
+    font-size: 13px;
+    font-weight: 700;
+  }
+
+  &__table-wrap { overflow-x: auto; }
+
+  &__table {
+    width: 100%;
+    border-collapse: collapse;
+    color: $color-text;
+    font-size: 11px;
+    text-align: left;
+
+    th {
+      padding: 11px 10px;
+      background: #f5f7f7;
+      color: $color-text-light;
+      font-size: 10px;
+      font-weight: 650;
+      white-space: nowrap;
+    }
+
+    td {
+      height: 55px;
+      padding: 8px 10px;
+      border-bottom: 1px solid #edf0f2;
+      white-space: nowrap;
+    }
+
+    tbody tr:last-child td { border-bottom: 0; }
+    td:first-child { color: $color-heading; font-size: 12px; }
+  }
+
+  &__table-pet { display: flex; align-items: center; gap: 8px; color: $color-heading; svg { color: $color-primary; } }
+
+  &__status {
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 9px;
+    border-radius: 6px;
+    background: #eff2f3;
+    color: $color-text;
+    font-size: 10px;
+    font-weight: 650;
+
+    &--aprobado, &--confirmado { background: #e2f5ed; color: #348267; }
+    &--pendiente { background: #fff2dc; color: #b7791f; }
+  }
+
+  &__empty {
+    padding: 27px 14px;
+    color: $color-text-light;
+    font-size: 12px;
+    text-align: center;
+  }
+
+  &__error {
+    padding: 11px 13px;
+    border: 1px solid #f1c7c7;
+    border-radius: 8px;
+    background: #fff3f3;
+    color: #a33131;
+    font-size: 12px;
+  }
+
+  &__client-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(250px, 0.85fr);
+    gap: 15px;
+    align-items: start;
+  }
+
+  &__appointments { display: flex; flex-direction: column; }
+  &__appointment { display: flex; align-items: center; gap: 10px; min-width: 0; padding: 11px 0; border-top: 1px solid #edf0f2; }
+  &__appointment-time { display: grid; width: 60px; flex: none; gap: 3px; strong { color: $color-heading; font-size: 10px; } small { color: $color-text-light; font-size: 10px; } }
+  &__appointment-pet { display: grid; place-items: center; width: 34px; height: 34px; flex: none; border-radius: 50%; background: #f4eee7; color: #9a7653; }
+  &__appointment-info { display: grid; flex: 1; min-width: 0; gap: 3px; strong { color: $color-heading; font-size: 11px; } small { overflow: hidden; color: $color-text-light; font-size: 10px; text-overflow: ellipsis; white-space: nowrap; } }
+  &__appointment .dashboard__status { white-space: nowrap; }
+  &__pets { display: flex; flex-direction: column; }
+  &__pet { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-top: 1px solid #edf0f2; color: $color-heading; text-decoration: none; &:hover strong { color: $color-primary-dark; } > span:last-child { display: grid; gap: 3px; min-width: 0; } strong { font-size: 11px; } small { color: $color-text-light; font-size: 10px; } }
+  &__pet-icon { display: grid; place-items: center; width: 35px; height: 35px; flex: none; border-radius: 50%; background: #e5f2ed; color: $color-primary-dark; }
+}
+
+@media (max-width: 1000px) {
+  .dashboard__staff-top { grid-template-columns: minmax(0, 1fr) 220px; }
+  .dashboard__stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 720px) {
+  .dashboard__staff-top { grid-template-columns: 1fr; }
+  .dashboard__date-card { min-height: 75px; }
+  .dashboard__client-grid { grid-template-columns: 1fr; }
+  .dashboard__table { min-width: 700px; }
+}
+@media (max-width: 520px) {
+  .dashboard { gap: 12px; }
+  .dashboard__welcome { min-height: 130px; padding: 18px; }
+  .dashboard__welcome > img { width: 52%; opacity: .72; }
+  .dashboard__welcome-copy { max-width: 78%; }
+  .dashboard__welcome-copy p { max-width: 230px; }
+  .dashboard__stats, .dashboard__stats--client { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .dashboard__stat { padding: 10px; gap: 8px; }
+  .dashboard__stat-icon { width: 34px; height: 34px; }
+  .dashboard__stat > div > span { font-size: 9px; }
+  .dashboard__panel { padding: 14px; }
+  .dashboard__appointment { gap: 7px; }
+  .dashboard__appointment-time { width: 52px; }
+}
