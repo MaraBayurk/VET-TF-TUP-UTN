@@ -3,6 +3,14 @@ import { CrearUsuarioDTO, ActualizarPerfilDTO } from './usuarios.dto';
 import { IUsuariosRepository } from './usuarios.repository.interface';
 
 export class UsuariosRepository implements IUsuariosRepository {
+    private async obtenerNombreRol(connection: any, idRol: number): Promise<string | null> {
+        const [rows]: any = await connection.query(`
+            SELECT nombre FROM Rol WHERE id_rol = ? LIMIT 1
+        `, [idRol]);
+
+        return rows.length > 0 ? String(rows[0].nombre).toLowerCase() : null;
+    }
+
     // ==========================================
     // MÉTODOS DE LECTURA Y BAJA LÓGICA
     // ==========================================
@@ -64,6 +72,11 @@ export class UsuariosRepository implements IUsuariosRepository {
         try {
             await connection.beginTransaction();
 
+            const nombreRol = await this.obtenerNombreRol(connection, usuario.id_rol);
+            if (!nombreRol) {
+                throw new Error('ROLE_NOT_FOUND');
+            }
+
             // 1. Insertar el registro base en la tabla Usuario
             const [resultUsuario]: any = await connection.query(`
                 INSERT INTO Usuario (nombre, apellido, numero_documento, email, password_hash, telefono, id_rol) 
@@ -76,9 +89,9 @@ export class UsuariosRepository implements IUsuariosRepository {
             const idUsuario = resultUsuario.insertId;
 
             // 2. Extract Method: Delegamos la inserción de las tablas hijas
-            if (usuario.id_rol === 2) { 
+            if (nombreRol === 'cliente') {
                 await this.insertarCliente(connection, idUsuario, usuario.direccion);
-            } else if (usuario.id_rol === 3) { 
+            } else if (nombreRol === 'veterinario') {
                 await this.insertarVeterinario(connection, idUsuario, usuario.matricula, usuario.id_especialidad);
             }
 
@@ -107,6 +120,8 @@ export class UsuariosRepository implements IUsuariosRepository {
         try {
             await connection.beginTransaction();
 
+            const nombreRol = await this.obtenerNombreRol(connection, idRol);
+
             // 1. Actualizamos el teléfono en la tabla base Usuario (si fue enviado)
             if (datos.telefono !== undefined) {
                 await connection.query(`
@@ -114,8 +129,8 @@ export class UsuariosRepository implements IUsuariosRepository {
                 `, [datos.telefono, idUsuario]);
             }
 
-            // 2. Actualizamos la dirección en la tabla Cliente SOLO si el rol es 2 (Cliente)
-            if (idRol === 2 && datos.direccion !== undefined) {
+            // 2. Actualizamos la dirección solo si el catálogo identifica al usuario como Cliente.
+            if (nombreRol === 'cliente' && datos.direccion !== undefined) {
                 await connection.query(`
                     UPDATE Cliente SET direccion = ? WHERE id_usuario = ?
                 `, [datos.direccion, idUsuario]);
