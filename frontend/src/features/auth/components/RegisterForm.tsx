@@ -1,4 +1,3 @@
-
 import { useState, type FormEvent } from "react";
 import "../styles/register-form.scss";
 
@@ -8,7 +7,7 @@ function RegisterForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-
+  const [numeroDocumento, setNumeroDocumento] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -23,6 +22,7 @@ function RegisterForm() {
     if (
       !nombre.trim() ||
       !apellido.trim() ||
+      !numeroDocumento.trim() ||
       !email.trim() ||
       !password ||
       !confirmPassword
@@ -72,6 +72,20 @@ function RegisterForm() {
           value={apellido}
           onChange={(e) => setApellido(e.target.value)}
           autoComplete="family-name"
+          required
+        />
+      </div>
+      <div className="register-form__field">
+        <label htmlFor="numero-documento">
+          Número de documento <span className="required">*</span>
+        </label>
+        <input
+          id="numero-documento"
+          type="text"
+          placeholder="Tu número de documento"
+          value={numeroDocumento}
+          onChange={(e) => setNumeroDocumento(e.target.value)}
+          maxLength={20}
           required
         />
       </div>
@@ -133,13 +147,9 @@ function RegisterForm() {
           />
           <button
             type="button"
-            onClick={() =>
-              setShowConfirmPassword((previous) => !previous)
-            }
+            onClick={() => setShowConfirmPassword((previous) => !previous)}
             aria-label={
-              showConfirmPassword
-                ? "Ocultar contraseña"
-                : "Mostrar contraseña"
+              showConfirmPassword ? "Ocultar contraseña" : "Mostrar contraseña"
             }
           >
             {showConfirmPassword ? "Ocultar" : "Mostrar"}
