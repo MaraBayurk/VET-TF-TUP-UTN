@@ -7,8 +7,7 @@ import {
     actualizarEspecialidad,
     eliminarEspecialidad
 } from './especialidades.controller';
-import { verificarToken, verificarRol } from '../../middlewares/auth.middleware';
-import { ROLES } from '../../constants/roles';
+import { verificarToken, verificarRolPorNombre } from '../../middlewares/auth.middleware';
 
 const router = Router();
 
@@ -21,7 +20,7 @@ const router = Router();
 
 // Todas las operaciones requieren autenticación y rol Administrador.
 router.use(verificarToken);
-router.use(verificarRol([ROLES.ADMINISTRADOR]));
+router.use(verificarRolPorNombre(['Administrador']));
 
 /**
  * @swagger
