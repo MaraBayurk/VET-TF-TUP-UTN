@@ -16,3 +16,16 @@ export interface ActualizarPerfilDTO {
     telefono?: string;
     direccion?: string;
 }
+
+export interface ActualizarUsuarioDTO {
+    nombre: string;
+    apellido: string;
+    numero_documento: string;
+    email: string;
+    telefono?: string;
+    id_rol: number;
+    direccion?: string;
+    matricula?: string;
+    id_especialidad?: number;
+    password_hash?: string;
+}

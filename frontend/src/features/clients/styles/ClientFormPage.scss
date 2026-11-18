@@ -1,0 +1,16 @@
+@use "../../../styles/variables" as *;
+.client-form-page { display:flex; flex-direction:column; gap:15px; max-width:980px; margin:0 auto; color:$color-heading;
+  &__back { display:flex; align-items:center; gap:7px; width:max-content; padding:5px 0; border:0; background:none; color:$color-text; font-size:12px; cursor:pointer; }
+  &__heading { padding:22px 25px; border-radius:13px; background:linear-gradient(110deg,#e8f0ed,#f5f8f6); h1 { margin:8px 0 5px; font-family:Georgia,serif; font-size:28px; } p { color:$color-text; font-size:12px; } }
+  &__eyebrow { display:flex; align-items:center; gap:6px; color:$color-primary-dark; font-size:9px; font-weight:700; letter-spacing:1.2px; }
+  &__error { padding:12px 14px; border:1px solid #f1c7c7; border-radius:8px; background:#fff3f3; color:#a33131; font-size:13px; }
+  &__loading { color:$color-text; }
+}
+.client-form { padding:23px; border:1px solid $color-border; border-radius:13px; background:white; box-shadow:$shadow-card;
+  &__intro { margin-bottom:19px; h2 { font-size:16px; } p { margin-top:4px; color:$color-text-light; font-size:11px; } }
+  &__grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; >label { display:flex; flex-direction:column; gap:7px; color:$color-heading; font-size:11px; font-weight:650; input,textarea { width:100%; height:40px; padding:0 11px; border:1px solid $color-border; border-radius:7px; outline:none; background:#fff; color:$color-heading; font:inherit; font-size:12px; font-weight:400; &:focus { border-color:$color-primary; box-shadow:0 0 0 2px rgba(95,141,128,.12); } } small { color:$color-text-light; font-size:10px; font-weight:400; } } }
+  &__full { grid-column:1/-1; }
+  &__actions { display:flex; justify-content:flex-end; gap:10px; margin-top:24px; padding-top:17px; border-top:1px solid #edf0f2; button { display:flex; align-items:center; justify-content:center; gap:8px; min-width:125px; height:40px; border:0; border-radius:8px; font-size:12px; font-weight:650; cursor:pointer; } }
+  &__cancel { background:#f2f5f5; color:$color-text; } &__submit { background:$color-primary; color:white; &:hover { background:$color-primary-dark; } &:disabled { opacity:.6; cursor:wait; } }
+}
+@media(max-width:600px) { .client-form { padding:17px; &__grid { grid-template-columns:1fr; } &__full { grid-column:auto; } &__actions { button { flex:1; min-width:0; } } } }

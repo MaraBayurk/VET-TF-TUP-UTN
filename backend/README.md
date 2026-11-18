@@ -57,6 +57,10 @@ backend/
 │   │   │   └── index.ts
 │   │   ├── clinical/
 │   │   │   └── index.ts
+│   │   ├── clientes/
+│   │   │   ├── clientes.controller.ts
+│   │   │   ├── clientes.repository.ts
+│   │   │   └── clientes.routes.ts
 │   │   ├── especialidades/
 │   │   │   ├── especialidades.controller.ts
 │   │   │   ├── especialidades.dto.ts
@@ -110,11 +114,11 @@ La carpeta `modules/` contiene la lógica organizada según las funcionalidades 
 | Módulo | Responsabilidad |
 |---|---|
 | `auth/` | Registro de clientes, inicio de sesión, consulta del perfil autenticado y cierre de sesión del lado del cliente. |
-| `usuarios/` | Gestión de usuarios, perfiles y operaciones administrativas. |
+| `usuarios/` | Gestión administrativa de cuentas de Administrador y Veterinario; solo accesible para Administradores. |
+| `clientes/` | Listado, detalle, alta, actualización y baja lógica de clientes, incluyendo la consulta de mascotas y turnos asociados. |
 | `mascotas/` | Alta, consulta, actualización y baja lógica de mascotas, aplicando controles de permisos y pertenencia. |
 | `especialidades/` | Consulta, creación, actualización y baja lógica de especialidades veterinarias. |
 | `agenda/` | Gestión de turnos, disponibilidad y horarios de atención de los veterinarios. |
-| `catalogs/` | Estructura prevista para centralizar consultas de catálogos del sistema. Pendiente de desarrollo. |
 | `catalogs/` | Solo contiene el archivo de estructura `index.ts`; no existe aún un módulo centralizado de catálogos. Las consultas de roles y estados están en los repositorios de sus funcionalidades, y las especialidades se gestionan en `especialidades/`. |
 | `clinical/` | Solo contiene el archivo de estructura `index.ts`; no hay endpoints ni lógica backend para atenciones clínicas o vacunación. Las tablas clínicas sí están definidas en el modelo y el script SQL. |
 
@@ -163,6 +167,20 @@ Entre las medidas contempladas se encuentran:
 - Baja lógica de registros para preservar la información histórica.
 
 Los controles de acceso se ejecutan en el backend, independientemente de las restricciones de visualización que pueda implementar el frontend.
+
+### API de Clientes
+
+Todas las rutas requieren un JWT válido y el rol **Administrador** o **Veterinario**. El identificador de las rutas corresponde a `id_cliente`.
+
+| Método | Ruta | Operación |
+|---|---|---|
+| `GET` | `/api/clientes` | Lista clientes activos e inactivos con cantidad de mascotas activas y turnos. |
+| `GET` | `/api/clientes/:id` | Devuelve datos de contacto, mascotas y los últimos turnos del cliente. |
+| `POST` | `/api/clientes` | Crea la cuenta de usuario y su perfil Cliente en una transacción. Requiere nombre, apellido, documento, email y contraseña; teléfono y dirección son opcionales. |
+| `PUT` | `/api/clientes/:id` | Actualiza los datos de contacto y, opcionalmente, la contraseña. |
+| `DELETE` | `/api/clientes/:id` | Da de baja lógicamente la cuenta, conservando sus datos relacionados. |
+
+Los emails y documentos duplicados se rechazan con `409`. Las contraseñas se guardan con hash y nunca se devuelven en las respuestas. El módulo usa las columnas existentes en `Usuario` y `Cliente`; no agrega campos al esquema.
 
 ## Base de datos
 
