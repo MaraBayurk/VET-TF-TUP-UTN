@@ -115,8 +115,7 @@ router.get('/:id', verificarRolPorNombre(['Administrador']), obtenerUsuarioPorId
  *                 example: "3815551111"
  *               id_rol:
  *                 type: integer
- *                 description: 1=Administrador, 2=Cliente, 3=Veterinario
- *                 example: 3
+ *                 description: Identificador del rol registrado en la tabla Rol.
  *               direccion:
  *                 type: string
  *                 description: Dato adicional requerido para clientes
