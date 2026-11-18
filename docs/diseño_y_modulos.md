@@ -115,7 +115,7 @@ Son las restricciones lógicas y operativas propias del dominio de la clínica v
 
 - **Listado y búsqueda:** Presenta clientes activos e inactivos, con filtros por estado y búsqueda por nombre, documento, email o teléfono.
 - **Alta, edición y baja lógica:** Administradores y Veterinarios pueden gestionar los datos existentes en las tablas `Usuario` y `Cliente`. La baja modifica el estado de la cuenta, sin eliminar sus datos ni los registros relacionados.
-- **Detalle de cliente:** Muestra sus datos de contacto, mascotas asociadas y los últimos turnos registrados. El módulo utiliza las relaciones existentes y no requiere campos nuevos en la base de datos.
+- **Detalle de cliente:** Muestra sus datos de contacto, mascotas asociadas y el historial completo de turnos, ordenado desde el más reciente. El módulo utiliza las relaciones existentes y no requiere campos nuevos en la base de datos.
 - **Seguridad:** La interfaz y los endpoints requieren autenticación y rol Administrador o Veterinario.
 
 ## 3.3 Módulo de Gestión de Mascotas (Pacientes)
@@ -275,7 +275,7 @@ Como Administrador o Veterinario, quiero listar, buscar, consultar, crear, edita
 - El listado permite buscar por nombre, apellido, documento, email o teléfono y filtrar por estado.
 - El alta crea en una transacción la cuenta con rol Cliente en `Usuario` y su perfil en `Cliente`. Solicita nombre, apellido, documento, email y contraseña; teléfono y dirección son opcionales.
 - La edición modifica los datos personales y de contacto existentes. La contraseña solo cambia cuando se ingresa una nueva.
-- El detalle permite consultar los datos del cliente, sus mascotas y sus turnos recientes.
+- El detalle permite consultar los datos del cliente, sus mascotas y el historial completo de turnos, ordenado desde el más reciente.
 - La baja es lógica: cambia el estado de la cuenta a inactivo y conserva la información, las mascotas, los turnos y el historial.
 - El módulo reutiliza los campos ya definidos en `Usuario` y `Cliente`; no incorpora fecha de nacimiento ni otros campos nuevos.
 

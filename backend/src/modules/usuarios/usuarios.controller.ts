@@ -59,13 +59,14 @@ export const actualizarUsuario = async (req: Request, res: Response): Promise<vo
         if (!actualizado) { res.status(404).json({ status: 'error', message: 'Usuario no encontrado o inactivo' }); return; }
         res.status(200).json({ status: 'success', message: 'Usuario actualizado exitosamente' });
     } catch (error: any) {
-        if (['DUPLICATE_ENTRY', 'ROLE_CHANGE_NOT_SUPPORTED', 'MISSING_VET_DATA', 'ROLE_NOT_SUPPORTED'].includes(error.message)) {
+        if (['DUPLICATE_ENTRY', 'ROLE_CHANGE_NOT_SUPPORTED', 'MISSING_VET_DATA', 'ROLE_NOT_SUPPORTED', 'SPECIALTY_NOT_FOUND'].includes(error.message)) {
             const status = error.message === 'DUPLICATE_ENTRY' ? 409 : 400;
             const messages: Record<string, string> = {
                 DUPLICATE_ENTRY: 'El email, documento o matrícula ya se encuentra registrado',
                 ROLE_CHANGE_NOT_SUPPORTED: 'No se puede cambiar el rol de una cuenta existente',
                 MISSING_VET_DATA: 'Para un veterinario, la matrícula y especialidad son obligatorias',
-                ROLE_NOT_SUPPORTED: 'El rol indicado no existe o no está soportado'
+                ROLE_NOT_SUPPORTED: 'El rol indicado no existe o no está soportado',
+                SPECIALTY_NOT_FOUND: 'La especialidad seleccionada no existe o está inactiva'
             };
             res.status(status).json({ status: 'error', message: messages[error.message] });
             return;
@@ -117,6 +118,10 @@ export const crearUsuario = async (req: Request, res: Response): Promise<void> =
         }
         if (error.message === 'ROLE_NOT_SUPPORTED') {
             res.status(400).json({ status: 'error', message: 'El rol no tiene un perfil habilitado para el sistema' });
+            return;
+        }
+        if (error.message === 'SPECIALTY_NOT_FOUND') {
+            res.status(400).json({ status: 'error', message: 'La especialidad seleccionada no existe o está inactiva' });
             return;
         }
 

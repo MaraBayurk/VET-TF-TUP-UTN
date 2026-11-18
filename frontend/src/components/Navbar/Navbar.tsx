@@ -2,11 +2,8 @@
 import { NavLink } from "react-router-dom";
 import {
   House,
-  CalendarDays,
   PawPrint,
   Users,
-  ClipboardPlus,
-  Settings,
 } from "lucide-react";
 
 import "./Navbar.scss";
@@ -14,13 +11,7 @@ import { getAuthUser } from "../../features/auth/services/authStorage";
 
 const navigationItems = [
   { label: "Inicio", path: "/inicio", icon: House },
-  { label: "Turnos", path: "/turnos", icon: CalendarDays },
   { label: "Mascotas", path: "/mascotas", icon: PawPrint },
-  {
-    label: "Historial clínico",
-    path: "/historial-clinico",
-    icon: ClipboardPlus,
-  },
 ];
 
 function Navbar() {
@@ -28,7 +19,7 @@ function Navbar() {
   const isAdmin = typeof role === "string" && role.trim().toLocaleLowerCase("es") === "administrador";
   const isStaff = isAdmin || (typeof role === "string" && role.trim().toLocaleLowerCase("es") === "veterinario");
   const items = isStaff
-    ? [...navigationItems.slice(0, 3), { label: "Clientes", path: "/clientes", icon: Users }, ...(isAdmin ? [{ label: "Usuarios", path: "/usuarios", icon: Users }] : []), ...navigationItems.slice(3)]
+    ? [...navigationItems, { label: "Clientes", path: "/clientes", icon: Users }, ...(isAdmin ? [{ label: "Usuarios", path: "/usuarios", icon: Users }] : [])]
     : navigationItems;
   return (
     <aside className="sidebar">
@@ -57,16 +48,6 @@ function Navbar() {
       </nav>
 
       <div className="sidebar__footer">
-        <NavLink
-          to="/configuracion"
-          className={({ isActive }) =>
-            `sidebar__link ${isActive ? "sidebar__link--active" : ""}`
-          }
-        >
-          <Settings size={20} />
-          <span>Configuración</span>
-        </NavLink>
-
         <div className="sidebar__message">
           <PawPrint size={24} />
           <p>Cuidamos lo que más querés.</p>
