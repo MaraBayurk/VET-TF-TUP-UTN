@@ -52,6 +52,7 @@ function CreateEditPetPage() {
 
   const role = getAuthUser()?.rol?.toLocaleUpperCase("es") ?? "CLIENTE";
   const isClient = role === "CLIENTE";
+  const clientEditing = isEditing && isClient;
   const [step, setStep] = useState(isEditing || isClient ? 2 : 1);
   const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(isEditing);
@@ -340,14 +341,14 @@ function CreateEditPetPage() {
 
               <div className="pet-form__grid">
                 <label className="pet-form__field">
-                  <span>Nombre *</span>
+                  <span>Nombre *{clientEditing && <small className="pet-form__field-hint">No se puede modificar</small>}</span>
 
                   <input
                     name="nombre"
                     value={formData.nombre}
                     onChange={handleChange}
                     placeholder="Ej. Luna"
-                    disabled={isEditing && isClient}
+                    disabled={clientEditing}
                   />
 
                   {errors.nombre && (
@@ -356,13 +357,13 @@ function CreateEditPetPage() {
                 </label>
 
                 <label className="pet-form__field">
-                  <span>Especie *</span>
+                  <span>Especie *{clientEditing && <small className="pet-form__field-hint">No se puede modificar</small>}</span>
 
                   <select
                     name="especie"
                     value={formData.especie}
                     onChange={handleChange}
-                    disabled={isEditing && isClient}
+                    disabled={clientEditing}
                   >
                     <option value="">Seleccionar especie</option>
                     <option value="Canina">Canina</option>
@@ -387,7 +388,7 @@ function CreateEditPetPage() {
                 </label>
 
                 <label className="pet-form__field">
-                  <span>Fecha de nacimiento</span>
+                  <span>Fecha de nacimiento{clientEditing && <small className="pet-form__field-hint">No se puede modificar</small>}</span>
 
                   <input
                     type="date"
@@ -395,7 +396,7 @@ function CreateEditPetPage() {
                     value={formData.fecha_nacimiento}
                     max={new Date().toLocaleDateString("en-CA")}
                     onChange={handleChange}
-                    disabled={isEditing && isClient}
+                    disabled={clientEditing}
                   />
 
                   {errors.fecha_nacimiento && (
