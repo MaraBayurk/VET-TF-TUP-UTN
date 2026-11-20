@@ -341,6 +341,13 @@
       font-weight: 600;
     }
 
+    &-hint {
+      margin-left: 6px;
+      color: $color-text-light;
+      font-size: 11px;
+      font-weight: 400;
+    }
+
     input,
     select,
     textarea {
@@ -358,6 +365,13 @@
 
       &:focus {
         border-color: $color-primary;
+      }
+
+      &:disabled {
+        border-color: #e5e9e7;
+        background: #f2f5f3;
+        color: #77837e;
+        cursor: not-allowed;
       }
 
       &::placeholder {

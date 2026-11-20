@@ -1,4 +1,5 @@
 
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   ArrowLeft,
@@ -10,61 +11,9 @@ import {
 } from "lucide-react";
 
 import type { PetItem } from "../../../types/pet";
+import { getAuthUser } from "../../auth/services/authStorage";
+import { getPet } from "../services/petService";
 import "../styles/PetDetailPage.scss";
-
-const mockPets: PetItem[] = [
-  {
-    id_mascota: 1,
-    id_cliente: 1,
-    nombre: "Luna",
-    especie: "Canina",
-    raza: "Golden Retriever",
-    fecha_nacimiento: "2021-03-12",
-    sexo: "Hembra",
-    observaciones: "Control periódico",
-    activo: true,
-    cliente: {
-      id_usuario: 1,
-      nombre: "María",
-      apellido: "González",
-      numero_documento: "12.345.678",
-    },
-  },
-  {
-    id_mascota: 2,
-    id_cliente: 2,
-    nombre: "Simba",
-    especie: "Felina",
-    raza: "Europea",
-    fecha_nacimiento: "2022-07-05",
-    sexo: "Macho",
-    observaciones: null,
-    activo: true,
-    cliente: {
-      id_usuario: 2,
-      nombre: "Pedro",
-      apellido: "Ramírez",
-      numero_documento: "23.456.789",
-    },
-  },
-  {
-    id_mascota: 3,
-    id_cliente: 3,
-    nombre: "Nala",
-    especie: "Canina",
-    raza: "Labrador",
-    fecha_nacimiento: "2022-11-18",
-    sexo: "Hembra",
-    observaciones: "Control periódico",
-    activo: true,
-    cliente: {
-      id_usuario: 3,
-      nombre: "Lucía",
-      apellido: "Fernández",
-      numero_documento: "34.567.890",
-    },
-  },
-];
 
 const formatDate = (date: string | null): string => {
   if (!date) return "No especificada";
@@ -75,10 +24,20 @@ const formatDate = (date: string | null): string => {
 function PetDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const isClient = getAuthUser()?.rol?.trim().toLocaleLowerCase("es") === "cliente";
+  const [pet, setPet] = useState<PetItem | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  useEffect(() => {
+    if (!id) return;
+    let active = true;
+    getPet(id).then(value => { if (active) setPet(value); })
+      .catch(reason => { if (active) setError(reason instanceof Error ? reason.message : "No se pudo cargar la mascota"); })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+  }, [id]);
 
-  const pet = mockPets.find(
-    (item) => item.id_mascota === Number(id),
-  );
+  if (loading) return <section className="pet-detail"><p role="status">Cargando mascota…</p></section>;
 
   if (!pet) {
     return (
@@ -86,7 +45,7 @@ function PetDetailPage() {
         <div className="pet-detail__not-found">
           <PawPrint size={40} />
           <h1>Mascota no encontrada</h1>
-          <p>No se encontró una mascota con el identificador solicitado.</p>
+          <p>{error || "No se encontró una mascota con el identificador solicitado."}</p>
 
           <button
             type="button"
@@ -119,9 +78,7 @@ function PetDetailPage() {
           </div>
 
           <div>
-            <span className="pet-detail__eyebrow">
-              Perfil de mascota
-            </span>
+            <span className="pet-detail__eyebrow">{isClient ? "Mi mascota" : "Perfil de mascota"}</span>
 
             <h1>{pet.nombre}</h1>
 
@@ -192,23 +149,19 @@ function PetDetailPage() {
           </div>
         </article>
 
-        <article className="pet-detail__card">
-          <div className="pet-detail__card-heading">
-            <UserRound size={19} />
-            <h2>Cliente responsable</h2>
-          </div>
-
-          <div className="pet-detail__owner">
-            <div className="pet-detail__owner-avatar">
-              <UserRound size={24} />
+        {!isClient && (
+          <article className="pet-detail__card">
+            <div className="pet-detail__card-heading">
+              <UserRound size={19} />
+              <h2>Cliente responsable</h2>
             </div>
 
-            <div>
-              <strong>{ownerName}</strong>
-              <span>DNI: {pet.cliente.numero_documento}</span>
+            <div className="pet-detail__owner">
+              <div className="pet-detail__owner-avatar"><UserRound size={24} /></div>
+              <div><strong>{ownerName}</strong><span>DNI: {pet.cliente.numero_documento}</span></div>
             </div>
-          </div>
-        </article>
+          </article>
+        )}
 
         <article className="pet-detail__card">
           <div className="pet-detail__card-heading">
@@ -227,10 +180,9 @@ function PetDetailPage() {
             <h2>Historial clínico</h2>
           </div>
 
-          <p>
-            El historial clínico estará disponible cuando se implemente
-            el módulo de atenciones veterinarias.
-          </p>
+          <p>{isClient
+            ? "Próximamente vas a poder consultar acá el historial de atenciones de tu mascota."
+            : "El historial clínico estará disponible cuando se implemente el módulo de atenciones veterinarias."}</p>
         </article>
       </div>
     </section>
