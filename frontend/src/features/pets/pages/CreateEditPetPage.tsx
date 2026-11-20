@@ -313,7 +313,7 @@ function CreateEditPetPage() {
           {/* PASO 2: MASCOTA */}
           {step === 2 && (
             <section className="pet-form__step-content">
-              <h2>{isClient ? "1." : "2."} Datos de la mascota</h2>
+              <h2>{isEditing || isClient ? "1." : "2."} Datos de la mascota</h2>
 
               <p>Completá la información de la mascota.</p>
 
@@ -442,7 +442,7 @@ function CreateEditPetPage() {
           {/* PASO 3: CONFIRMACIÓN */}
           {step === 3 && (
             <section className="pet-form__step-content">
-              <h2>{isClient ? "2." : "3."} Confirmación</h2>
+              <h2>{isEditing || isClient ? "2." : "3."} Confirmación</h2>
               <p>{isEditing ? "Revisá los cambios antes de guardarlos." : "Revisá los datos antes de registrar la mascota."}</p>
 
               {selectedClient && (
@@ -519,12 +519,14 @@ function CreateEditPetPage() {
 
           {/* ACCIONES */}
           <footer className="pet-form__actions">
-            {step > 1 && !isClient && (
+            {step > 1 && (!isClient || isEditing) && (
               <button
                 type="button"
                 className="pet-form__cancel"
-                onClick={() => setStep(step - 1)}
-                disabled={isEditing || isClient}
+                onClick={() => {
+                  if (isEditing && step === 2) navigate("/mascotas");
+                  else setStep(step - 1);
+                }}
               >
                 <ArrowLeft size={16} />
                 Volver
