@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
@@ -6,12 +5,12 @@ import {
   Pencil,
   PawPrint,
   UserRound,
-  CalendarDays,
   ClipboardList,
 } from "lucide-react";
 
 import type { PetItem } from "../../../types/pet";
 import { getAuthUser } from "../../auth/services/authStorage";
+import ClinicalHistorySection from "../../clinical/components/ClinicalHistorySection";
 import { getPet } from "../services/petService";
 import "../styles/PetDetailPage.scss";
 
@@ -91,11 +90,10 @@ function PetDetailPage() {
 
         <div className="pet-detail__header-actions">
           <span
-            className={`pet-detail__status ${
-              pet.activo
-                ? "pet-detail__status--active"
-                : "pet-detail__status--inactive"
-            }`}
+            className={`pet-detail__status ${pet.activo
+              ? "pet-detail__status--active"
+              : "pet-detail__status--inactive"
+              }`}
           >
             {pet.activo ? "Activa" : "Inactiva"}
           </span>
@@ -163,7 +161,7 @@ function PetDetailPage() {
           </article>
         )}
 
-        <article className="pet-detail__card">
+        <article className="pet-detail__card pet-detail__card--full">
           <div className="pet-detail__card-heading">
             <ClipboardList size={19} />
             <h2>Observaciones</h2>
@@ -174,16 +172,10 @@ function PetDetailPage() {
           </p>
         </article>
 
-        <article className="pet-detail__card pet-detail__history">
-          <div className="pet-detail__card-heading">
-            <CalendarDays size={19} />
-            <h2>Historial clínico</h2>
-          </div>
-
-          <p>{isClient
-            ? "Próximamente vas a poder consultar acá el historial de atenciones de tu mascota."
-            : "El historial clínico estará disponible cuando se implemente el módulo de atenciones veterinarias."}</p>
-        </article>
+        <ClinicalHistorySection
+          idMascota={pet.id_mascota}
+          mascotaActiva={Boolean(pet.activo)}
+        />
       </div>
     </section>
   );

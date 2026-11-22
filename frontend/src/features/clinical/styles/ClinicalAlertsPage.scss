@@ -1,0 +1,288 @@
+@use "../../../styles/variables" as *;
+
+.clinical-alerts {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+
+    &__banner {
+        background-color: $color-panel;
+        border: 1px solid $color-border;
+        border-radius: $radius-card;
+        padding: 26px 30px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        overflow: hidden;
+    }
+
+    &__banner-content {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+
+        h1 {
+            font-size: 26px;
+            font-weight: 600;
+            color: $color-heading;
+        }
+
+        p {
+            font-size: 14px;
+            color: $color-text;
+            max-width: 620px;
+            line-height: 1.5;
+        }
+    }
+
+    &__eyebrow {
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.8px;
+        text-transform: uppercase;
+        color: $color-primary-dark;
+    }
+
+    &__banner-decoration {
+        color: $color-decoration;
+        flex-shrink: 0;
+    }
+
+    &__error {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 12px 16px;
+        border-radius: $radius-input;
+        background-color: #fdecea;
+        color: #9b2c2c;
+        font-size: 14px;
+        border: 1px solid #f5c2c0;
+
+        button {
+            padding: 6px 12px;
+            border: 1px solid #9b2c2c;
+            border-radius: $radius-input;
+            background-color: transparent;
+            color: #9b2c2c;
+            font-size: 13px;
+        }
+    }
+
+    &__stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+    }
+
+    &__stat-card {
+        background-color: $color-surface;
+        border: 1px solid $color-border;
+        border-radius: 16px;
+        padding: 18px 20px;
+        box-shadow: $shadow-card;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+
+        span {
+            display: block;
+            font-size: 13px;
+            color: $color-text;
+        }
+
+        strong {
+            font-size: 24px;
+            font-weight: 600;
+            color: $color-heading;
+        }
+    }
+
+    &__stat-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+
+        &--all {
+            background-color: $color-panel;
+            color: $color-primary-dark;
+        }
+
+        &--control {
+            background-color: $color-decoration-lilac;
+            color: $color-heading;
+        }
+
+        &--vaccine {
+            background-color: $color-decoration-peach;
+            color: $color-heading;
+        }
+    }
+
+    &__panel {
+        background-color: $color-surface;
+        border: 1px solid $color-border;
+        border-radius: $radius-card;
+        padding: 24px;
+        box-shadow: $shadow-card;
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+    }
+
+    &__toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    &__filters {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    &__filter-btn {
+        padding: 8px 14px;
+        border: 1px solid $color-border;
+        border-radius: 999px;
+        background-color: $color-surface;
+        color: $color-text;
+        font-size: 13px;
+        font-weight: 500;
+        transition: background-color 0.2s ease, color 0.2s ease;
+
+        &:hover {
+            background-color: $color-background;
+            color: $color-heading;
+        }
+
+        &--active {
+            background-color: $color-primary;
+            border-color: $color-primary;
+            color: $color-surface;
+
+            &:hover {
+                background-color: $color-primary-dark;
+                color: $color-surface;
+            }
+        }
+    }
+
+    &__loading,
+    &__empty {
+        padding: 28px;
+        border-radius: 12px;
+        background-color: $color-background;
+        color: $color-text;
+        font-size: 14px;
+        text-align: center;
+    }
+
+    &__list {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+    }
+
+    &__card {
+        border: 1px solid $color-border;
+        border-radius: 14px;
+        padding: 18px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+        background-color: $color-surface;
+    }
+
+    &__card-main {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        flex: 1;
+        min-width: 240px;
+    }
+
+    &__card-top {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    &__badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 600;
+
+        &--control {
+            background-color: $color-decoration-lilac;
+            color: $color-heading;
+        }
+
+        &--vaccine {
+            background-color: $color-decoration-peach;
+            color: $color-heading;
+        }
+    }
+
+    &__due {
+        font-size: 13px;
+        font-weight: 600;
+        color: $color-primary-dark;
+    }
+
+    &__card-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: $color-heading;
+    }
+
+    &__card-meta {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        flex-wrap: wrap;
+        font-size: 13px;
+        color: $color-text;
+
+        span {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+    }
+
+    &__card-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 9px 14px;
+        border: 1px solid $color-border;
+        border-radius: $radius-input;
+        background-color: $color-surface;
+        color: $color-heading;
+        font-size: 13px;
+        font-weight: 500;
+        transition: background-color 0.2s ease;
+
+        &:hover {
+            background-color: $color-background;
+        }
+    }
+}
