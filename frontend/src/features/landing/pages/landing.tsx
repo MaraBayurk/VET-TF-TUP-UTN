@@ -1,9 +1,11 @@
+
 import { Link } from "react-router-dom";
 import {
   ArrowRight,
   Heart,
   PawPrint,
   Users,
+  CalendarDays,
 } from "lucide-react";
 
 import LandingHeader from "../components/LandingHeader";
@@ -44,9 +46,10 @@ function Landing() {
               Comenzar ahora <ArrowRight size={18} />
             </Link>
 
-            <a href="#servicios" className="landing-secondary-button">
-              Conocer nuestros servicios
-            </a>
+            <Link to="/turnos" className="landing-secondary-button">
+              <CalendarDays size={18} />
+              Consultar turnos
+            </Link>
           </div>
         </div>
 
@@ -123,7 +126,7 @@ function Landing() {
       </section>
 
       {/* Sobre VET */}
-      <section className="landing-about" id="nosotros">
+      <section className="landing-about">
         <div className="landing-about-content">
           <span className="landing-label">Sobre VET</span>
 
@@ -163,8 +166,8 @@ function Landing() {
           Accedé al sistema y conocé las funcionalidades de VET.
         </p>
 
-        <Link to="/login" className="landing-button">
-          Conocé nuestro sistema <ArrowRight size={18} />
+        <Link to="/turnos" className="landing-button">
+          Consultar mis turnos <ArrowRight size={18} />
         </Link>
       </section>
 
@@ -186,3 +189,4 @@ function Landing() {
 }
 
 export default Landing;
+
