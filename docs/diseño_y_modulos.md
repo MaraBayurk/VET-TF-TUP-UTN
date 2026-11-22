@@ -242,9 +242,9 @@ Como usuario visitante, quiero poder registrar una cuenta en el portal y cargar 
 
 #### Criterios de aceptación:
 
-- El formulario de registro público debe solicitar los datos personales del usuario (nombre, apellido, email, contraseña, teléfono).
+- El formulario de registro público debe solicitar los datos personales del usuario (nombre, apellido, numero_documento, email, contraseña, telefono).
 - Seguridad (Hardcoding de Rol): El backend debe asignar automáticamente y de forma obligatoria el id_rol correspondiente a CLIENTE a todas las cuentas creadas desde esta interfaz pública.
-  Una vez creada la cuenta de usuario, el flujo (Onboarding) debe redirigir al cliente a un segundo formulario para ejecutar el método crearMascota(), solicitando los datos primarios del animal (nombre, especie, raza).
+  Una vez creada la cuenta de usuario, el flujo (Onboarding) debe redirigir al cliente a un segundo formulario para ejecutar el método crearMascota(), solicitando obligatoriamente nombre, especie y sexo (y de forma opcional raza, fecha_nacimiento y observaciones).
 - Las contraseñas deben almacenarse encriptadas (ej. bcrypt) en la base de datos.
 
 ---

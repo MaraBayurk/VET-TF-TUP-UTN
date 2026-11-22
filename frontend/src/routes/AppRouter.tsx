@@ -13,10 +13,13 @@ import CreateEditPetPage from "../features/pets/pages/CreateEditPetPage";
 import PetDetailPage from "../features/pets/pages/PetDetailPage";
 import RequireAdmin from "../components/auth/RequireAdmin";
 import RequireStaff from "../components/auth/RequireStaff";
+import RequireVet from "../components/auth/RequireVet";
 import ClientsPage from "../features/clients/pages/ClientsPage";
 import ClientDetailPage from "../features/clients/pages/ClientDetailPage";
 import CreateEditClientPage from "../features/clients/pages/CreateEditClientPage";
 import RequireAuth from "../components/auth/RequireAuth";
+import ClinicalAlertsPage from "../features/clinical/pages/ClinicalAlertsPage";
+import CreateEditAttentionPage from "../features/clinical/pages/CreateEditAttentionPage";
 
 function AppRouter() {
   return (
@@ -45,10 +48,15 @@ function AppRouter() {
               <Route path="/clientes/:id/editar" element={<CreateEditClientPage />} />
               <Route path="/clientes/:id" element={<ClientDetailPage />} />
             </Route>
+            <Route element={<RequireVet />}>
+              <Route path="/atenciones/nueva" element={<CreateEditAttentionPage />} />
+              <Route path="/atenciones/:id/editar" element={<CreateEditAttentionPage />} />
+            </Route>
             <Route path="/mascotas" element={<PetsPage />} />
             <Route path="/mascotas/nueva" element={<CreateEditPetPage />} />
             <Route path="/mascotas/:id/editar" element={<CreateEditPetPage />} />
             <Route path="/mascotas/:id" element={<PetDetailPage />} />
+            <Route path="/alertas" element={<ClinicalAlertsPage />} />
           </Route>
         </Route>
 
@@ -60,4 +68,3 @@ function AppRouter() {
 }
 
 export default AppRouter;
-

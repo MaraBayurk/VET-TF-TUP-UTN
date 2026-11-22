@@ -238,3 +238,8 @@
     }
   }
 }
+
+.pet-detail__card--full,
+.pet-detail__history {
+  grid-column: 1 / -1;
+}
