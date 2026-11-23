@@ -4,6 +4,7 @@ import {
   House,
   PawPrint,
   Users,
+  CalendarDays,
 } from "lucide-react";
 
 import "./Navbar.scss";
@@ -15,12 +16,38 @@ const navigationItems = [
 ];
 
 function Navbar() {
-  const role = getAuthUser()?.rol;
-  const isAdmin = typeof role === "string" && role.trim().toLocaleLowerCase("es") === "administrador";
-  const isStaff = isAdmin || (typeof role === "string" && role.trim().toLocaleLowerCase("es") === "veterinario");
-  const items = isStaff
-    ? [...navigationItems, { label: "Clientes", path: "/clientes", icon: Users }, ...(isAdmin ? [{ label: "Usuarios", path: "/usuarios", icon: Users }] : [])]
-    : navigationItems;
+  const role = getAuthUser()?.rol?.trim().toLocaleLowerCase("es");
+
+  const isClient = role === "cliente";
+  const isAdmin = role === "administrador";
+  const isStaff = isAdmin || role === "veterinario";
+
+  const items = [
+    ...navigationItems,
+
+    ...(isClient
+      ? [{ label: "Mis turnos", path: "/turnos", icon: CalendarDays }]
+      : []),
+
+    ...(isAdmin
+      ? [
+          {
+            label: "Gestión de turnos",
+            path: "/admin/turnos",
+            icon: CalendarDays,
+          },
+        ]
+      : []),
+
+    ...(isStaff
+      ? [{ label: "Clientes", path: "/clientes", icon: Users }]
+      : []),
+
+    ...(isAdmin
+      ? [{ label: "Usuarios", path: "/usuarios", icon: Users }]
+      : []),
+  ];
+
   return (
     <aside className="sidebar">
       <div className="sidebar__brand">
@@ -59,3 +86,4 @@ function Navbar() {
 }
 
 export default Navbar;
+
