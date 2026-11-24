@@ -137,6 +137,15 @@
   position: relative;
 }
 
+.landing-user-menu .landing-dashboard-link {
+  color: #244b46;
+  text-decoration: none;
+
+  &:hover {
+    background: #edf6f2;
+  }
+}
+
 .landing-user-trigger {
   white-space: nowrap;
 }

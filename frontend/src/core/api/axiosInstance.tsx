@@ -11,8 +11,25 @@ const axiosInstance = axios.create({
 
 axiosInstance.interceptors.request.use((config) => {
   const token = localStorage.getItem(AUTH_TOKEN_KEY);
-  if (token) config.headers.Authorization = `Bearer ${token}`;
+  const isPublicAuthRequest = ["/auth/login", "/auth/register", "/auth/logout"]
+    .some((path) => config.url?.startsWith(path));
+  if (token && !isPublicAuthRequest) config.headers.Authorization = `Bearer ${token}`;
   return config;
 });
+
+axiosInstance.interceptors.response.use(
+  (response) => response,
+  (error: unknown) => {
+    if (axios.isAxiosError(error) && error.response?.status === 401) {
+      const requestUrl = error.config?.url ?? "";
+      const isPublicAuthRequest = ["/auth/login", "/auth/register", "/auth/logout"]
+        .some((path) => requestUrl.startsWith(path));
+      if (!isPublicAuthRequest && localStorage.getItem(AUTH_TOKEN_KEY)) {
+        window.dispatchEvent(new Event("vet:session-expired"));
+      }
+    }
+    return Promise.reject(error);
+  },
+);
 
 export default axiosInstance;

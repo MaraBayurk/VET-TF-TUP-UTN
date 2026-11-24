@@ -1,5 +1,5 @@
 import axiosInstance from "../../../core/api/axiosInstance";
-import { AUTH_TOKEN_KEY, clearAuthSession, saveAuthUser } from "./authStorage";
+import { AUTH_SESSION_CHANGED_EVENT, AUTH_TOKEN_KEY, clearAuthSession, saveAuthUser } from "./authStorage";
 import type {
   ApiResponse,
   AuthResponse,
@@ -28,6 +28,7 @@ export const login = async (credentials: LoginCredentials): Promise<AuthResponse
     }
     localStorage.setItem(AUTH_TOKEN_KEY, data.data.token);
     saveAuthUser(data.data.user);
+    window.dispatchEvent(new Event(AUTH_SESSION_CHANGED_EVENT));
     return data.data;
   } catch (error) {
     throw new Error(getApiMessage(error, "No se pudo iniciar sesión."), { cause: error });

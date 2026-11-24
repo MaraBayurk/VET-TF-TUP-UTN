@@ -1,0 +1,65 @@
+.session-expired-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(17, 31, 29, 0.58);
+  backdrop-filter: blur(3px);
+}
+
+.session-expired-modal {
+  width: min(100%, 420px);
+  padding: 32px;
+  border: 1px solid #e6ece9;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 20px 60px rgba(13, 35, 30, 0.25);
+  text-align: center;
+
+  &__icon {
+    display: grid;
+    width: 54px;
+    height: 54px;
+    margin: 0 auto 16px;
+    place-items: center;
+    border-radius: 50%;
+    background: #e8f2ee;
+    color: #4d8275;
+  }
+
+  h2 {
+    margin: 0;
+    color: #183f50;
+    font-size: 22px;
+  }
+
+  p {
+    margin: 12px 0 24px;
+    color: #607581;
+    font-size: 15px;
+    line-height: 1.5;
+  }
+
+  button {
+    min-height: 44px;
+    padding: 0 20px;
+    border: 0;
+    border-radius: 8px;
+    background: #4f8477;
+    color: #fff;
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+
+    &:hover {
+      background: #3e6f63;
+    }
+
+    &:focus-visible {
+      outline: 3px solid #9ccabc;
+      outline-offset: 3px;
+    }
+  }
+}
