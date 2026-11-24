@@ -108,8 +108,10 @@ npm install
 Crear `frontend/.env` con la URL de la API:
 
 ```env
-API_URL=http://localhost:3000/api
+VITE_API_URL=http://localhost:3000/api
 ```
+
+En el proyecto de Vercel del frontend, configurar `VITE_API_URL` con la URL pública del backend y el prefijo `/api` (si `vet-tf-tup-utn-cfm8.vercel.app` es el dominio del backend, usar `https://vet-tf-tup-utn-cfm8.vercel.app/api`) y volver a desplegar.
 
 Iniciar la aplicación web:
 
