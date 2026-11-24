@@ -1,5 +1,5 @@
 
-.admin-appointments {
+.admin-schedules {
   width: 100%;
   min-height: 100%;
   padding: 28px;
@@ -33,39 +33,61 @@
     letter-spacing: 1.8px;
   }
 
-  &__refresh {
+  &__header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  &__refresh,
+  &__add {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 9px;
     min-height: 42px;
-    padding: 0 17px;
-    border: 1px solid #cce4df;
+    padding: 0 16px;
     border-radius: 11px;
-    background: #ffffff;
-    color: #548d83;
-    font-size: 0.88rem;
+    font-family: inherit;
+    font-size: 0.86rem;
     font-weight: 650;
     cursor: pointer;
     transition: 0.2s ease;
 
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.55;
+    }
+  }
+
+  &__refresh {
+    border: 1px solid #cce4df;
+    background: #ffffff;
+    color: #548d83;
+
     &:hover:not(:disabled) {
       border-color: #83bdb1;
       background: #eff8f5;
-      transform: translateY(-1px);
     }
+  }
 
-    &:disabled {
-      cursor: not-allowed;
-      opacity: 0.6;
+  &__add {
+    border: 1px solid #76afa3;
+    background: #76afa3;
+    color: #ffffff;
+
+    &:hover:not(:disabled) {
+      border-color: #5e9c8f;
+      background: #5e9c8f;
+      transform: translateY(-1px);
     }
   }
 
   &__stats {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 16px;
-    margin-bottom: 28px;
+    margin-bottom: 26px;
   }
 
   &__content {
@@ -77,9 +99,6 @@
   }
 
   &__section-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
     padding: 23px 24px 17px;
 
     h2 {
@@ -98,7 +117,7 @@
 
   &__filters {
     display: grid;
-    grid-template-columns: minmax(220px, 1fr) 190px 165px auto;
+    grid-template-columns: minmax(220px, 1fr) minmax(190px, 230px) 170px auto;
     gap: 11px;
     padding: 0 24px 20px;
 
@@ -151,7 +170,7 @@
 
   &__table {
     width: 100%;
-    min-width: 950px;
+    min-width: 920px;
     border-collapse: collapse;
     text-align: left;
 
@@ -188,32 +207,6 @@
     }
   }
 
-  &__error {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 15px;
-    margin: 0 24px 20px;
-    padding: 15px;
-    border: 1px solid #f0d1d1;
-    border-radius: 11px;
-    background: #fff7f7;
-    color: #a65d5d;
-
-    p {
-      margin: 0;
-      font-size: 0.86rem;
-    }
-
-    button {
-      border: none;
-      background: transparent;
-      color: #a34f4f;
-      font-weight: 700;
-      cursor: pointer;
-    }
-  }
-
   &__message,
   &__empty {
     display: flex;
@@ -245,10 +238,64 @@
       color: #91a29e;
       line-height: 1.5;
     }
+
+    button {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 8px;
+      padding: 10px 15px;
+      border: 0;
+      border-radius: 9px;
+      background: #76afa3;
+      color: #ffffff;
+      font-weight: 650;
+      cursor: pointer;
+
+      &:disabled {
+        cursor: not-allowed;
+        opacity: 0.55;
+      }
+    }
+  }
+
+  &__alert {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 18px;
+    padding: 13px 16px;
+    border: 1px solid;
+    border-radius: 11px;
+    font-size: 0.86rem;
+
+    button {
+      display: grid;
+      flex-shrink: 0;
+      place-items: center;
+      padding: 3px;
+      border: 0;
+      background: transparent;
+      color: inherit;
+      cursor: pointer;
+    }
+
+    &.error {
+      border-color: #f0d1d1;
+      background: #fff7f7;
+      color: #a65d5d;
+    }
+
+    &.success {
+      border-color: #cce7dc;
+      background: #f2faf6;
+      color: #528b72;
+    }
   }
 }
 
-.appointment-stat {
+.schedule-stat {
   display: flex;
   align-items: center;
   gap: 14px;
@@ -272,19 +319,14 @@
       color: #609b8e;
     }
 
-    &.pending {
-      background: #fff5e4;
-      color: #c69b50;
-    }
-
-    &.confirmed {
+    &.vets {
       background: #eaf2fc;
       color: #729ac8;
     }
 
-    &.cancelled {
-      background: #fceeee;
-      color: #cc8585;
+    &.time {
+      background: #fff5e4;
+      color: #c69b50;
     }
   }
 
@@ -299,24 +341,22 @@
   strong {
     display: block;
     color: #365b55;
-    font-size: 1.45rem;
+    font-size: 1.4rem;
     font-weight: 750;
     line-height: 1;
   }
 }
 
-.appointment-search {
+.schedule-search {
   display: flex;
   align-items: center;
   gap: 9px;
-  min-width: 0;
   height: 42px;
   padding: 0 12px;
   border: 1px solid #e0ebe8;
   border-radius: 10px;
   background: #fbfdfc;
-  color: #8da49e;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  color: #8ba39e;
 
   &:focus-within {
     border-color: #8fc6ba;
@@ -325,115 +365,283 @@
 
   input {
     width: 100%;
-    min-width: 0;
     height: 100%;
     padding: 0;
-    border: none;
+    border: 0;
     outline: none;
     background: transparent;
     color: #506966;
     font-family: inherit;
     font-size: 0.84rem;
-
-    &::placeholder {
-      color: #a3b2ae;
-    }
   }
 }
 
-.appointment-number {
-  color: #6b9f94 !important;
-  font-weight: 750;
-  white-space: nowrap;
-}
-
-.appointment-date {
+.schedule-veterinarian {
   display: flex;
-  flex-direction: column;
-  gap: 4px;
+  align-items: center;
+  gap: 10px;
+
+  &__avatar {
+    display: grid;
+    flex-shrink: 0;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 11px;
+    background: #eaf5f2;
+    color: #609b8e;
+  }
+
+  strong,
+  span {
+    display: block;
+  }
 
   strong {
-    color: #55716c;
-    font-size: 0.82rem;
+    color: #45635e;
+    font-size: 0.83rem;
     font-weight: 700;
   }
 
   span {
-    color: #9aaba6;
-    font-size: 0.76rem;
+    margin-top: 3px;
+    color: #94a5a2;
+    font-size: 0.72rem;
   }
 }
 
-.appointment-person {
+.schedule-day {
+  display: inline-flex;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: #eff7f4;
+  color: #548d83;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.schedule-time {
   display: flex;
   align-items: center;
   gap: 8px;
-  white-space: nowrap;
-
-  svg {
-    flex-shrink: 0;
-    color: #8bb6aa;
-  }
+  color: #709c91;
 
   strong {
-    color: #55716c;
+    color: #55736d;
+    font-size: 0.82rem;
     font-weight: 650;
+    white-space: nowrap;
   }
 }
 
-.appointment-reason {
-  max-width: 190px;
-  line-height: 1.45;
-}
-
-.appointment-status {
-  display: inline-flex;
+.schedule-actions {
+  display: flex;
   align-items: center;
-  justify-content: center;
-  padding: 6px 10px;
-  border-radius: 20px;
-  font-size: 0.72rem;
-  font-weight: 750;
-  white-space: nowrap;
+  gap: 8px;
 
-  &--pending {
-    background: #fff4df;
-    color: #b58a3f;
+  button {
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border: 1px solid;
+    border-radius: 9px;
+    cursor: pointer;
+    transition: 0.18s ease;
   }
 
-  &--confirmed {
-    background: #eaf3fc;
-    color: #638dbb;
+  &__edit {
+    border-color: #d6e8e3;
+    background: #f3f9f7;
+    color: #609b8e;
+
+    &:hover {
+      border-color: #a9cec5;
+      background: #e8f4f0;
+    }
   }
 
-  &--cancelled {
-    background: #fceeee;
-    color: #bd7777;
+  &__delete {
+    border-color: #f0dddd;
+    background: #fff7f7;
+    color: #c17d7d;
+
+    &:hover {
+      border-color: #e6bebe;
+      background: #fceeee;
+    }
+  }
+}
+
+.schedule-modal {
+  width: min(100%, 520px);
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+  border: 1px solid #e1eeea;
+  border-radius: 19px;
+  background: #ffffff;
+  box-shadow: 0 20px 60px rgba(35, 74, 67, 0.2);
+
+  &__overlay {
+    position: fixed;
+    z-index: 1000;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(36, 62, 58, 0.42);
+    backdrop-filter: blur(3px);
   }
 
-  &--completed {
-    background: #eaf5ee;
-    color: #659675;
+  &__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 15px;
+    padding: 24px 25px 20px;
+    border-bottom: 1px solid #edf2f0;
+
+    span {
+      color: #72aaa1;
+      font-size: 0.68rem;
+      font-weight: 750;
+      letter-spacing: 1.4px;
+    }
+
+    h2 {
+      margin: 7px 0 5px;
+      color: #355653;
+      font-size: 1.35rem;
+    }
+
+    p {
+      margin: 0;
+      color: #91a29e;
+      font-size: 0.83rem;
+    }
+
+    > button {
+      display: grid;
+      place-items: center;
+      width: 34px;
+      height: 34px;
+      border: 1px solid #e5efec;
+      border-radius: 9px;
+      background: #ffffff;
+      color: #78908c;
+      cursor: pointer;
+
+      &:hover {
+        background: #f3f9f7;
+        color: #548d83;
+      }
+    }
   }
 
-  &--default {
-    background: #eff3f2;
-    color: #778985;
+  &__form {
+    display: flex;
+    flex-direction: column;
+    gap: 17px;
+    padding: 23px 25px 25px;
+
+    label {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      color: #55736d;
+      font-size: 0.82rem;
+      font-weight: 650;
+    }
+
+    input,
+    select {
+      width: 100%;
+      height: 43px;
+      padding: 0 12px;
+      border: 1px solid #dfeae6;
+      border-radius: 10px;
+      outline: none;
+      background: #fbfdfc;
+      color: #506966;
+      font-family: inherit;
+      font-size: 0.87rem;
+
+      &:focus {
+        border-color: #8fc6ba;
+        box-shadow: 0 0 0 3px rgba(143, 198, 186, 0.15);
+      }
+    }
+  }
+
+  &__time-fields {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 13px;
+  }
+
+  &__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 5px;
+    padding-top: 17px;
+    border-top: 1px solid #edf2f0;
+
+    button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 42px;
+      padding: 0 16px;
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 0.84rem;
+      font-weight: 700;
+      cursor: pointer;
+
+      &:disabled {
+        cursor: not-allowed;
+        opacity: 0.6;
+      }
+    }
+  }
+
+  &__cancel {
+    border: 1px solid #e0ebe8;
+    background: #ffffff;
+    color: #78908c;
+
+    &:hover:not(:disabled) {
+      background: #f6faf9;
+    }
+  }
+
+  &__save {
+    border: 1px solid #76afa3;
+    background: #76afa3;
+    color: #ffffff;
+
+    &:hover:not(:disabled) {
+      border-color: #5e9c8f;
+      background: #5e9c8f;
+    }
   }
 }
 
 .is-spinning {
-  animation: appointments-spin 1s linear infinite;
+  animation: schedule-spin 1s linear infinite;
 }
 
-@keyframes appointments-spin {
+@keyframes schedule-spin {
   to {
     transform: rotate(360deg);
   }
 }
 
-@media (max-width: 1100px) {
-  .admin-appointments {
+@media (max-width: 1050px) {
+  .admin-schedules {
     &__stats {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
@@ -444,60 +652,63 @@
   }
 }
 
-@media (max-width: 650px) {
-  .admin-appointments {
-    padding: 18px 13px;
+@media (max-width: 700px) {
+  .admin-schedules {
+    padding: 18px;
 
     &__header {
       align-items: flex-start;
       flex-direction: column;
-
-      h1 {
-        font-size: 1.55rem;
-      }
     }
 
-    &__refresh {
+    &__header-actions {
       width: 100%;
+      flex-wrap: wrap;
+    }
+
+    &__refresh,
+    &__add {
+      flex: 1;
     }
 
     &__stats {
-      gap: 10px;
+      grid-template-columns: 1fr;
     }
 
     &__filters {
       grid-template-columns: 1fr;
-      padding-right: 15px;
-      padding-left: 15px;
+      padding-right: 16px;
+      padding-left: 16px;
     }
 
     &__section-header {
-      padding: 19px 15px 15px;
-    }
-
-    &__error {
-      align-items: flex-start;
-      flex-direction: column;
-      margin-right: 15px;
-      margin-left: 15px;
+      padding-right: 16px;
+      padding-left: 16px;
     }
   }
 
-  .appointment-stat {
-    gap: 9px;
-    padding: 13px 10px;
-
-    &__icon {
-      width: 37px;
-      height: 37px;
+  .schedule-modal {
+    &__overlay {
+      align-items: flex-start;
+      overflow-y: auto;
     }
 
-    span {
-      font-size: 0.68rem;
+    &__header,
+    &__form {
+      padding-right: 18px;
+      padding-left: 18px;
     }
 
-    strong {
-      font-size: 1.2rem;
+    &__time-fields {
+      grid-template-columns: 1fr;
+    }
+
+    &__actions {
+      flex-direction: column-reverse;
+
+      button {
+        width: 100%;
+      }
     }
   }
 }

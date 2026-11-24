@@ -27,6 +27,7 @@ import CreateEditClientPage from "../features/clients/pages/CreateEditClientPage
 
 import {
   AdminAppointmentsPage,
+  AdminSchedulesPage,
   ClientAppointmentsPage,
   NewAppointmentPage,
 } from "../features/agenda";
@@ -56,7 +57,7 @@ function AppRouter() {
               />
             </Route>
 
-            {/* Administración de usuarios y turnos */}
+            {/* Administración de usuarios, turnos y horarios */}
             <Route element={<RequireAdmin />}>
               <Route path="/usuarios" element={<UsersPage />} />
               <Route
@@ -72,10 +73,14 @@ function AppRouter() {
                 element={<UserDetailPage />}
               />
 
-              {/* Gestión de turnos del administrador */}
               <Route
                 path="/admin/turnos"
                 element={<AdminAppointmentsPage />}
+              />
+
+              <Route
+                path="/admin/horarios"
+                element={<AdminSchedulesPage />}
               />
             </Route>
 
