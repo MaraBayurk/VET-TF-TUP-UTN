@@ -15,13 +15,17 @@ import clientesRoutes from './src/modules/clientes/clientes.routes';
 import clinicalRoutes from './src/modules/clinical/clinical.routes';
 
 const app: Application = express();
+const frontendOrigins = (process.env.FRONTEND_URL || 'http://localhost:5173')
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean);
 
 
 // MIDDLEWARES GLOBALES
 app.use(express.json());
 app.use(morgan('dev'));
 app.use(cors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:5173'
+    origin: frontendOrigins
 }));
 
 // <-- 2. Ejecutá Swagger ANTES de tus rutas
