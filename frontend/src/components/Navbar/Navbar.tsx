@@ -5,6 +5,7 @@ import {
   PawPrint,
   Users,
   CalendarDays,
+  Clock3,
 } from "lucide-react";
 
 import "./Navbar.scss";
@@ -36,6 +37,11 @@ function Navbar() {
             label: "Gestión de turnos",
             path: "/admin/turnos",
             icon: CalendarDays,
+          },
+          {
+            label: "Horarios de atención",
+            path: "/admin/horarios",
+            icon: Clock3,
           },
         ]
       : []),
