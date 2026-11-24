@@ -2,6 +2,11 @@ import type { AuthUser } from "../types/auth.types";
 
 export const AUTH_TOKEN_KEY = "vet_auth_token";
 const AUTH_USER_KEY = "vet_auth_user";
+export const AUTH_SESSION_CHANGED_EVENT = "vet:auth-changed";
+
+const notifySessionChanged = (): void => {
+  window.dispatchEvent(new Event(AUTH_SESSION_CHANGED_EVENT));
+};
 
 export const saveAuthUser = (user: AuthUser): void => {
   localStorage.setItem(AUTH_USER_KEY, JSON.stringify(user));
@@ -22,4 +27,5 @@ export const getAuthUser = (): AuthUser | null => {
 export const clearAuthSession = (): void => {
   localStorage.removeItem(AUTH_TOKEN_KEY);
   localStorage.removeItem(AUTH_USER_KEY);
+  notifySessionChanged();
 };

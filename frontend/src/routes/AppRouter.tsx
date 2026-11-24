@@ -22,6 +22,7 @@ import ClientsPage from "../features/clients/pages/ClientsPage";
 import ClientDetailPage from "../features/clients/pages/ClientDetailPage";
 import CreateEditClientPage from "../features/clients/pages/CreateEditClientPage";
 import RequireAuth from "../components/auth/RequireAuth";
+import { AuthSessionProvider } from "../components/auth/AuthSessionProvider";
 import ClinicalAlertsPage from "../features/clinical/pages/ClinicalAlertsPage";
 import CreateEditAttentionPage from "../features/clinical/pages/CreateEditAttentionPage";
 
@@ -36,6 +37,7 @@ import {
 function AppRouter() {
   return (
     <BrowserRouter>
+      <AuthSessionProvider>
       <Routes>
         <Route path="/" element={<Landing />} />
 
@@ -126,6 +128,7 @@ function AppRouter() {
 
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+      </AuthSessionProvider>
     </BrowserRouter>
   );
 }
