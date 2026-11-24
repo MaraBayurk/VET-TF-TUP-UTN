@@ -1,6 +1,6 @@
-
 import { NavLink } from "react-router-dom";
 import {
+  BellRing,
   House,
   PawPrint,
   Users,
@@ -14,6 +14,7 @@ import { getAuthUser } from "../../features/auth/services/authStorage";
 const navigationItems = [
   { label: "Inicio", path: "/inicio", icon: House },
   { label: "Mascotas", path: "/mascotas", icon: PawPrint },
+  { label: "Alertas", path: "/alertas", icon: BellRing },
 ];
 
 function Navbar() {

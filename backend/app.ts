@@ -12,6 +12,7 @@ import mascotasRoutes from './src/modules/mascotas/mascotas.routes';
 import horariosRoutes from './src/modules/agenda/horarios/horarios.routes';
 import turnosRoutes from './src/modules/agenda/turnos/turnos.routes';
 import clientesRoutes from './src/modules/clientes/clientes.routes';
+import clinicalRoutes from './src/modules/clinical/clinical.routes';
 
 const app: Application = express();
 
@@ -34,5 +35,6 @@ app.use('/api/especialidades', especialidadesRoutes);
 app.use('/api/mascotas', mascotasRoutes);
 app.use('/api/horarios', horariosRoutes);
 app.use('/api/turnos', turnosRoutes);
+app.use('/api/atenciones', clinicalRoutes);
 
 export default app;
