@@ -108,7 +108,7 @@ npm install
 Crear `frontend/.env` con la URL de la API:
 
 ```env
-VITE_API_URL=http://localhost:3000/api
+API_URL=http://localhost:3000/api
 ```
 
 Iniciar la aplicación web:
