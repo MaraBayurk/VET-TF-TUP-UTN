@@ -4,7 +4,7 @@ import type { PetItem } from "../../../types/pet";
 const ITEMS_PER_PAGE = 8;
 
 function usePetsList(initialPets: PetItem[]) {
-  const [pets, setPets] = useState<PetItem[]>(initialPets);
+  const pets = initialPets;
   const [search, setSearch] = useState("");
   const [speciesFilter, setSpeciesFilter] = useState("Todas");
   const [statusFilter, setStatusFilter] = useState("Activas");
@@ -56,16 +56,6 @@ function usePetsList(initialPets: PetItem[]) {
     (pet) => pet.activo && pet.especie === "Felina",
   ).length;
 
-  const handleDeactivate = (selectedPet: PetItem) => {
-    setPets((currentPets) =>
-      currentPets.map((pet) =>
-        pet.id_mascota === selectedPet.id_mascota
-          ? { ...pet, activo: false }
-          : pet,
-      ),
-    );
-  };
-
   const clearFilters = () => {
     setSearch("");
     setSpeciesFilter("Todas");
@@ -94,7 +84,6 @@ function usePetsList(initialPets: PetItem[]) {
     activePets,
     caninePets,
     felinePets,
-    handleDeactivate,
     clearFilters,
     hasFilters,
     itemsPerPage: ITEMS_PER_PAGE,

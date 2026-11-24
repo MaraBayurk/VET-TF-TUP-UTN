@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Search,
@@ -12,149 +13,34 @@ import {
 import PetsTable from "../components/PetsTable";
 import usePetsList from "../hooks/usePetsList";
 import type { PetItem } from "../../../types/pet";
+import type { UserRole } from "../../../types/roles";
+import { getAuthUser } from "../../auth/services/authStorage";
+import { deactivatePet, getPets } from "../services/petService";
 import "../styles/PetsPage.scss";
-
-const initialPets: PetItem[] = [
-  {
-    id_mascota: 1,
-    id_cliente: 1,
-    nombre: "Luna",
-    especie: "Canina",
-    raza: "Golden Retriever",
-    fecha_nacimiento: "2021-03-12",
-    sexo: "Hembra",
-    observaciones: null,
-    activo: true,
-    cliente: {
-      id_usuario: 1,
-      nombre: "María",
-      apellido: "González",
-      numero_documento: "12.345.678",
-    },
-  },
-  {
-    id_mascota: 2,
-    id_cliente: 2,
-    nombre: "Simba",
-    especie: "Felina",
-    raza: "Europea",
-    fecha_nacimiento: "2022-07-05",
-    sexo: "Macho",
-    observaciones: null,
-    activo: true,
-    cliente: {
-      id_usuario: 2,
-      nombre: "Pedro",
-      apellido: "Ramírez",
-      numero_documento: "23.456.789",
-    },
-  },
-  {
-    id_mascota: 3,
-    id_cliente: 3,
-    nombre: "Nala",
-    especie: "Canina",
-    raza: "Labrador",
-    fecha_nacimiento: "2022-11-18",
-    sexo: "Hembra",
-    observaciones: "Control periódico",
-    activo: true,
-    cliente: {
-      id_usuario: 3,
-      nombre: "Lucía",
-      apellido: "Fernández",
-      numero_documento: "34.567.890",
-    },
-  },
-  {
-    id_mascota: 4,
-    id_cliente: 4,
-    nombre: "Mía",
-    especie: "Felina",
-    raza: "Siamés",
-    fecha_nacimiento: "2024-01-20",
-    sexo: "Hembra",
-    observaciones: null,
-    activo: true,
-    cliente: {
-      id_usuario: 4,
-      nombre: "Sofía",
-      apellido: "Vera",
-      numero_documento: "11.222.333",
-    },
-  },
-  {
-    id_mascota: 5,
-    id_cliente: 5,
-    nombre: "Rocky",
-    especie: "Canina",
-    raza: "Mestizo",
-    fecha_nacimiento: "2020-09-10",
-    sexo: "Macho",
-    observaciones: null,
-    activo: true,
-    cliente: {
-      id_usuario: 5,
-      nombre: "Carlos",
-      apellido: "Méndez",
-      numero_documento: "55.667.788",
-    },
-  },
-  {
-    id_mascota: 6,
-    id_cliente: 6,
-    nombre: "Kira",
-    especie: "Felina",
-    raza: "Maine Coon",
-    fecha_nacimiento: "2021-05-22",
-    sexo: "Hembra",
-    observaciones: null,
-    activo: true,
-    cliente: {
-      id_usuario: 6,
-      nombre: "Ana",
-      apellido: "Torres",
-      numero_documento: "44.556.677",
-    },
-  },
-  {
-    id_mascota: 7,
-    id_cliente: 7,
-    nombre: "Toby",
-    especie: "Canina",
-    raza: "Bulldog Francés",
-    fecha_nacimiento: "2023-02-14",
-    sexo: "Macho",
-    observaciones: null,
-    activo: false,
-    cliente: {
-      id_usuario: 7,
-      nombre: "Juan",
-      apellido: "Pérez",
-      numero_documento: "33.445.566",
-    },
-  },
-  {
-    id_mascota: 8,
-    id_cliente: 8,
-    nombre: "Olivia",
-    especie: "Felina",
-    raza: "Persa",
-    fecha_nacimiento: "2024-06-30",
-    sexo: "Hembra",
-    observaciones: null,
-    activo: true,
-    cliente: {
-      id_usuario: 8,
-      nombre: "Valentina",
-      apellido: "Ruiz",
-      numero_documento: "66.778.899",
-    },
-  },
-];
 
 function PetsPage() {
   const navigate = useNavigate();
+  const [pets, setPets] = useState<PetItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [actionError, setActionError] = useState("");
+  const roleValue = getAuthUser()?.rol?.toLocaleUpperCase("es") ?? "CLIENTE";
+  const role: UserRole = roleValue === "ADMINISTRADOR" || roleValue === "VETERINARIO" ? roleValue : "CLIENTE";
+  const isStaff = role !== "CLIENTE";
+  const loadPets = async () => {
+    setLoading(true);
+    setError("");
+    try { setPets(await getPets()); }
+    catch (e) { setError(e instanceof Error ? e.message : "No se pudieron cargar las mascotas"); }
+    finally { setLoading(false); }
+  };
+  useEffect(() => {
+    let active = true;
+    getPets().then(data => { if (active) setPets(data); })
+      .catch(reason => { if (active) setError(reason instanceof Error ? reason.message : "No se pudieron cargar las mascotas"); })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+  }, []);
 
   const {
     search,
@@ -171,11 +57,16 @@ function PetsPage() {
     activePets,
     caninePets,
     felinePets,
-    handleDeactivate,
     clearFilters,
     hasFilters,
     itemsPerPage,
-  } = usePetsList(initialPets);
+  } = usePetsList(pets);
+
+  const handleDeactivate = async (pet: PetItem) => {
+    setActionError("");
+    try { await deactivatePet(pet.id_mascota); await loadPets(); }
+    catch (e) { setActionError(e instanceof Error ? e.message : "No se pudo dar de baja la mascota"); }
+  };
 
   return (
     <section className="pets-page">
@@ -184,7 +75,9 @@ function PetsPage() {
           <span className="pets-page__eyebrow">VET</span>
           <h1>Mascotas</h1>
           <p>
-            Gestioná los pacientes y sus datos registrados en la veterinaria.
+            {isStaff
+              ? "Gestioná los pacientes y sus datos registrados en la veterinaria."
+              : "Consultá las mascotas asociadas a tu cuenta."}
           </p>
         </div>
 
@@ -193,13 +86,16 @@ function PetsPage() {
         </div>
       </header>
 
+      {error && <div role="alert" className="pets-page__error">{error}<button type="button" onClick={() => void loadPets()}>Reintentar</button></div>}
+      {actionError && <div role="alert" className="pets-page__error">{actionError}</div>}
+
       <section className="pets-page__stats">
         <article className="pets-page__stat-card">
           <div className="pets-page__stat-icon pets-page__stat-icon--green">
             <PawPrint size={20} />
           </div>
           <div>
-            <span>Mascotas activas</span>
+            <span>{isStaff ? "Mascotas activas" : "Mis mascotas"}</span>
             <strong>{activePets}</strong>
           </div>
         </article>
@@ -236,7 +132,7 @@ function PetsPage() {
                 setSearch(event.target.value);
                 setCurrentPage(1);
               }}
-              placeholder="Buscar por mascota, cliente o documento..."
+              placeholder={isStaff ? "Buscar por mascota, cliente o documento..." : "Buscar por nombre o especie..."}
             />
           </label>
 
@@ -256,7 +152,7 @@ function PetsPage() {
             </select>
           </label>
 
-          <label className="pets-page__filter">
+          {isStaff && <label className="pets-page__filter">
             <span>Estado</span>
             <select
               value={statusFilter}
@@ -266,10 +162,9 @@ function PetsPage() {
               }}
             >
               <option value="Activas">Activas</option>
-              <option value="Inactivas">Inactivas</option>
-              <option value="Todas">Todas</option>
+              {isStaff && <><option value="Inactivas">Inactivas</option><option value="Todas">Todas</option></>}
             </select>
-          </label>
+          </label>}
 
           {hasFilters && (
             <button
@@ -288,19 +183,19 @@ function PetsPage() {
             onClick={() => navigate("/mascotas/nueva")}
           >
             <Plus size={17} />
-            Nueva mascota
+            {role === "CLIENTE" ? "Registrar mascota" : "Nueva mascota"}
           </button>
         </div>
 
         <div className="pets-page__table-heading">
           <div>
-            <h2>Pacientes registrados</h2>
-            <p>Consultá y administrá las mascotas de tus clientes.</p>
+            <h2>{isStaff ? "Pacientes registrados" : "Mis mascotas"}</h2>
+            <p>{isStaff ? "Consultá y administrá las mascotas de tus clientes." : "Consultá la información de tus mascotas registradas."}</p>
           </div>
           <SlidersHorizontal size={18} />
         </div>
 
-        <PetsTable pets={paginatedPets} onDeactivate={handleDeactivate} />
+        {loading ? <p role="status" className="pets-page__loading">Cargando mascotas…</p> : <PetsTable pets={paginatedPets} onDeactivate={handleDeactivate} role={role} />}
 
         <footer className="pets-page__pagination">
           <span>

@@ -43,7 +43,7 @@ const rolesDeGestion = verificarRolPorNombre([
  * /api/mascotas:
  *   get:
  *     summary: Obtener listado de mascotas
- *     description: Los clientes solamente pueden consultar sus propias mascotas. Administradores y veterinarios pueden consultar todas.
+ *     description: Los clientes solamente pueden consultar sus propias mascotas activas. Administradores y veterinarios pueden consultar todas, incluidas las inactivas.
  *     tags: [Mascotas]
  *     security:
  *       - bearerAuth: []
@@ -86,7 +86,7 @@ router.get('/', todosLosRoles, obtenerMascotas);
  * /api/mascotas/{id}:
  *   get:
  *     summary: Obtener una mascota por ID
- *     description: El cliente solamente puede consultar mascotas de su propiedad.
+ *     description: El cliente solamente puede consultar mascotas de su propiedad. Administradores y veterinarios también pueden consultar mascotas inactivas.
  *     tags: [Mascotas]
  *     security:
  *       - bearerAuth: []

@@ -120,6 +120,34 @@
     box-shadow: $shadow-card;
   }
 
+  &__error,
+  &__loading {
+    padding: 12px 14px;
+    border: 1px solid $color-border;
+    border-radius: 8px;
+    color: $color-text;
+    background: $color-surface;
+    font-size: 13px;
+  }
+
+  &__error {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    border-color: #efc5c5;
+    color: #a73c3c;
+
+    button {
+      padding: 6px 10px;
+      border: 1px solid currentColor;
+      border-radius: 6px;
+      color: inherit;
+      background: transparent;
+      cursor: pointer;
+    }
+  }
+
   &__toolbar {
     display: flex;
     align-items: flex-end;
