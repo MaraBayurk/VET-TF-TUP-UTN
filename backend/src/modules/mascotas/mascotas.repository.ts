@@ -60,11 +60,14 @@ export class MascotasRepository {
 
     static async obtenerTodas(): Promise<any[]> {
         const [rows] = await pool.query(
-            `SELECT id_mascota, id_cliente, nombre, especie,
-                    raza, fecha_nacimiento, sexo, observaciones,
-                    activo, fecha_creacion
-             FROM Mascota
-             WHERE activo = 1`
+            `SELECT m.id_mascota, m.id_cliente, m.nombre, m.especie,
+                    m.raza, m.fecha_nacimiento, m.sexo, m.observaciones,
+                    m.activo, m.fecha_creacion, u.id_usuario AS cliente_id_usuario,
+                    u.nombre AS cliente_nombre, u.apellido AS cliente_apellido,
+                    u.numero_documento AS cliente_numero_documento
+             FROM Mascota m
+             INNER JOIN Cliente c ON c.id_cliente = m.id_cliente
+             INNER JOIN Usuario u ON u.id_usuario = c.id_usuario`
         );
 
         return rows as any[];
@@ -72,12 +75,15 @@ export class MascotasRepository {
 
     static async obtenerPorId(id: string): Promise<any> {
         const [rows]: any = await pool.query(
-            `SELECT id_mascota, id_cliente, nombre, especie,
-                    raza, fecha_nacimiento, sexo, observaciones,
-                    activo, fecha_creacion
-             FROM Mascota
-             WHERE id_mascota = ?
-             AND activo = 1`,
+            `SELECT m.id_mascota, m.id_cliente, m.nombre, m.especie,
+                    m.raza, m.fecha_nacimiento, m.sexo, m.observaciones,
+                    m.activo, m.fecha_creacion, u.id_usuario AS cliente_id_usuario,
+                    u.nombre AS cliente_nombre, u.apellido AS cliente_apellido,
+                    u.numero_documento AS cliente_numero_documento
+             FROM Mascota m
+             INNER JOIN Cliente c ON c.id_cliente = m.id_cliente
+             INNER JOIN Usuario u ON u.id_usuario = c.id_usuario
+             WHERE m.id_mascota = ?`,
             [id]
         );
 
@@ -86,12 +92,16 @@ export class MascotasRepository {
 
     static async obtenerPorCliente(idCliente: number): Promise<any[]> {
         const [rows] = await pool.query(
-            `SELECT id_mascota, id_cliente, nombre, especie,
-                    raza, fecha_nacimiento, sexo, observaciones,
-                    activo
-             FROM Mascota
-             WHERE id_cliente = ?
-             AND activo = 1`,
+            `SELECT m.id_mascota, m.id_cliente, m.nombre, m.especie,
+                    m.raza, m.fecha_nacimiento, m.sexo, m.observaciones,
+                    m.activo, u.id_usuario AS cliente_id_usuario,
+                    u.nombre AS cliente_nombre, u.apellido AS cliente_apellido,
+                    u.numero_documento AS cliente_numero_documento
+             FROM Mascota m
+             INNER JOIN Cliente c ON c.id_cliente = m.id_cliente
+             INNER JOIN Usuario u ON u.id_usuario = c.id_usuario
+             WHERE m.id_cliente = ?
+             AND m.activo = 1`,
             [idCliente]
         );
 

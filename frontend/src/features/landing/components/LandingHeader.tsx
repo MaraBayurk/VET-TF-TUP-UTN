@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ChevronDown, LogOut, Menu, X } from "lucide-react";
+import { ChevronDown, LayoutDashboard, LogOut, Menu, X } from "lucide-react";
 import { useState } from "react";
 
 import logo from "../../../assets/logo.png";
@@ -20,6 +20,9 @@ function LandingHeader() {
   const role = typeof user?.rol === "string"
     ? user.rol.charAt(0).toLocaleUpperCase("es") + user.rol.slice(1)
     : "";
+  const panelLabel = user?.rol?.trim().toLocaleLowerCase("es") === "cliente"
+    ? "Mi panel"
+    : "Panel de gestión";
 
   const closeMenu = () => {
     setMenuOpen(false);
@@ -92,6 +95,15 @@ function LandingHeader() {
 
               {isUserMenuOpen && (
                 <div className="main-layout__dropdown" role="menu">
+                  <Link
+                    to="/inicio"
+                    className="main-layout__dropdown-item landing-dashboard-link"
+                    onClick={closeMenu}
+                    role="menuitem"
+                  >
+                    <LayoutDashboard size={18} />
+                    <span>{panelLabel}</span>
+                  </Link>
                   <button
                     type="button"
                     className="main-layout__dropdown-item"

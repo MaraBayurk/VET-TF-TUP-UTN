@@ -315,7 +315,7 @@ CREATE TABLE IF NOT EXISTS `veterinariaDB`.`VacunaAplicada` (
   `lote` VARCHAR(80) NULL DEFAULT NULL,
   `fecha_aplicacion` DATE NOT NULL,
   `proxima_aplicacion` DATE NULL DEFAULT NULL,
-  `laboratorio` VARCHAR(120) NULL DEFAULT NULL,
+  `laboratorio` VARCHAR(120) NOT NULL,
   `id_atencion` INT UNSIGNED NOT NULL,
   PRIMARY KEY (`id_vacuna_aplicada`),
   INDEX `fk_VacunaAplicada_AtencionClinica1_idx` (`id_atencion` ASC) ,

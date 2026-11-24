@@ -158,7 +158,7 @@ export const obtenerMascotaPorId = async (
     if (!mascota) {
       res.status(404).json({
         status: "error",
-        message: "Mascota no encontrada o inactiva",
+        message: "Mascota no encontrada",
       });
       return;
     }
@@ -166,10 +166,14 @@ export const obtenerMascotaPorId = async (
     if (await esRolCliente(usuario.id_rol)) {
       const idCliente = await obtenerIdClienteDelUsuario(usuario.id_usuario);
 
-      if (!idCliente || Number(mascota.id_cliente) !== idCliente) {
-        res.status(403).json({
+      if (
+        !idCliente ||
+        Number(mascota.id_cliente) !== idCliente ||
+        !Boolean(mascota.activo)
+      ) {
+        res.status(404).json({
           status: "error",
-          message: "Acceso denegado: la mascota no le pertenece",
+          message: "Mascota no encontrada",
         });
         return;
       }

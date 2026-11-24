@@ -7,7 +7,7 @@ export const canEditPet = (
 ): boolean => {
   if (!pet.activo) return false;
 
-  return role === "ADMINISTRADOR" || role === "VETERINARIO";
+  return role === "ADMINISTRADOR" || role === "VETERINARIO" || role === "CLIENTE";
 };
 
 export const canDeactivatePet = (
