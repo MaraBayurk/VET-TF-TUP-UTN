@@ -2,6 +2,7 @@ import {
     ActualizarAtencionClinicaDTO,
     AlertaClinicaDTO,
     AtencionClinicaResponseDTO,
+    CambioCampoDTO,
     CrearAtencionClinicaDTO,
     CrearVacunaAplicadaDTO,
     TipoAtencionDTO
@@ -42,6 +43,107 @@ const esFechaFormatoValido = (fecha: unknown): fecha is string => {
     );
 
     return fechaDate.toISOString().slice(0, 10) === fecha;
+};
+
+const normalizarFechaParaComparar = (fecha: unknown): string | null => {
+    if (!fecha) return null;
+    if (fecha instanceof Date) return fecha.toISOString().slice(0, 10);
+    if (typeof fecha === 'string') return fecha.slice(0, 10);
+    return null;
+};
+
+const resumirVacunas = (
+    vacunas: Array<{
+        nombre_vacuna: string;
+        laboratorio: string;
+        dosis?: string | null;
+        lote?: string | null;
+        fecha_aplicacion: string | Date;
+        proxima_aplicacion?: string | Date | null;
+    }>
+): string => {
+    if (!vacunas || vacunas.length === 0) return 'Sin vacunas';
+
+    return vacunas
+        .map((v) => {
+            const partes = [
+                `${v.nombre_vacuna} (${v.laboratorio})`,
+                v.dosis ? `Dosis: ${v.dosis}` : null,
+                v.lote ? `Lote: ${v.lote}` : null,
+                `Aplic: ${normalizarFechaParaComparar(v.fecha_aplicacion) ?? '-'}`,
+                v.proxima_aplicacion
+                    ? `Próx: ${normalizarFechaParaComparar(v.proxima_aplicacion)}`
+                    : null
+            ].filter(Boolean);
+            return partes.join(' · ');
+        })
+        .join(' | ');
+};
+
+const construirDetalleCambios = (
+    atencionExistente: AtencionClinicaResponseDTO,
+    datosActualizar: ActualizarAtencionClinicaDTO
+): CambioCampoDTO[] => {
+    const cambios: CambioCampoDTO[] = [];
+
+    if (
+        datosActualizar.diagnostico !== undefined &&
+        (atencionExistente.diagnostico ?? null) !== (datosActualizar.diagnostico ?? null)
+    ) {
+        cambios.push({
+            campo: 'Diagnóstico',
+            anterior: atencionExistente.diagnostico ?? null,
+            nuevo: datosActualizar.diagnostico ?? null
+        });
+    }
+
+    if (
+        datosActualizar.tratamiento !== undefined &&
+        (atencionExistente.tratamiento ?? null) !== (datosActualizar.tratamiento ?? null)
+    ) {
+        cambios.push({
+            campo: 'Tratamiento',
+            anterior: atencionExistente.tratamiento ?? null,
+            nuevo: datosActualizar.tratamiento ?? null
+        });
+    }
+
+    if (
+        datosActualizar.observaciones !== undefined &&
+        (atencionExistente.observaciones ?? null) !== (datosActualizar.observaciones ?? null)
+    ) {
+        cambios.push({
+            campo: 'Observaciones',
+            anterior: atencionExistente.observaciones ?? null,
+            nuevo: datosActualizar.observaciones ?? null
+        });
+    }
+
+    if (datosActualizar.proximo_control !== undefined) {
+        const anteriorFecha = normalizarFechaParaComparar(atencionExistente.proximo_control);
+        const nuevaFecha = normalizarFechaParaComparar(datosActualizar.proximo_control);
+        if (anteriorFecha !== nuevaFecha) {
+            cambios.push({
+                campo: 'Próximo control',
+                anterior: anteriorFecha,
+                nuevo: nuevaFecha
+            });
+        }
+    }
+
+    if (datosActualizar.vacunas !== undefined) {
+        const anteriorVacunas = resumirVacunas(atencionExistente.vacunas);
+        const nuevasVacunas = resumirVacunas(datosActualizar.vacunas);
+        if (anteriorVacunas !== nuevasVacunas) {
+            cambios.push({
+                campo: 'Vacunas aplicadas',
+                anterior: anteriorVacunas,
+                nuevo: nuevasVacunas
+            });
+        }
+    }
+
+    return cambios;
 };
 
 const esTextoObligatorioValido = (
@@ -204,7 +306,6 @@ export class ClinicalService {
         idUsuario: number,
         body: any
     ): Promise<number> {
-        // RN-07: Resolver id_veterinario desde la sesión autenticada
         const idVeterinario = await ClinicalRepository.obtenerVeterinarioActivoPorUsuario(idUsuario);
 
         if (!idVeterinario) {
@@ -214,7 +315,6 @@ export class ClinicalService {
             );
         }
 
-        // Validar mascota activa (RN-10)
         const idMascota = Number(body.id_mascota);
         if (!Number.isInteger(idMascota) || idMascota <= 0) {
             throw new ClinicalServiceError(400, 'Debe proporcionar un id_mascota válido');
@@ -228,7 +328,6 @@ export class ClinicalService {
             );
         }
 
-        // Validar catálogo TipoAtencion por ID (RN-08)
         const idTipoAtencion = Number(body.id_tipo_atencion);
         if (!Number.isInteger(idTipoAtencion) || idTipoAtencion <= 0) {
             throw new ClinicalServiceError(400, 'Debe proporcionar un id_tipo_atencion válido');
@@ -239,7 +338,6 @@ export class ClinicalService {
             throw new ClinicalServiceError(400, 'El tipo de atención indicado no existe');
         }
 
-        // Validar campos clínicos opcionales
         const diagnostico = normalizarTextoOpcional(body.diagnostico, 'diagnostico');
         const tratamiento = normalizarTextoOpcional(body.tratamiento, 'tratamiento');
         const observaciones = normalizarTextoOpcional(body.observaciones, 'observaciones');
@@ -259,7 +357,6 @@ export class ClinicalService {
             proximoControl = body.proximo_control;
         }
 
-        // Validar turno opcional (RN-09)
         let idTurno: number | null = null;
         if (body.id_turno !== undefined && body.id_turno !== null && body.id_turno !== '') {
             const turnoNum = Number(body.id_turno);
@@ -270,7 +367,6 @@ export class ClinicalService {
             idTurno = turnoNum;
         }
 
-        // Validar vacunas según TipoAtencion (RN-12 y HU-VET-10-c)
         const esVacuna = tipoAtencion.nombre.toLowerCase() === 'vacuna';
         let vacunasValidadas: CrearVacunaAplicadaDTO[] = [];
 
@@ -438,10 +534,13 @@ export class ClinicalService {
             );
         }
 
+        const detalleCambios = construirDetalleCambios(atencionExistente, datosActualizar);
+
         const fueActualizada = await ClinicalRepository.actualizar(
             idAtencion,
             datosActualizar,
-            idUsuarioModificador
+            idUsuarioModificador,
+            detalleCambios
         );
 
         if (!fueActualizada) {

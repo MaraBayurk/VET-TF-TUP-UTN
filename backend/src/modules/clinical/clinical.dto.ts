@@ -40,6 +40,26 @@ export interface ActualizarAtencionClinicaDTO {
 }
 
 // ==========================================
+// AUDITORÍA DE MODIFICACIONES (TRAZABILIDAD)
+// ==========================================
+
+export interface CambioCampoDTO {
+    campo: string;
+    anterior: string | null;
+    nuevo: string | null;
+}
+
+export interface HistorialModificacionDTO {
+    id_historial: number;
+    id_atencion: number;
+    id_usuario_modificador: number;
+    modificador_nombre: string;
+    modificador_apellido: string;
+    fecha_modificacion: string;
+    detalle_cambios: CambioCampoDTO[];
+}
+
+// ==========================================
 // DTOs DE SALIDA (LECTURA / LIBRETA SANITARIA)
 // ==========================================
 
@@ -77,6 +97,7 @@ export interface AtencionClinicaResponseDTO {
     fecha_ultima_modificacion: string | null;
     activo: number;
     vacunas: VacunaAplicadaResponseDTO[];
+    historial_modificaciones: HistorialModificacionDTO[];
 }
 
 // ==========================================

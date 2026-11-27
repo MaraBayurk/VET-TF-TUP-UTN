@@ -1,12 +1,14 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import {
     ArrowLeft,
     Plus,
     Save,
+    Search,
     Stethoscope,
     Syringe,
     Trash2,
+    X,
 } from "lucide-react";
 
 import type {
@@ -46,6 +48,13 @@ const createEmptyVaccine = (): CrearVacunaPayload => ({
     proxima_aplicacion: "",
 });
 
+const formatPetLabel = (pet: PetItem): string => {
+    const dni = pet.cliente.numero_documento
+        ? ` · DNI ${pet.cliente.numero_documento}`
+        : "";
+    return `${pet.nombre} (${pet.especie}) — ${pet.cliente.nombre} ${pet.cliente.apellido}${dni}`;
+};
+
 function CreateEditAttentionPage() {
     const { id } = useParams<{ id: string }>();
     const [searchParams] = useSearchParams();
@@ -59,6 +68,8 @@ function CreateEditAttentionPage() {
     const [error, setError] = useState("");
 
     const [pets, setPets] = useState<PetItem[]>([]);
+    const [petSearch, setPetSearch] = useState("");
+    const [isPetDropdownOpen, setIsPetDropdownOpen] = useState(false);
     const [tiposAtencion, setTiposAtencion] = useState<TipoAtencion[]>([]);
     const [existingAttention, setExistingAttention] =
         useState<AtencionClinicaItem | null>(null);
@@ -74,6 +85,13 @@ function CreateEditAttentionPage() {
     const [vacunas, setVacunas] = useState<CrearVacunaPayload[]>([
         createEmptyVaccine(),
     ]);
+
+    useEffect(() => {
+        setIdMascota(preselectedPetId);
+        if (!preselectedPetId) {
+            setPetSearch("");
+        }
+    }, [preselectedPetId]);
 
     useEffect(() => {
         let active = true;
@@ -118,6 +136,15 @@ function CreateEditAttentionPage() {
                     setPets(activePets);
                     setTiposAtencion(tiposData);
 
+                    if (preselectedPetId) {
+                        const matchedPet = activePets.find(
+                            (pet) => String(pet.id_mascota) === preselectedPetId
+                        );
+                        if (matchedPet) {
+                            setPetSearch(formatPetLabel(matchedPet));
+                        }
+                    }
+
                     if (tiposData.length > 0) {
                         setIdTipoAtencion(String(tiposData[0].id_tipo_atencion));
                     }
@@ -140,7 +167,44 @@ function CreateEditAttentionPage() {
         return () => {
             active = false;
         };
-    }, [id, isEditMode]);
+    }, [id, isEditMode, preselectedPetId]);
+
+    const selectedPet = useMemo(
+        () => pets.find((pet) => String(pet.id_mascota) === idMascota) ?? null,
+        [pets, idMascota]
+    );
+
+    const filteredPets = useMemo(() => {
+        const query = petSearch.trim().toLocaleLowerCase("es");
+        if (!query) return pets;
+
+        return pets.filter((pet) => {
+            const searchableText = [
+                pet.nombre,
+                pet.especie,
+                pet.raza ?? "",
+                pet.cliente.nombre,
+                pet.cliente.apellido,
+                pet.cliente.numero_documento ?? "",
+            ]
+                .join(" ")
+                .toLocaleLowerCase("es");
+
+            return searchableText.includes(query);
+        });
+    }, [pets, petSearch]);
+
+    const handleSelectPet = (pet: PetItem) => {
+        setIdMascota(String(pet.id_mascota));
+        setPetSearch(formatPetLabel(pet));
+        setIsPetDropdownOpen(false);
+    };
+
+    const handleClearPet = () => {
+        setIdMascota("");
+        setPetSearch("");
+        setIsPetDropdownOpen(true);
+    };
 
     const selectedTipo = tiposAtencion.find(
         (tipo) => String(tipo.id_tipo_atencion) === idTipoAtencion
@@ -212,7 +276,7 @@ function CreateEditAttentionPage() {
             }
 
             if (!idMascota) {
-                setError("Debe seleccionar una mascota activa.");
+                setError("Debe seleccionar una mascota activa de la lista desplegable.");
                 setSubmitting(false);
                 return;
             }
@@ -317,22 +381,81 @@ function CreateEditAttentionPage() {
                     </div>
                 ) : (
                     <div className="attention-form-page__grid">
-                        <div className="attention-form-page__field">
-                            <label htmlFor="id_mascota">Mascota *</label>
-                            <select
-                                id="id_mascota"
-                                value={idMascota}
-                                onChange={(e) => setIdMascota(e.target.value)}
-                                required
-                            >
-                                <option value="">Seleccione una mascota activa</option>
-                                {pets.map((pet) => (
-                                    <option key={pet.id_mascota} value={pet.id_mascota}>
-                                        {pet.nombre} ({pet.especie}) — {pet.cliente.nombre}{" "}
-                                        {pet.cliente.apellido}
-                                    </option>
-                                ))}
-                            </select>
+                        <div className="attention-form-page__field attention-form-page__field--full">
+                            <label htmlFor="buscar_mascota">Mascota *</label>
+                            <div className="attention-form-page__combobox">
+                                <div className="attention-form-page__search">
+                                    <Search size={16} />
+                                    <input
+                                        id="buscar_mascota"
+                                        type="text"
+                                        autoComplete="off"
+                                        value={petSearch}
+                                        onFocus={() => setIsPetDropdownOpen(true)}
+                                        onBlur={() => setIsPetDropdownOpen(false)}
+                                        onChange={(e) => {
+                                            setPetSearch(e.target.value);
+                                            setIdMascota("");
+                                            setIsPetDropdownOpen(true);
+                                        }}
+                                        placeholder="Escriba el nombre de la mascota, especie, cliente o DNI..."
+                                    />
+                                    {petSearch && (
+                                        <button
+                                            type="button"
+                                            className="attention-form-page__clear-pet"
+                                            onMouseDown={(e) => {
+                                                e.preventDefault();
+                                                handleClearPet();
+                                            }}
+                                            aria-label="Limpiar selección"
+                                        >
+                                            <X size={15} />
+                                        </button>
+                                    )}
+                                </div>
+
+                                {isPetDropdownOpen && (
+                                    <ul className="attention-form-page__pet-dropdown" role="listbox">
+                                        {filteredPets.length === 0 ? (
+                                            <li className="attention-form-page__pet-empty">
+                                                No se encontraron mascotas activas con ese criterio.
+                                            </li>
+                                        ) : (
+                                            filteredPets.map((pet) => (
+                                                <li key={pet.id_mascota} role="option">
+                                                    <button
+                                                        type="button"
+                                                        className={`attention-form-page__pet-option ${String(pet.id_mascota) === idMascota
+                                                            ? "attention-form-page__pet-option--selected"
+                                                            : ""
+                                                            }`}
+                                                        onMouseDown={(e) => {
+                                                            e.preventDefault();
+                                                            handleSelectPet(pet);
+                                                        }}
+                                                    >
+                                                        <strong>
+                                                            {pet.nombre} ({pet.especie})
+                                                        </strong>
+                                                        <span>
+                                                            {pet.cliente.nombre} {pet.cliente.apellido}
+                                                            {pet.cliente.numero_documento
+                                                                ? ` · DNI ${pet.cliente.numero_documento}`
+                                                                : ""}
+                                                        </span>
+                                                    </button>
+                                                </li>
+                                            ))
+                                        )}
+                                    </ul>
+                                )}
+                            </div>
+                            <small>
+                                {selectedPet
+                                    ? `Mascota seleccionada: ${selectedPet.nombre} (${selectedPet.especie}).`
+                                    : "Haga clic en el buscador y seleccione una mascota de la lista."}
+                            </small>
                         </div>
 
                         <div className="attention-form-page__field">

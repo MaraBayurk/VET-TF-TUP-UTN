@@ -329,6 +329,34 @@ DEFAULT CHARACTER SET = utf8mb4
 COLLATE = utf8mb4_unicode_ci;
 
 -- -----------------------------------------------------
+-- Table `veterinariaDB`.`AtencionClinicaHistorial`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `veterinariaDB`.`AtencionClinicaHistorial` ;
+
+CREATE TABLE IF NOT EXISTS `veterinariaDB`.`AtencionClinicaHistorial` (
+  `id_historial` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `id_atencion` INT UNSIGNED NOT NULL,
+  `id_usuario_modificador` INT UNSIGNED NOT NULL,
+  `fecha_modificacion` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `detalle_cambios` JSON NOT NULL,
+  PRIMARY KEY (`id_historial`),
+  INDEX `idx_historial_atencion_fecha` (`id_atencion` ASC, `fecha_modificacion` DESC) ,
+  INDEX `fk_historial_usuario` (`id_usuario_modificador` ASC) ,
+  CONSTRAINT `fk_historial_atencion`
+    FOREIGN KEY (`id_atencion`)
+    REFERENCES `veterinariaDB`.`AtencionClinica` (`id_atencion`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
+  CONSTRAINT `fk_historial_usuario`
+    FOREIGN KEY (`id_usuario_modificador`)
+    REFERENCES `veterinariaDB`.`Usuario` (`id_usuario`)
+    ON DELETE RESTRICT
+    ON UPDATE CASCADE)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_unicode_ci;
+
+-- -----------------------------------------------------
 -- Carga de datos iniciales (Seeders) para Catálogos
 -- -----------------------------------------------------
 USE `veterinariaDB`;

@@ -3,6 +3,7 @@ import {
   BellRing,
   House,
   PawPrint,
+  Stethoscope,
   Users,
   CalendarDays,
 } from "lucide-react";
@@ -21,7 +22,8 @@ function Navbar() {
 
   const isClient = role === "cliente";
   const isAdmin = role === "administrador";
-  const isStaff = isAdmin || role === "veterinario";
+  const isVet = role === "veterinario";
+  const isStaff = isAdmin || isVet;
 
   const items = [
     ...navigationItems,
@@ -32,16 +34,26 @@ function Navbar() {
 
     ...(isAdmin
       ? [
-          {
-            label: "Gestión de turnos",
-            path: "/admin/turnos",
-            icon: CalendarDays,
-          },
-        ]
+        {
+          label: "Gestión de turnos",
+          path: "/admin/turnos",
+          icon: CalendarDays,
+        },
+      ]
       : []),
 
     ...(isStaff
       ? [{ label: "Clientes", path: "/clientes", icon: Users }]
+      : []),
+
+    ...(isVet
+      ? [
+        {
+          label: "Atención clínica",
+          path: "/atenciones/nueva",
+          icon: Stethoscope,
+        },
+      ]
       : []),
 
     ...(isAdmin
@@ -87,4 +99,3 @@ function Navbar() {
 }
 
 export default Navbar;
-

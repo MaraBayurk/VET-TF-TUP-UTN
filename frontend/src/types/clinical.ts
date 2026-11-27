@@ -42,6 +42,22 @@ export interface VacunaAplicadaItem {
     laboratorio: string;
 }
 
+export interface CambioCampoItem {
+    campo: string;
+    anterior: string | null;
+    nuevo: string | null;
+}
+
+export interface HistorialModificacionItem {
+    id_historial: number;
+    id_atencion: number;
+    id_usuario_modificador: number;
+    modificador_nombre: string;
+    modificador_apellido: string;
+    fecha_modificacion: string;
+    detalle_cambios: CambioCampoItem[];
+}
+
 export interface AtencionClinicaItem {
     id_atencion: number;
     id_turno: number | null;
@@ -65,6 +81,7 @@ export interface AtencionClinicaItem {
     fecha_ultima_modificacion: string | null;
     activo: number;
     vacunas: VacunaAplicadaItem[];
+    historial_modificaciones?: HistorialModificacionItem[];
 }
 
 export type TipoAlertaClinica = "CONTROL" | "VACUNA";
