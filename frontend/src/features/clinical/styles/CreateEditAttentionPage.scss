@@ -173,6 +173,117 @@
         }
     }
 
+    &__combobox {
+        position: relative;
+        width: 100%;
+    }
+
+    &__search {
+        position: relative;
+        display: flex;
+        align-items: center;
+
+        >svg {
+            position: absolute;
+            left: 12px;
+            color: $color-text-light;
+            pointer-events: none;
+        }
+
+        input {
+            padding-left: 36px;
+            padding-right: 36px;
+        }
+    }
+
+    &__clear-pet {
+        position: absolute;
+        right: 10px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: none;
+        background: transparent;
+        color: $color-text-light;
+        padding: 4px;
+        border-radius: 50%;
+
+        &:hover {
+            background-color: $color-background;
+            color: $color-heading;
+        }
+    }
+
+    &__pet-dropdown {
+        position: absolute;
+        top: calc(100% + 6px);
+        left: 0;
+        right: 0;
+        z-index: 30;
+        list-style: none;
+        margin: 0;
+        padding: 6px;
+        background-color: $color-surface;
+        border: 1px solid $color-border;
+        border-radius: 12px;
+        box-shadow: $shadow-card;
+        max-height: 240px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+
+        li {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+    }
+
+    &__pet-option {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 3px;
+        padding: 10px 14px;
+        border: none;
+        border-radius: 8px;
+        background-color: transparent;
+        text-align: left;
+        transition: background-color 0.15s ease;
+
+        strong {
+            font-size: 14px;
+            font-weight: 600;
+            color: $color-heading;
+        }
+
+        span {
+            font-size: 12px;
+            color: $color-text;
+        }
+
+        &:hover {
+            background-color: $color-background;
+        }
+
+        &--selected {
+            background-color: $color-panel;
+
+            strong {
+                color: $color-primary-dark;
+            }
+        }
+    }
+
+    &__pet-empty {
+        padding: 14px;
+        font-size: 13px;
+        color: $color-text;
+        text-align: center;
+    }
+
     &__vaccines {
         padding: 20px;
         border-radius: 14px;

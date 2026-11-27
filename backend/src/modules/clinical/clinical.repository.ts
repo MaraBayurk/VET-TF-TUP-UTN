@@ -3,7 +3,9 @@ import {
     ActualizarAtencionClinicaDTO,
     AlertaClinicaDTO,
     AtencionClinicaResponseDTO,
+    CambioCampoDTO,
     CrearAtencionClinicaDTO,
+    HistorialModificacionDTO,
     TipoAtencionDTO,
     VacunaAplicadaResponseDTO
 } from './clinical.dto';
@@ -20,6 +22,21 @@ export interface MascotaActivaRow {
     id_mascota: number;
     id_cliente: number;
 }
+
+const parsearDetalleCambios = (raw: unknown): CambioCampoDTO[] => {
+    if (Array.isArray(raw)) {
+        return raw as CambioCampoDTO[];
+    }
+    if (typeof raw === 'string') {
+        try {
+            const parsed = JSON.parse(raw);
+            return Array.isArray(parsed) ? (parsed as CambioCampoDTO[]) : [];
+        } catch {
+            return [];
+        }
+    }
+    return [];
+};
 
 export class ClinicalRepository {
 
@@ -163,7 +180,6 @@ export class ClinicalRepository {
 
             const idAtencionCreada = Number(resultAtencion.insertId);
 
-            // Inserción de vacunas aplicadas (1 a N) si corresponde (RN-12)
             if (datos.vacunas && datos.vacunas.length > 0) {
                 for (const vacuna of datos.vacunas) {
                     await connection.query(
@@ -189,7 +205,6 @@ export class ClinicalRepository {
                 }
             }
 
-            // Cierre automático del turno asociado a COMPLETADO (RN-05 y RN-09)
             if (datos.id_turno) {
                 const [estados]: any = await connection.query(
                     `SELECT id_estado_turno
@@ -255,7 +270,43 @@ export class ClinicalRepository {
         return rows as VacunaAplicadaResponseDTO[];
     }
 
-    private static async adjuntarVacunas(
+    private static async obtenerHistorialModificacionesPorAtenciones(
+        idsAtenciones: number[]
+    ): Promise<HistorialModificacionDTO[]> {
+        if (idsAtenciones.length === 0) {
+            return [];
+        }
+
+        const placeholders = idsAtenciones.map(() => '?').join(', ');
+
+        const [rows]: any = await pool.query(
+            `SELECT
+                h.id_historial,
+                h.id_atencion,
+                h.id_usuario_modificador,
+                u.nombre AS modificador_nombre,
+                u.apellido AS modificador_apellido,
+                h.fecha_modificacion,
+                h.detalle_cambios
+             FROM AtencionClinicaHistorial h
+             INNER JOIN Usuario u ON u.id_usuario = h.id_usuario_modificador
+             WHERE h.id_atencion IN (${placeholders})
+             ORDER BY h.fecha_modificacion DESC, h.id_historial DESC`,
+            idsAtenciones
+        );
+
+        return rows.map((row: any) => ({
+            id_historial: Number(row.id_historial),
+            id_atencion: Number(row.id_atencion),
+            id_usuario_modificador: Number(row.id_usuario_modificador),
+            modificador_nombre: row.modificador_nombre,
+            modificador_apellido: row.modificador_apellido,
+            fecha_modificacion: row.fecha_modificacion,
+            detalle_cambios: parsearDetalleCambios(row.detalle_cambios)
+        }));
+    }
+
+    private static async adjuntarRelaciones(
         atenciones: any[]
     ): Promise<AtencionClinicaResponseDTO[]> {
         if (atenciones.length === 0) {
@@ -263,10 +314,12 @@ export class ClinicalRepository {
         }
 
         const ids = atenciones.map((a) => Number(a.id_atencion));
-        const vacunas = await this.obtenerVacunasPorAtenciones(ids);
+        const [vacunas, modificaciones] = await Promise.all([
+            this.obtenerVacunasPorAtenciones(ids),
+            this.obtenerHistorialModificacionesPorAtenciones(ids)
+        ]);
 
         const mapaVacunas = new Map<number, VacunaAplicadaResponseDTO[]>();
-
         for (const vacuna of vacunas) {
             const idAtencion = Number(vacuna.id_atencion);
             const lista = mapaVacunas.get(idAtencion) || [];
@@ -274,9 +327,18 @@ export class ClinicalRepository {
             mapaVacunas.set(idAtencion, lista);
         }
 
+        const mapaHistorial = new Map<number, HistorialModificacionDTO[]>();
+        for (const mod of modificaciones) {
+            const idAtencion = Number(mod.id_atencion);
+            const lista = mapaHistorial.get(idAtencion) || [];
+            lista.push(mod);
+            mapaHistorial.set(idAtencion, lista);
+        }
+
         return atenciones.map((atencion) => ({
             ...atencion,
-            vacunas: mapaVacunas.get(Number(atencion.id_atencion)) || []
+            vacunas: mapaVacunas.get(Number(atencion.id_atencion)) || [],
+            historial_modificaciones: mapaHistorial.get(Number(atencion.id_atencion)) || []
         })) as AtencionClinicaResponseDTO[];
     }
 
@@ -318,7 +380,7 @@ export class ClinicalRepository {
             [idMascota]
         );
 
-        return this.adjuntarVacunas(rows);
+        return this.adjuntarRelaciones(rows);
     }
 
     static async obtenerPorId(
@@ -364,9 +426,9 @@ export class ClinicalRepository {
             return null;
         }
 
-        const [conVacunas] = await this.adjuntarVacunas(rows);
+        const [conRelaciones] = await this.adjuntarRelaciones(rows);
         return {
-            ...conVacunas,
+            ...conRelaciones,
             id_cliente: Number(rows[0].id_cliente)
         };
     }
@@ -446,7 +508,8 @@ export class ClinicalRepository {
     static async actualizar(
         idAtencion: number,
         datos: ActualizarAtencionClinicaDTO,
-        idUsuarioModificador: number
+        idUsuarioModificador: number,
+        detalleCambios: CambioCampoDTO[]
     ): Promise<boolean> {
         const camposAActualizar: string[] = [];
         const valores: any[] = [];
@@ -530,6 +593,18 @@ export class ClinicalRepository {
                         ]
                     );
                 }
+            }
+
+            if (detalleCambios.length > 0) {
+                await connection.query(
+                    `INSERT INTO AtencionClinicaHistorial (
+                        id_atencion,
+                        id_usuario_modificador,
+                        fecha_modificacion,
+                        detalle_cambios
+                    ) VALUES (?, ?, NOW(), ?)`,
+                    [idAtencion, idUsuarioModificador, JSON.stringify(detalleCambios)]
+                );
             }
 
             await connection.commit();
