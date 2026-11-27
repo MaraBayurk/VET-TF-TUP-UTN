@@ -173,7 +173,19 @@ Registro detallado de los productos biológicos administrados a un paciente. Per
 | lote | VARCHAR(80) | NULL | Número de trazabilidad del biológico. |
 | fecha_aplicacion | DATE | NOT NULL | Día específico en que ocurrió la aplicación. |
 | proxima_aplicacion | DATE | NULL | Fecha para la renovación o refuerzo de la vacuna, si procede. |
-| laboratorio | VARCHAR(120) | NULL | Información del fabricante. |
+| laboratorio | VARCHAR(120) | NOT NULL | Información del fabricante (obligatorio para garantizar trazabilidad sanitaria). |
+
+### Tabla: AtencionClinicaHistorial
+
+Registro completo de auditoría para todas las modificaciones efectuadas sobre una atención clínica, garantizando la trazabilidad histórica campo por campo.
+
+| Campo | Tipo de dato | Restricciones | Descripción |
+|---|---|---|---|
+| id_historial | INT UNSIGNED | PK, AUTO_INCREMENT | Identificador único del evento de modificación. |
+| id_atencion | INT UNSIGNED | FK, NOT NULL | Referencia a la atención clínica modificada en la tabla AtencionClinica (relación 1 a N, ON DELETE CASCADE). |
+| id_usuario_modificador | INT UNSIGNED | FK, NOT NULL | Identificador del usuario que realizó la edición (tabla Usuario). |
+| fecha_modificacion | DATETIME | NOT NULL, DEFAULT CURRENT_TIMESTAMP | Fecha y hora exacta en que se efectuó la modificación. |
+| detalle_cambios | JSON | NOT NULL | Arreglo estructurado con el detalle de cada campo modificado (`campo`, valor `anterior` y valor `nuevo`). |
 
 ---
 
@@ -183,8 +195,9 @@ Registro detallado de los productos biológicos administrados a un paciente. Per
 - Las claves foráneas mantienen la integridad referencial entre las entidades del sistema.
 - Los campos de tipo `DATETIME` almacenan fechas y horas, mientras que los campos `DATE` almacenan únicamente fechas.
 - Los campos de tipo `VARCHAR` almacenan cadenas de caracteres de longitud variable, mientras que `TEXT` permite almacenar textos más extensos.
+- Los campos de tipo `JSON` permiten almacenar estructuras flexibles de auditoría, como el detalle campo por campo de cada modificación en `AtencionClinicaHistorial`.
 - Los campos de tipo `TINYINT(1)` se utilizan para representar valores booleanos, como el estado activo o inactivo de un registro.
-- Las bajas de usuarios y mascotas se gestionan mediante campos de estado, permitiendo conservar los registros históricos.
+- Las bajas de usuarios, mascotas y atenciones clínicas se gestionan mediante campos de estado (`activo`), permitiendo conservar los registros históricos y la trazabilidad médica.
 
 ## Persistencia
 
